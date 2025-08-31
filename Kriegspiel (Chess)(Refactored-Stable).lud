@@ -903,7 +903,7 @@
             (if (is In (from) (sites Start (piece (what at:(from)))))
                 "AttemptDoubleStep"
             )
-            "AttemptCaptureForwardDiagonal"
+            (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
             "EnPassant"
         })
     )

@@ -1104,8 +1104,8 @@
             (if (is In (from) (sites Start (piece (what at:(from)))))
                 "AttemptDoubleStep"
             )
-            "AttemptCaptureForwardDiagonal"
-            "EnPassant" // En passant requires special handling already implemented
+            (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
+            "EnPassant"
         })
     )
 )
