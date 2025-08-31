@@ -21,7 +21,7 @@ This is the **stable, fully playable, and recommended version** for all users. I
 *   **Guided User Interface:** The original version allowed players to attempt a move from any of their pieces to any of the 64 squares not occupied by friendly pieces, leaving a vast number of geometrically and logically impossible moves. This refactored version introduces a "guided" UI that **pre-filters moves**, only presenting the player with geometrically plausible and contextually valid options. Some specific improvements include:
 
     *   **Sliding Pieces (Rook, Bishop, Queen):** The UI now highlights a clear path. This path extends along valid lines (orthogonal/diagonal) and stops at the first piece encountered. The UI does not allow selecting squares occupied by friendly pieces or beyond the first encountered.
-    *   **Pawns:** The UI is context-aware. The initial two-square advance is **only offered as an option for pawns on their starting rank**.
+    *   **Pawns:** The UI is context-aware. The initial two-square advance is **only offered as an option for pawns on their starting rank**. Additionally, diagonal pawn captures are **only shown when capture attempts are available for that turn** (as indicated by the umpire); otherwise, those capture options are hidden.
     *   **Castling Handling:** The UI displays castling as a distinct two-square King move. This option is **only made available to the player when all preconditions are met**: neither the King nor the chosen Rook has moved, the squares between them are empty, and the King does not pass through or land on a square under attack.
 
 *   **Complete Draw Rules:** This version correctly implements the **draw by insufficient material** rule. This includes:
@@ -60,3 +60,7 @@ This is the original, unmodified Kriegspiel game file as found in the official L
 2.  Launch the Ludii application.
 3.  Navigate to `File > Load Game from File (CTRL+F)` and select the downloaded `.lud` file.
 4.  Enjoy the game!
+
+**UI Tips in Ludii:**
+-  Highlight legal moves for the selected piece: `View > Show Legal Moves` (`Alt+M`).
+-  Show the last attempted move: `View > Show Last Move` (`Alt+L`).
