@@ -2,17 +2,17 @@
 
 While Ludii's original implementation of Kriegspiel correctly models the game's core rules of umpire arbitration, its unconstrained design poses a significant challenge for artificial intelligence. The model presents the AI with a raw action space, allowing it to explore and attempt moves that are geometrically impossible (e.g., a Rook moving diagonally).
 
-This is highly inefficient for any search algorithm. The AI wastes valuable computational resources evaluating moves that a human player would instantly recognize as irrational. Furthermore, a rational player would not repeatedly attempt the same illegal move after it has been rejected by the umpire within the same turn. This behavior, common in the default AI, often leads to games ending in draws by the 50-move limit.
+This is highly inefficient for any search algorithm. The AI wastes valuable computational resources evaluating moves that a human player would instantly recognize as irrational. Furthermore, a rational player would not repeatedly attempt the same illegal move after it has been rejected by the umpire within the same turn.
 
 This project refactors Kriegspiel to address these issues by creating a **guided interface** that pre-filters the action space. By only presenting geometrically valid moves, we align the AI's decision-making process more closely with rational human play.
 
-The impact of this change is significant. This refactoring has already enabled a subset of MCTS-based agents—specifically Bandit Tree Search (Avg), EPT, and EPT-QB—to produce meaningful, **non-zero value estimates**, a critical step toward developing truly competitive Kriegspiel agents.
+The impact of this change is significant, now games finish dramatically faster without wasted retries. This refactoring has also enabled a subset of MCTS-based agents—specifically Bandit Tree Search (Avg), EPT, and EPT-QB—to produce meaningful, **non-zero value estimates**, a critical step toward developing truly competitive Kriegspiel agents.
 
 ## Game Versions
 
 You will find three `.lud` files in this repository, each representing a different stage of development.
 
-### 1. `Kriegspiel (Chess)(Refactored-Stable).lud` - ✅ **Recommended Version**
+### 1. `KriegspielNHN (Chess).lud` (No Hell No attemps variant)
 
 This is the **stable, fully playable, and recommended version** for all users. It offers a superior gameplay experience compared to the original game file.
 
@@ -28,27 +28,14 @@ This is the **stable, fully playable, and recommended version** for all users. I
     *   King vs. King
     *   King vs. King + Bishop
     *   King vs. King + Knight
-    *   King + Bishop vs. King + Bishop (where bishops are on same-colored squares).
+    *   King + Bishop vs. King + Bishop
 
-**Limitation:** A player can still attempt the same geometrically valid but illegal move multiple times in a single turn (e.g., trying to capture with a pawn on an empty square). This version does not prevent this.
-
-### 2. `Kriegspiel (Chess)(Refactored-Unstable-Blacklist).lud` - ⚠️ **Experimental**
-
-This is an **unstable, experimental version intended for debugging and development purposes only**. It is **not recommended for gameplay**.
-
-This version builds upon the `Refactored-Stable` file by introducing a "blacklist" system to track illegal move attempts.
-
-**Intended Functionality:**
--   When a player attempts a move that is declared "Illegal" by the umpire, that specific move (e.g., A2 to B3) is added to a temporary blacklist for the current player's turn.
+*   **"blacklist" system**
+-   When a player attempts a move that is declared "Illegal" by the umpire, that specific move is added to a temporary blacklist for the current player's turn.
 -   The UI should then dynamically filter its move generation, hiding the blacklisted move from the player's options.
 -   This list is cleared after a successful legal move, as the game state change may render previously illegal moves valid.
 
-**Known Issue:**
-This feature is currently not fully functional due to a bug in the state and expression evaluation. When an illegal move is attempted, the `(remember Value ...)` function fails to store the correct ID of the failed move. Instead, it often stores an incorrect value, a stale value from a previous attempt, or `-1`. This makes the blacklist ineffective and prevents the UI from correctly filtering moves.
-
-> **Note for Developers:** This file contains extensive (but commented-out) debug logging macros (`DebugLegalMove`) used to diagnose this issue. It serves as the primary test case for the bug report submitted to the Ludii development team. For more information, please refer to the related [GitHub Issue](https://github.com/Ludeme/Ludii/issues/35).
-
-### 3. `Kriegspiel (Chess).lud` -  archive **Legacy Version**
+### 2. `Kriegspiel (Chess).lud` -  archive **Legacy Version**
 
 This is the original, unmodified Kriegspiel game file as found in the official Ludii library. It is included for reference and comparison purposes.
 
@@ -56,7 +43,7 @@ This is the original, unmodified Kriegspiel game file as found in the official L
 
 ## How to Play
 
-1.  Download the desired `.lud` game file from this repository. For the best experience, choose **`Kriegspiel (Refactored-Stable).lud`**.
+1.  Download the desired `.lud` game file from this repository. For the best experience, choose **`KriegspielNHN (Chess).lud`**.
 2.  Launch the Ludii application.
 3.  Navigate to `File > Load Game from File (CTRL+F)` and select the downloaded `.lud` file.
 4.  Enjoy the game!

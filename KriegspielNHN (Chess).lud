@@ -1,10 +1,3 @@
-//------------------------------------------------------------------------------
-// Project Title: Refactoring Kriegspiel for a Constrained and AI-Ready User Interface
-// Objective: Modify the game for a geometrically constrained user interface,
-// while maintaining the imperfect information arbitration logic.
-// Modification Author: Fabio Chiarini
-//------------------------------------------------------------------------------
-
 (define "NextCanNotMove"
     (not
         (can Move
@@ -15,15 +8,12 @@
         )
     )
 )
-
 (define "HasNeverMoved"
     (= (state at:(mapEntry #1 (mover))) 1)
 )
-
 (define "PieceHasMoved"
     (set State at:#1 0)
 )
-
 (define "NoteCapture"
     (and {
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
@@ -156,32 +146,27 @@
         (if (and (= (#1)(coord:"H8")) (> (#2) 2)) (note "Piece at H8 captured"))
     })
 )
-
 (define "KingGravitatesToMainDiagonal"
     (or
         (and (< (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
         (and (>= (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
     )
 )
-
 (define "KingGravitatesToAntiDiagonal"
     (or
         (and (< (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
         (and (>= (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
     )
 )
-
 (define "PawnDiagonalCheck"
     (= (what at: (ahead (where "King" #1) steps:1 #3)) (mapEntry "Pawn" #2))
 )
-
 (define "DiagonalCheck"
     (or
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) #3) index: 0)) (mapEntry "Queen" #2))
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) #3) index: 0)) (mapEntry "Bishop" #2))
     )
 )
-
 (define "FileCheck"
     (or {
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) N) index: 0)) (mapEntry "Queen" #2))
@@ -190,7 +175,6 @@
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) S) index: 0)) (mapEntry "Rook" #2))
     })
 )
-
 (define "RankCheck"
     (or {
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) E) index: 0)) (mapEntry "Queen" #2))
@@ -199,7 +183,6 @@
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) W) index: 0)) (mapEntry "Rook" #2))
     })
 )
-
 (define "KnightCheck"
     (and {
         (= (mapEntry "Knight" #2) (what at:(ahead (ahead (where "King" #1) steps:2 #3) steps:1 #4)))
@@ -207,7 +190,6 @@
         (!= (where "King" #1) (ahead (where "King" #1) steps:2 #3))
     })
 )
-
 (define "CheckType"
     (and {
         (if
@@ -279,7 +261,6 @@
         )
     })
 )
-
 (define "KingNextToOpposingKing"
     (or {
         (= (ahead (where "King" #1) steps:1 N) (where "King" #2))
@@ -292,7 +273,6 @@
         (= (ahead (where "King" #1) steps:1 SW) (where "King" #2))
     })
 )
-
 (define "KingInCheck"
     (or {
         (or
@@ -336,7 +316,6 @@
         ("KingNextToOpposingKing" #1 #2)
     })
 )
-
 (define "CanPawnCapture"
     (and {
         (is Friend (who at:(ahead (value) #1)))
@@ -348,7 +327,6 @@
         )
     })
 )
-
 (define "CountTries"
     (and {
         (set Score Next 0)
@@ -368,7 +346,6 @@
         )
     })
 )
-
 (define "SafePassingLocation"
     (and
         (is Empty (#1))
@@ -383,7 +360,6 @@
         )
     )
 )
-
 (define "KnightMovement"
     (and {
         (= (last To) (ahead (ahead (last From) steps:2 #1) steps:1 #2))
@@ -391,32 +367,34 @@
         (!= (last From) (ahead (last From) steps:2 #1))
     })
 )
-
 (define "OrthogonalMovement"
-    (= (regionSite (sites LineOfSight Piece at:(last To) N) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) S) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) W) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) E) index: 0) (last From))
+    (or {
+        (= (regionSite (sites LineOfSight Piece at:(last To) N) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) S) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) W) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) E) index: 0) (last From))
+    })
 )
-
 (define "DiagonalMovement"
-    (= (regionSite (sites LineOfSight Piece at:(last To) NE) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) NW) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) SE) index: 0) (last From))
-    (= (regionSite (sites LineOfSight Piece at:(last To) SW) index: 0) (last From))
+    (or {
+        (= (regionSite (sites LineOfSight Piece at:(last To) NE) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) NW) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) SE) index: 0) (last From))
+        (= (regionSite (sites LineOfSight Piece at:(last To) SW) index: 0) (last From))
+    })
 )
-
 (define "KingMovement"
-    (= (ahead (last From) steps:1 N) (last To))
-    (= (ahead (last From) steps:1 S) (last To))
-    (= (ahead (last From) steps:1 E) (last To))
-    (= (ahead (last From) steps:1 W) (last To))
-    (= (ahead (last From) steps:1 NE) (last To))
-    (= (ahead (last From) steps:1 NW) (last To))
-    (= (ahead (last From) steps:1 SE) (last To))
-    (= (ahead (last From) steps:1 SW) (last To))
+    (or {
+        (= (ahead (last From) steps:1 N) (last To))
+        (= (ahead (last From) steps:1 S) (last To))
+        (= (ahead (last From) steps:1 E) (last To))
+        (= (ahead (last From) steps:1 W) (last To))
+        (= (ahead (last From) steps:1 NE) (last To))
+        (= (ahead (last From) steps:1 NW) (last To))
+        (= (ahead (last From) steps:1 SE) (last To))
+        (= (ahead (last From) steps:1 SW) (last To))
+    })
 )
-
 (define "DecideToCastle"
     (and {
         (= (ahead (last From) steps:#1 #2) (last To))
@@ -426,14 +404,12 @@
         (is Empty (last To))
     })
 )
-
 (define "PawnStep"
     (and
         (= (last To) (ahead (last From) steps: 1 Forward))
         (is Empty (last To))
     )
 )
-
 (define "InitialPawnMove"
     (and {
         (= (last To) (ahead (last From) steps: 2 Forward))
@@ -445,7 +421,6 @@
         )
     })
 )
-
 (define "MoveForwardDiagonal"
     (and {
         (or
@@ -458,15 +433,12 @@
         )
     })
 )
-
-(define "IsMovingPiece" 
+(define "IsMovingPiece"
     (= (what at: (last From)) (mapEntry #1 Mover))
 )
-
 (define "MovingTheKing"
     (= (last From) (where "King" Mover))
 )
-
 (define "LegalMove"
     (and
         (can Move
@@ -534,7 +506,6 @@
         })
     )
 )
-
 (define "CommonPostMoveActions"
     (if ("KingInCheck" (next) (mover))
         "CheckType"
@@ -542,17 +513,78 @@
     (if (and ("KingInCheck" (next) (mover)) ("NextCanNotMove"))
         (set Var "NextLost" 1)
     )
-    (if (or (and (not ("KingInCheck" (next) (mover))) ("NextCanNotMove")) (= (counter) 99))
-        (set Var "DrawCondition" 1)
+    (if (= (var "DrawCondition") 0)
+        (if (not ("KingInCheck" (next) (mover)))
+            (if ("NextCanNotMove")
+                (and {
+                    (set Var "DrawReason" 1)
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by stalemate")
+                })
+            )
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if (= (counter) 99)
+            (and {
+                (set Var "DrawReason" 2)
+                (set Var "DrawCondition" 1)
+                (note "Draw by fifty-move rule")
+            })
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if "OnlyKingsRemaining"
+            (and {
+                (set Var "DrawReason" 3)
+                (set Var "DrawCondition" 1)
+                (note "Draw by insufficient material: kings only")
+            })
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if "KingVsKingAndSingleBishop"
+            (and {
+                (set Var "DrawReason" 4)
+                (set Var "DrawCondition" 1)
+                (note "Draw by insufficient material: king and bishop vs king")
+            })
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if "KingVsKingAndSingleKnight"
+            (and {
+                (set Var "DrawReason" 5)
+                (set Var "DrawCondition" 1)
+                (note "Draw by insufficient material: king and knight vs king")
+            })
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if "KingsAndBishopsSameColor"
+            (and {
+                (set Var "DrawReason" 6)
+                (set Var "DrawCondition" 1)
+                (note "Draw by insufficient material: same-color bishops")
+            })
+        )
+    )
+    (if (= (var "DrawCondition") 0)
+        (if "KingsAndBishopsOppositeColor"
+            (and {
+                (set Var "DrawReason" 7)
+                (set Var "DrawCondition" 1)
+                (note "Draw by insufficient material: opposite-color bishops")
+            })
+        )
     )
     "CountTries"
+    ("ResetIllegalMovesList")
 )
-
 (define "SetEnPassantLocation"
     (set Var "EnPassantLocation" (ahead (last To) Backward))
     (set Pending (ahead (last To) Backward))
 )
-
 (define "CountEnPassantTries"
     (if (= (what at: (ahead (last To) Rightward)) (next))
         (addScore Next 1)
@@ -561,7 +593,6 @@
         (addScore Next 1)
     )
 )
-
 (define "PerformLegalMove"
     (or {
         (if (and ("IsMovingPiece" "Pawn") ("PawnStep"))
@@ -581,7 +612,7 @@
             )
         )
         (if (and ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To))))
-            (and
+            (and {
                 (set Var "CapturedPiece" (what at:(last To)))
                 (move
                     (from (last From))
@@ -598,7 +629,7 @@
                         })
                     )
                 )
-            )
+            })
         )
         (if (and ("IsMovingPiece" "Pawn") (= (last To) (var "EnPassantLocation")))
             (move
@@ -745,23 +776,12 @@
         )
     })
 )
-
-(define "DoubleStep"
-    (move
-        Slide
-        Forward
-        (between (exact 2) if:(is Empty (between)))
-        (to if:(is Empty (to)))
-    )
-)
-
 (define "InLocationEnPassant"
     (and
         (is Pending)
         (= (to) (value Pending))
     )
 )
-
 (define "EnPassant"
     (move
         Step
@@ -774,7 +794,6 @@
         )
     )
 )
-
 (define "CaptureForwardDiagonal"
     (move
         Step
@@ -787,29 +806,24 @@
         )
     )
 )
-
 (define "PromotionCondition"
     (and
         (is In (last To) (sites Mover "Promotion"))
         (= (what at: (last To)) (mapEntry "Pawn" Mover))
     )
 )
-
-(define "AttemptStepForward" 
+(define "AttemptStepForward"
     (move Step (directions Forward) (to if:(not (is Friend (who at:(to))))))
 )
-
-(define "AttemptDoubleStep" 
+(define "AttemptDoubleStep"
     (move Slide (directions Forward) (between (exact 2)) (to if:(not (is Friend (who at:(to))))))
 )
-
-(define "AttemptCaptureForwardDiagonal" 
+(define "AttemptCaptureForwardDiagonal"
     (move Step (directions {FR FL}) (to if:(not (is Friend (who at:(to))))))
 )
-
 (define "AttemptSlide"
     (move Select
-        (from (from)) 
+        (from (from))
         (to
             (sites Direction
                 from:(from)
@@ -821,51 +835,34 @@
         )
     )
 )
-
-(define "GenerateValidMoves"
-    (move Select
-        (from (sites Occupied by:Mover))
-        (to (sites To
-                (do (forEach Piece)
-                    ifAfterwards:(= (from) (last From))
-                )
-            )
-        )
-    )
-)
-
 (define "KriegspielRook"
-    (piece "Rook" Each 
+    (piece "Rook" Each
         ("AttemptSlide" Orthogonal)
     )
 )
-
 (define "KriegspielBishop"
     (piece "Bishop" Each
         ("AttemptSlide" Diagonal)
     )
 )
-
 (define "KriegspielQueen"
     (piece "Queen" Each
         ("AttemptSlide" (union Orthogonal Diagonal))
     )
 )
-
 (define "KriegspielKnight"
-    (piece "Knight" Each 
+    (piece "Knight" Each
         (move Leap "KnightWalk" (to if:(not (is Friend (who at:(to))))))
     )
 )
-
 (define "KriegspielKing"
     (piece "King" Each
         (or {
-            (move Step All 
+            (move Step All
                 (to if:(not (is Friend (who at:(to))))))
             (if (= (from) (where "King" Mover))
                 (or {
-                    (if 
+                    (if
                         (and {
                             ("HasNeverMoved" "King")
                             ("HasNeverMoved" "RookLeft")
@@ -878,7 +875,7 @@
                             (to (ahead (from) steps:2 W))
                         )
                     )
-                    (if 
+                    (if
                         (and {
                             ("HasNeverMoved" "King")
                             ("HasNeverMoved" "RookRight")
@@ -895,7 +892,6 @@
         })
     )
 )
-
 (define "KriegspielPawn"
     (piece "Pawn" Each
         (or {
@@ -908,66 +904,175 @@
         })
     )
 )
-
-(define "InsufficientMaterial"
-    (or {
-        (and {
-            (= (count Pieces) 2)
-            (= (count Pieces "King") 2)
-        })
-        (and {
-            (= (count Pieces) 3)
-            (= (count Pieces "King") 2)
-            (= (count Pieces "Bishop") 1)
-        })
-        (and {
-            (= (count Pieces) 3)
-            (= (count Pieces "King") 2)
-            (= (count Pieces "Knight") 1)
-        })
-        (and {
-            (= (count Pieces) 4)
-            (= (count Pieces "King") 2)
-            ("BishopsOnSameColor")
-        })
+(define "OnlyKingsRemaining"
+    (and {
+        (= (count Pieces) 2)
+        (= (count Pieces "King") 2)
     })
 )
-
-(define "BishopsOnSameColor"
-    (and
+(define "KingVsKingAndSingleBishop"
+    (and {
+        (= (count Pieces) 3)
+        (= (count Pieces "King") 2)
+        (= (count Pieces "Bishop") 1)
+    })
+)
+(define "KingVsKingAndSingleKnight"
+    (and {
+        (= (count Pieces) 3)
+        (= (count Pieces "King") 2)
+        (= (count Pieces "Knight") 1)
+    })
+)
+(define "KingsAndBishopsPerSide"
+    (and {
+        (= (count Pieces) 4)
+        (= (count Pieces "King") 2)
         (= (count Pieces "Bishop") 2)
-        (= 
+        (= (count Pieces P1 "Bishop") 1)
+        (= (count Pieces P2 "Bishop") 1)
+    })
+)
+(define "KingsAndBishopsSameColor"
+    (and {
+        "KingsAndBishopsPerSide"
+        (=
             (mod
                 (+
-                    (row of:(regionSite (sites Occupied by:All component:"Bishop") index:0))
-                    (column of:(regionSite (sites Occupied by:All component:"Bishop") index:0))
+                    (row of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
+                    (column of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
                 )
                 2
             )
             (mod
                 (+
-                    (row of:(regionSite (sites Occupied by:All component:"Bishop") index:1))
-                    (column of:(regionSite (sites Occupied by:All component:"Bishop") index:1))
+                    (row of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
+                    (column of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
                 )
                 2
             )
         )
+    })
+)
+(define "KingsAndBishopsOppositeColor"
+    (and {
+        "KingsAndBishopsPerSide"
+        (!=
+            (mod
+                (+
+                    (row of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
+                    (column of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
+                )
+                2
+            )
+            (mod
+                (+
+                    (row of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
+                    (column of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
+                )
+                2
+            )
+        )
+    })
+)
+(define "InsufficientMaterial"
+    (or {
+        "OnlyKingsRemaining"
+        "KingVsKingAndSingleBishop"
+        "KingVsKingAndSingleKnight"
+        "KingsAndBishopsSameColor"
+        "KingsAndBishopsOppositeColor"
+    })
+)
+(define "ResetIllegalMovesList"
+    (and {
+        (forget Value "IllegalMovesP1" All)
+        (forget Value "IllegalMovesP2" All)
+    })
+)
+(define "CacheAttemptedMove"
+    (and {
+        (set Var "AttemptedMoveFrom"
+            (if (>= (last From) 0)
+                (last From)
+                (var "AttemptedMoveFrom")
+            )
+        )
+        (set Var "AttemptedMoveTo"
+            (if (>= (last To) 0)
+                (last To)
+                (var "AttemptedMoveTo")
+            )
+        )
+        (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
+            (set Var "AttemptedMoveHash" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")))
+            (set Var "AttemptedMoveHash" -1)
+        )
+    })
+)
+(define "RememberIllegalMove"
+    (and {
+        (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
+            (and {
+                (if (= (mover) 1)
+                    (remember Value "IllegalMovesP1" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
+                )
+                (if (= (mover) 2)
+                    (remember Value "IllegalMovesP2" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
+                )
+            })
+        )
+    })
+)
+(define "GenerateValidMoves"
+    (move Select
+        (from (sites Occupied by:Mover))
+        (to
+            (sites To
+                (do
+                    (forEach Piece)
+                    ifAfterwards:(and {
+                        (= (from) (last From))
+                        (if (= (mover) 1)
+                            (not
+                                (is In
+                                    (+ (* (from) 100) (last To))
+                                    (values Remembered "IllegalMovesP1")
+                                )
+                            )
+                            (not
+                                (is In
+                                    (+ (* (from) 100) (last To))
+                                    (values Remembered "IllegalMovesP2")
+                                )
+                            )
+                        )
+                    })
+                )
+            )
+        )
+        (then
+            (and {
+                (set Var "AttemptedMoveFrom" (last From))
+                (set Var "AttemptedMoveTo" (last To))
+                (if (and (>= (last From) 0) (>= (last To) 0))
+                    (set Var "AttemptedMoveHash" (+ (* (last From) 100) (last To)))
+                    (set Var "AttemptedMoveHash" -1)
+                )
+            })
+        )
     )
 )
-//------------------------------------------------------------------------------
-
-(game "Kriegspiel (Refactored)"
+(game "Kriegspiel (Chess)"
     (players {(player N) (player S)})
     (equipment {
         (board (square 8))
-
         ("KriegspielPawn")
         ("KriegspielRook")
         ("KriegspielKing")
         ("KriegspielBishop")
         ("KriegspielKnight")
         ("KriegspielQueen")
-    
         (map "King" {(pair 1 "E1") (pair 2 "E8")})
         (map "Queen" {(pair 1 11) (pair 2 12)})
         (map "Rook" {(pair 1 3) (pair 2 4)})
@@ -982,10 +1087,17 @@
     (rules
         (start {
             (place "Pawn1" (sites Row 1))
+            (place "Rook1" {"A1" "H1"} state:1)
+            (place "Knight1" {"B1" "G1"})
+            (place "Bishop1" {"C1" "F1"})
+            (place "Queen1" coord:"D1")
+            (place "King1" coord:"E1" state:1)
             (place "Pawn2" (sites Row 6))
-            (place "Rook1" {"A1" "H1"} state:1) (place "Knight1" {"B1" "G1"}) (place "Bishop1" {"C1" "F1"}) (place "Queen1" coord:"D1") (place "King1" coord:"E1" state:1)
-            (place "Rook2" {"A8" "H8"} state:1) (place "Knight2" {"B8" "G8"}) (place "Bishop2" {"C8" "F8"}) (place "Queen2" coord:"D8") (place "King2" coord:"E8" state:1)
-            
+            (place "Rook2" {"A8" "H8"} state:1)
+            (place "Knight2" {"B8" "G8"})
+            (place "Bishop2" {"C8" "F8"})
+            (place "Queen2" coord:"D8")
+            (place "King2" coord:"E8" state:1)
             (set Hidden (sites Occupied by: Mover) to:Next)
             (set Hidden (sites Occupied by: Next) to:Mover)
         })
@@ -993,14 +1105,14 @@
             (and
                 (if "PromotionCondition"
                     (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
-                        (then 
+                        (then
                             (and {
                                 ("CommonPostMoveActions")
                             })
                         )
                     )
                 )
-                (if 
+                (if
                     (or
                         ("NewTurn")
                         (not "PromotionCondition")
@@ -1010,13 +1122,22 @@
                         (and {
                             (set Var "NextLost" 0)
                             (set Var "DrawCondition" 0)
+                            (set Var "DrawReason" 0)
+                            (set Var "AttemptedMoveFrom" -1)
+                            (set Var "AttemptedMoveTo" -1)
+                            (set Var "AttemptedMoveHash" -1)
                             (priority
                                 (if "LegalMove"
-                                    "PerformLegalMove"
+                                    (and {
+                                        ("CacheAttemptedMove")
+                                        "PerformLegalMove"
+                                    })
                                 )
                                 (and {
+                                    ("CacheAttemptedMove")
                                     (note "Illegal move")
                                     (moveAgain)
+                                    ("RememberIllegalMove")
                                 })
                             )
                         })
@@ -1026,7 +1147,7 @@
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
-            (if 
+            (if
                 (or {
                     (= (var "DrawCondition") 1)
                     ("InsufficientMaterial")
@@ -1036,11 +1157,10 @@
         })
     )
 )
-
 (metadata
     (info
         {
-        (description "In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information. This version has been refactored to provide a constrained UI, where only geometrically valid moves can be attempted.")
+        (description "In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information. This implementation suppresses any move that fails feasibility checks, so 'Hell no' announcements for impossible attempts never occur and the agents explore a tighter decision space.")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
             The umpire announces:
@@ -1054,15 +1174,16 @@
             -'Short-diagonal check'.
             -'Knight check'.
             -'(number)  tries' (number of legal capturing moves using pawns).
-            -'Checkmate', 'stalemate', 'draw by repetition', 'draw by insufficient force', '50-move draw'.
+            -'Checkmate', 'stalemate', 'draw by insufficient force', '50-move draw'. (Draw by repetition is intentionally excluded in this version.)
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
-        Illegal move attempts are not announced to the opponent.")
+            Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries."
+        )
         (id "4185")
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
-        (version "2.4.0")
+        (version "1.3.14")
         (classification "board/war/replacement/checkmate/chess")
         (author "Henry Michael Temple")
-        (credit "Nikola Novarlic")
+        (credit "Nikola Novarlic & Fabio Chiarini")
         (date "1899")
         }
     )
