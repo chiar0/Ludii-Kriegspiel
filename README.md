@@ -30,10 +30,10 @@ This is the **stable, fully playable, and recommended version** for all users. I
     *   King vs. King + Knight
     *   King + Bishop vs. King + Bishop
 
-*   **"blacklist" system**
--   When a player attempts a move that is declared "Illegal" by the umpire, that specific move is added to a temporary blacklist for the current player's turn.
--   The UI should then dynamically filter its move generation, hiding the blacklisted move from the player's options.
--   This list is cleared after a successful legal move, as the game state change may render previously illegal moves valid.
+*   **"Blacklist" System:**
+    *   When a player attempts a move that is declared "Illegal" by the umpire, that specific move is added to a temporary blacklist for the current player's turn.
+    *   The UI should then dynamically filter its move generation, hiding the blacklisted move from the player's options.
+    *   This list is cleared after a successful legal move, as the game state change may render previously illegal moves valid.
 
 ### 2. `Kriegspiel (Chess).lud` -  archive **Legacy Version**
 
