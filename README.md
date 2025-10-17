@@ -1,10 +1,10 @@
 # Kriegspiel Refactoring for Ludii
 
-While Ludii's original implementation of Kriegspiel correctly models the game's core rules of umpire arbitration, its unconstrained design poses a significant challenge for artificial intelligence. The model presents the AI with a raw action space, allowing it to explore and attempt moves that are geometrically impossible (e.g., a Rook moving diagonally).
+While Ludii's original implementation of Kriegspiel correctly models the game's core rules of umpire arbitration, its unconstrained design poses a significant challenge for artificial intelligence. The model presents the AI with a raw action space, allowing it to explore and attempt moves that are impossible (e.g., a Rook moving diagonally).
 
 This is highly inefficient for any search algorithm. The AI wastes valuable computational resources evaluating moves that a human player would instantly recognize as irrational. Furthermore, a rational player would not repeatedly attempt the same illegal move after it has been rejected by the umpire within the same turn.
 
-This project refactors Kriegspiel to address these issues by creating a **guided interface** that pre-filters the action space. By only presenting geometrically valid moves, we align the AI's decision-making process more closely with rational human play.
+This project refactors Kriegspiel to address these issues by creating a **guided interface** that pre-filters the action space. By only presenting valid moves, we align the AI's decision-making process more closely with rational human play.
 
 The impact of this change is significant, now games finish dramatically faster without wasted retries. This refactoring has also enabled a subset of MCTS-based agents—specifically Bandit Tree Search (Avg), EPT, and EPT-QB—to produce meaningful, **non-zero value estimates**, a critical step toward developing truly competitive Kriegspiel agents.
 
@@ -12,13 +12,13 @@ The impact of this change is significant, now games finish dramatically faster w
 
 You will find three `.lud` files in this repository, each representing a different stage of development.
 
-### 1. `KriegspielNHN (Chess).lud` (No Hell No attemps variant)
+### 1. `KriegspielNHN (Chess).lud` (No "Hell No" invalid attemps variant)
 
 This is the **stable, fully playable, and recommended version** for all users. It offers a superior gameplay experience compared to the original game file.
 
 **Key Features & Differences from the Original:**
 
-*   **Guided User Interface:** The original version allowed players to attempt a move from any of their pieces to any of the 64 squares not occupied by friendly pieces, leaving a vast number of geometrically and logically impossible moves. This refactored version introduces a "guided" UI that **pre-filters moves**, only presenting the player with geometrically plausible and contextually valid options. Some specific improvements include:
+*   **Guided User Interface:** The original version allowed players to attempt a move from any of their pieces to any of the 64 squares not occupied by friendly pieces, leaving a vast number of geometrically and logically impossible moves. This refactored version introduces a "guided" UI that **pre-filters moves**, only presenting the player with plausible and contextually valid options. Some specific improvements include:
 
     *   **Sliding Pieces (Rook, Bishop, Queen):** The UI now highlights a clear path. This path extends along valid lines (orthogonal/diagonal) and stops at the first piece encountered. The UI does not allow selecting squares occupied by friendly pieces or beyond the first encountered.
     *   **Pawns:** The UI is context-aware. The initial two-square advance is **only offered as an option for pawns on their starting rank**. Additionally, diagonal pawn captures are **only shown when capture attempts are available for that turn** (as indicated by the umpire); otherwise, those capture options are hidden.
@@ -32,8 +32,8 @@ This is the **stable, fully playable, and recommended version** for all users. I
 
 *   **"Blacklist" System:**
     *   When a player attempts a move that is declared "Illegal" by the umpire, that specific move is added to a temporary blacklist for the current player's turn.
-    *   The UI should then dynamically filter its move generation, hiding the blacklisted move from the player's options.
-    *   This list is cleared after a successful legal move, as the game state change may render previously illegal moves valid.
+    *   The UI then dynamically filter its move generation, hiding the blacklisted move from the player's options.
+    *   This list is cleared after a successful legal move.
 
 ### 2. `Kriegspiel (Chess).lud` -  archive **Legacy Version**
 
