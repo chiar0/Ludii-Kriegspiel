@@ -509,37 +509,29 @@
 (define "CommonPostMoveActions"
     (if ("KingInCheck" (next) (mover))
         (and {
-            (note "DEBUG: Switching to legacy equipment mode")
             (forget Value "EquipmentMode" All)
             (remember Value "EquipmentMode" 1)
-            //(note (values Remembered "EquipmentMode"))
             "CheckType"
             (if ("NextCanNotMove")
                 (and {
-                    (note "DEBUG: NextCanNotMove returned true - checkmate!")
                     (set Var "NextLost" 1)
                 })
             )
-            (note "DEBUG: Resetting to filtered equipment mode")
             (forget Value "EquipmentMode" All)
         })
     )
     (if (= (var "DrawCondition") 0)
         (if (not ("KingInCheck" (next) (mover)))
             (and {
-                (note "DEBUG: Switching to legacy equipment mode for stalemate check")
                 (forget Value "EquipmentMode" All)
                 (remember Value "EquipmentMode" 1)
-                //(note (values Remembered "EquipmentMode"))
                 (if ("NextCanNotMove")
                     (and {
-                        (note "DEBUG: NextCanNotMove returned true - stalemate!")
                         (set Var "DrawReason" 1)
                         (set Var "DrawCondition" 1)
                         (note "Draw by stalemate")
                     })
                 )
-                (note "DEBUG: Resetting to filtered equipment mode")
                 (forget Value "EquipmentMode" All)
             })
         )
