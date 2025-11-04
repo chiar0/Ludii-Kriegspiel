@@ -508,20 +508,40 @@
 )
 (define "CommonPostMoveActions"
     (if ("KingInCheck" (next) (mover))
-        "CheckType"
-    )
-    (if (and ("KingInCheck" (next) (mover)) ("NextCanNotMove"))
-        (set Var "NextLost" 1)
+        (and {
+            (note "DEBUG: Switching to legacy equipment mode")
+            (forget Value "EquipmentMode" All)
+            (remember Value "EquipmentMode" 1)
+            //(note (values Remembered "EquipmentMode"))
+            "CheckType"
+            (if ("NextCanNotMove")
+                (and {
+                    (note "DEBUG: NextCanNotMove returned true - checkmate!")
+                    (set Var "NextLost" 1)
+                })
+            )
+            (note "DEBUG: Resetting to filtered equipment mode")
+            (forget Value "EquipmentMode" All)
+        })
     )
     (if (= (var "DrawCondition") 0)
         (if (not ("KingInCheck" (next) (mover)))
-            (if ("NextCanNotMove")
-                (and {
-                    (set Var "DrawReason" 1)
-                    (set Var "DrawCondition" 1)
-                    (note "Draw by stalemate")
-                })
-            )
+            (and {
+                (note "DEBUG: Switching to legacy equipment mode for stalemate check")
+                (forget Value "EquipmentMode" All)
+                (remember Value "EquipmentMode" 1)
+                //(note (values Remembered "EquipmentMode"))
+                (if ("NextCanNotMove")
+                    (and {
+                        (note "DEBUG: NextCanNotMove returned true - stalemate!")
+                        (set Var "DrawReason" 1)
+                        (set Var "DrawCondition" 1)
+                        (note "Draw by stalemate")
+                    })
+                )
+                (note "DEBUG: Resetting to filtered equipment mode")
+                (forget Value "EquipmentMode" All)
+            })
         )
     )
     (if (= (var "DrawCondition") 0)
@@ -815,6 +835,9 @@
 (define "AttemptStepForward"
     (move Step (directions Forward) (to if:(not (is Friend (who at:(to))))))
 )
+(define "DoubleStep"
+    (move Slide (directions Forward) (between (exact 2)) (to if:(is Empty (to))))
+)
 (define "AttemptDoubleStep"
     (move Slide (directions Forward) (between (exact 2)) (to if:(not (is Friend (who at:(to))))))
 )
@@ -835,75 +858,93 @@
         )
     )
 )
+
+// ========== CONDITIONAL MOVE DEFINITIONS ==========
+
+(define "ConditionalRookMoves"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        ("AttemptSlide" Orthogonal)
+        (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+    )
+)
+
+(define "ConditionalBishopMoves"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        ("AttemptSlide" Diagonal)
+        (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+    )
+)
+
+(define "ConditionalQueenMoves"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        ("AttemptSlide" (union Orthogonal Diagonal))
+        (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+    )
+)
+
+(define "ConditionalPawnMoves"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        // CURRENT MODE
+        (or {
+            "AttemptStepForward"
+            (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStep")
+            (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
+            "EnPassant"
+        })
+        // LEGACY MODE
+        (or {
+            "StepForwardToEmpty"
+            (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStep")
+            ("StepToEnemy" (directions {FR FL}))
+            "EnPassant"
+        })
+    )
+)
+
+// ========== PIECE DEFINITIONS WITH CONDITIONAL MOVES ==========
+
 (define "KriegspielRook"
     (piece "Rook" Each
-        ("AttemptSlide" Orthogonal)
+        "ConditionalRookMoves"
     )
 )
+
 (define "KriegspielBishop"
     (piece "Bishop" Each
-        ("AttemptSlide" Diagonal)
+        "ConditionalBishopMoves"
     )
 )
+
 (define "KriegspielQueen"
     (piece "Queen" Each
-        ("AttemptSlide" (union Orthogonal Diagonal))
+        "ConditionalQueenMoves"
     )
 )
-(define "KriegspielKnight"
-    (piece "Knight" Each
-        (move Leap "KnightWalk" (to if:(not (is Friend (who at:(to))))))
+
+(define "KriegspielPawn"
+    (piece "Pawn" Each
+        "ConditionalPawnMoves"
     )
 )
+
 (define "KriegspielKing"
     (piece "King" Each
         (or {
-            (move Step All
-                (to if:(not (is Friend (who at:(to))))))
+            (move Step All (to if:(not (is Friend (who at:(to)))) (apply (if (is Enemy (who at:(to))) (remove (to))))))
             (if (= (from) (where "King" Mover))
                 (or {
-                    (if
-                        (and {
-                            ("HasNeverMoved" "King")
-                            ("HasNeverMoved" "RookLeft")
-                            (is Empty (ahead (from) steps:1 W))
-                            (is Empty (ahead (from) steps:2 W))
-                            (is Empty (ahead (from) steps:3 W))
-                        })
-                        (move
-                            (from)
-                            (to (ahead (from) steps:2 W))
-                        )
+                    (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookLeft") (is Empty (ahead (from) steps:1 W)) (is Empty (ahead (from) steps:2 W)) (is Empty (ahead (from) steps:3 W)) })
+                        (move (from) (to (ahead (from) steps:2 W)))
                     )
-                    (if
-                        (and {
-                            ("HasNeverMoved" "King")
-                            ("HasNeverMoved" "RookRight")
-                            (is Empty (ahead (from) steps:1 E))
-                            (is Empty (ahead (from) steps:2 E))
-                        })
-                        (move
-                            (from)
-                            (to (ahead (from) steps:2 E))
-                        )
+                    (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookRight") (is Empty (ahead (from) steps:1 E)) (is Empty (ahead (from) steps:2 E)) })
+                        (move (from) (to (ahead (from) steps:2 E)))
                     )
                 })
             )
         })
     )
 )
-(define "KriegspielPawn"
-    (piece "Pawn" Each
-        (or {
-            "AttemptStepForward"
-            (if (is In (from) (sites Start (piece (what at:(from)))))
-                "AttemptDoubleStep"
-            )
-            (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
-            "EnPassant"
-        })
-    )
-)
+
 (define "OnlyKingsRemaining"
     (and {
         (= (count Pieces) 2)
@@ -1071,7 +1112,7 @@
         ("KriegspielRook")
         ("KriegspielKing")
         ("KriegspielBishop")
-        ("KriegspielKnight")
+        ("ChessKnight" "Knight")
         ("KriegspielQueen")
         (map "King" {(pair 1 "E1") (pair 2 "E8")})
         (map "Queen" {(pair 1 11) (pair 2 12)})
