@@ -8,6 +8,14 @@
         )
     )
 )
+(define "RememberEquipmentMode"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (remember Value "EquipmentMode" 1)
+    )
+)
+(define "ForgetEquipmentMode"
+    (forget Value "EquipmentMode" All)
+)
 (define "HasNeverMoved"
     (= (state at:(mapEntry #1 (mover))) 1)
 )
@@ -509,20 +517,17 @@
 (define "CommonPostMoveActions"
     (if ("KingInCheck" (next) (mover))
         (and {
-            (remember Value "EquipmentMode" 1)
             "CheckType"
             (if ("NextCanNotMove")
                 (and {
                     (set Var "NextLost" 1)
                 })
             )
-            (forget Value "EquipmentMode" All)
         })
     )
     (if (= (var "DrawCondition") 0)
         (if (not ("KingInCheck" (next) (mover)))
             (and {
-                (remember Value "EquipmentMode" 1)
                 (if ("NextCanNotMove")
                     (and {
                         (set Var "DrawReason" 1)
@@ -530,7 +535,6 @@
                         (note "Draw by stalemate")
                     })
                 )
-                (forget Value "EquipmentMode" All)
             })
         )
     )
@@ -590,7 +594,7 @@
     )
     "CountTries"
     ("ResetIllegalMovesList")
-    (forget Value "EquipmentMode" All)
+    ("ForgetEquipmentMode")
 )
 (define "SetEnPassantLocation"
     (set Var "EnPassantLocation" (ahead (last To) Backward))
@@ -1170,11 +1174,13 @@
                                 (if "LegalMove"
                                     (and {
                                         ("CacheAttemptedMove")
+                                        ("RememberEquipmentMode")
                                         "PerformLegalMove"
                                     })
                                 )
                                 (and {
                                     ("CacheAttemptedMove")
+                                    ("RememberEquipmentMode")
                                     (note "Illegal move")
                                     (moveAgain)
                                     ("RememberIllegalMove")
