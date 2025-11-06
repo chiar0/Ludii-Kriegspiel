@@ -8,20 +8,15 @@
         )
     )
 )
-(define "RememberEquipmentMode"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        (remember Value "EquipmentMode" 1)
-    )
-)
-(define "ForgetEquipmentMode"
-    (forget Value "EquipmentMode" All)
-)
+
 (define "HasNeverMoved"
     (= (state at:(mapEntry #1 (mover))) 1)
 )
+
 (define "PieceHasMoved"
     (set State at:#1 0)
 )
+
 (define "NoteCapture"
     (and {
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
@@ -154,27 +149,32 @@
         (if (and (= (#1)(coord:"H8")) (> (#2) 2)) (note "Piece at H8 captured"))
     })
 )
+
 (define "KingGravitatesToMainDiagonal"
     (or
         (and (< (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
         (and (>= (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
     )
 )
+
 (define "KingGravitatesToAntiDiagonal"
     (or
         (and (< (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
         (and (>= (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
     )
 )
+
 (define "PawnDiagonalCheck"
     (= (what at: (ahead (where "King" #1) steps:1 #3)) (mapEntry "Pawn" #2))
 )
+
 (define "DiagonalCheck"
     (or
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) #3) index: 0)) (mapEntry "Queen" #2))
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) #3) index: 0)) (mapEntry "Bishop" #2))
     )
 )
+
 (define "FileCheck"
     (or {
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) N) index: 0)) (mapEntry "Queen" #2))
@@ -183,6 +183,7 @@
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) S) index: 0)) (mapEntry "Rook" #2))
     })
 )
+
 (define "RankCheck"
     (or {
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) E) index: 0)) (mapEntry "Queen" #2))
@@ -191,6 +192,7 @@
         (= (what at:(regionSite (sites LineOfSight Piece at:(where "King" #1) W) index: 0)) (mapEntry "Rook" #2))
     })
 )
+
 (define "KnightCheck"
     (and {
         (= (mapEntry "Knight" #2) (what at:(ahead (ahead (where "King" #1) steps:2 #3) steps:1 #4)))
@@ -198,6 +200,7 @@
         (!= (where "King" #1) (ahead (where "King" #1) steps:2 #3))
     })
 )
+
 (define "CheckType"
     (and {
         (if
@@ -269,6 +272,7 @@
         )
     })
 )
+
 (define "KingNextToOpposingKing"
     (or {
         (= (ahead (where "King" #1) steps:1 N) (where "King" #2))
@@ -281,6 +285,7 @@
         (= (ahead (where "King" #1) steps:1 SW) (where "King" #2))
     })
 )
+
 (define "KingInCheck"
     (or {
         (or
@@ -324,6 +329,7 @@
         ("KingNextToOpposingKing" #1 #2)
     })
 )
+
 (define "CanPawnCapture"
     (and {
         (is Friend (who at:(ahead (value) #1)))
@@ -335,6 +341,7 @@
         )
     })
 )
+
 (define "CountTries"
     (and {
         (set Score Next 0)
@@ -354,6 +361,7 @@
         )
     })
 )
+
 (define "SafePassingLocation"
     (and
         (is Empty (#1))
@@ -368,6 +376,7 @@
         )
     )
 )
+
 (define "KnightMovement"
     (and {
         (= (last To) (ahead (ahead (last From) steps:2 #1) steps:1 #2))
@@ -375,6 +384,7 @@
         (!= (last From) (ahead (last From) steps:2 #1))
     })
 )
+
 (define "OrthogonalMovement"
     (or {
         (= (regionSite (sites LineOfSight Piece at:(last To) N) index: 0) (last From))
@@ -383,6 +393,7 @@
         (= (regionSite (sites LineOfSight Piece at:(last To) E) index: 0) (last From))
     })
 )
+
 (define "DiagonalMovement"
     (or {
         (= (regionSite (sites LineOfSight Piece at:(last To) NE) index: 0) (last From))
@@ -391,6 +402,7 @@
         (= (regionSite (sites LineOfSight Piece at:(last To) SW) index: 0) (last From))
     })
 )
+
 (define "KingMovement"
     (or {
         (= (ahead (last From) steps:1 N) (last To))
@@ -403,6 +415,7 @@
         (= (ahead (last From) steps:1 SW) (last To))
     })
 )
+
 (define "DecideToCastle"
     (and {
         (= (ahead (last From) steps:#1 #2) (last To))
@@ -412,12 +425,14 @@
         (is Empty (last To))
     })
 )
+
 (define "PawnStep"
     (and
         (= (last To) (ahead (last From) steps: 1 Forward))
         (is Empty (last To))
     )
 )
+
 (define "InitialPawnMove"
     (and {
         (= (last To) (ahead (last From) steps: 2 Forward))
@@ -429,6 +444,7 @@
         )
     })
 )
+
 (define "MoveForwardDiagonal"
     (and {
         (or
@@ -441,12 +457,15 @@
         )
     })
 )
+
 (define "IsMovingPiece"
     (= (what at: (last From)) (mapEntry #1 Mover))
 )
+
 (define "MovingTheKing"
     (= (last From) (where "King" Mover))
 )
+
 (define "LegalMove"
     (and
         (can Move
@@ -503,26 +522,26 @@
                     (and {
                         ("DecideToCastle" 2 E "RookRight")
                         ("SafePassingLocation" (ahead (last From) steps: 1 E))
+                        ("SafePassingLocation" (ahead (last From) steps: 2 E))
                     })
                     (and {
                         ("DecideToCastle" 2 W "RookLeft")
                         ("SafePassingLocation" (ahead (last From) steps: 1 W))
                         ("SafePassingLocation" (ahead (last From) steps: 2 W))
-                        ("SafePassingLocation" (ahead (last From) steps: 3 W))
+                        (is Empty (ahead (last From) steps: 3 W))
                     })
                 })
             )
         })
     )
 )
+
 (define "CommonPostMoveActions"
     (if ("KingInCheck" (next) (mover))
         (and {
             "CheckType"
             (if ("NextCanNotMove")
-                (and {
-                    (set Var "NextLost" 1)
-                })
+                (set Var "NextLost" 1)
             )
         })
     )
@@ -597,10 +616,12 @@
     ("ResetIllegalMovesList")
     ("ForgetEquipmentMode")
 )
+
 (define "SetEnPassantLocation"
     (set Var "EnPassantLocation" (ahead (last To) Backward))
     (set Pending (ahead (last To) Backward))
 )
+
 (define "CountEnPassantTries"
     (if (= (what at: (ahead (last To) Rightward)) (next))
         (addScore Next 1)
@@ -609,6 +630,7 @@
         (addScore Next 1)
     )
 )
+
 (define "PerformLegalMove"
     (or {
         (if (and ("IsMovingPiece" "Pawn") ("PawnStep"))
@@ -792,12 +814,14 @@
         )
     })
 )
+
 (define "InLocationEnPassant"
     (and
         (is Pending)
         (= (to) (value Pending))
     )
 )
+
 (define "EnPassant"
     (move
         Step
@@ -810,6 +834,7 @@
         )
     )
 )
+
 (define "CaptureForwardDiagonal"
     (move
         Step
@@ -822,24 +847,30 @@
         )
     )
 )
+
 (define "PromotionCondition"
     (and
         (is In (last To) (sites Mover "Promotion"))
         (= (what at: (last To)) (mapEntry "Pawn" Mover))
     )
 )
-(define "AttemptStepForward"
-    (move Step (directions Forward) (to if:(not (is Friend (who at:(to))))))
-)
+
 (define "DoubleStep"
     (move Slide (directions Forward) (between (exact 2)) (to if:(is Empty (to))))
 )
+
 (define "AttemptDoubleStep"
     (move Slide (directions Forward) (between (exact 2)) (to if:(not (is Friend (who at:(to))))))
 )
+
+(define "AttemptStepForward"
+    (move Step (directions Forward) (to if:(not (is Friend (who at:(to))))))
+)
+
 (define "AttemptCaptureForwardDiagonal"
     (move Step (directions {FR FL}) (to if:(not (is Friend (who at:(to))))))
 )
+
 (define "AttemptSlide"
     (move Select
         (from (from))
@@ -855,67 +886,53 @@
     )
 )
 
-(define "ConditionalRookMoves"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        ("AttemptSlide" Orthogonal)
-        (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
-    )
-)
-
-(define "ConditionalBishopMoves"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        ("AttemptSlide" Diagonal)
-        (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
-    )
-)
-
-(define "ConditionalQueenMoves"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        ("AttemptSlide" (union Orthogonal Diagonal))
-        (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
-    )
-)
-
-(define "ConditionalPawnMoves"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        // CURRENT MODE
-        (or {
-            "AttemptStepForward"
-            (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStep")
-            (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
-            "EnPassant"
-        })
-        // LEGACY MODE
-        (or {
-            "StepForwardToEmpty"
-            (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStep")
-            ("StepToEnemy" (directions {FR FL}))
-            "EnPassant"
-        })
-    )
-)
-
 (define "KriegspielRook"
     (piece "Rook" Each
-        "ConditionalRookMoves"
+        (if (not (is In 1 (values Remembered "EquipmentMode")))
+            ("AttemptSlide" Orthogonal)
+
+            (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+        )
     )
 )
 
 (define "KriegspielBishop"
     (piece "Bishop" Each
-        "ConditionalBishopMoves"
+        (if (not (is In 1 (values Remembered "EquipmentMode")))
+            ("AttemptSlide" Diagonal)
+
+            (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+        )
     )
 )
 
 (define "KriegspielQueen"
     (piece "Queen" Each
-        "ConditionalQueenMoves"
+        (if (not (is In 1 (values Remembered "EquipmentMode")))
+            ("AttemptSlide" (union Orthogonal Diagonal))
+
+            (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
+        )
     )
 )
 
 (define "KriegspielPawn"
     (piece "Pawn" Each
-        "ConditionalPawnMoves"
+        (if (not (is In 1 (values Remembered "EquipmentMode")))
+            (or {
+                "AttemptStepForward"
+                (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStep")
+                (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
+                "EnPassant"
+            })
+
+            (or {
+                "StepForwardToEmpty"
+                (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStep")
+                ("StepToEnemy" (directions {FR FL}))
+                "EnPassant"
+            })
+        )
     )
 )
 
@@ -925,41 +942,36 @@
             (move Step All (to if:(not (is Friend (who at:(to)))) (apply (if (is Enemy (who at:(to))) (remove (to))))))
             (if (= (from) (where "King" Mover))
                 (if (not (is In 1 (values Remembered "EquipmentMode")))
-                    // CURRENT MODE - Kriegspiel castling
                     (or {
-                        (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookLeft") })
-                            (move (from) (to (ahead (from) steps:2 W) if:(and {
-                                (not (is Friend (who at:(to))))
-                                (not (is Friend (ahead (from) steps:1 W)))
-                                (not (is Friend (ahead (from) steps:2 W)))
-                                (not (is Friend (ahead (from) steps:3 W)))
-                            })))
-                        )
-                        (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookRight") })
-                            (move (from) (to (ahead (from) steps:2 E) if:(and {
-                                (not (is Friend (who at:(to))))
-                                (not (is Friend (ahead (from) steps:1 E)))
-                                (not (is Friend (ahead (from) steps:2 E)))
-                            })))
-                        )
+                        (move (from) (to (ahead (from) steps:2 W) if:(and {
+                            ("HasNeverMoved" "King")
+                            ("HasNeverMoved" "RookLeft")
+                            (not (is Friend (who at:(ahead (from) steps:1 W))))
+                            (not (is Friend (who at:(ahead (from) steps:2 W))))
+                            (not (is Friend (who at:(ahead (from) steps:3 W))))
+                        })))
+                        (move (from) (to (ahead (from) steps:2 E) if:(and {
+                            ("HasNeverMoved" "King")
+                            ("HasNeverMoved" "RookRight")
+                            (not (is Friend (who at:(ahead (from) steps:1 E))))
+                            (not (is Friend (who at:(ahead (from) steps:2 E))))
+                        })))
                     })
-                    // LEGACY MODE - Equipment castling
+
                     (or {
-                        (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookLeft") })
-                            (move (from) (to (ahead (from) steps:2 W) if:(and {
-                                (is Empty (who at:(to)))
-                                (is Empty (ahead (from) steps:1 W))
-                                (is Empty (ahead (from) steps:2 W))
-                                (is Empty (ahead (from) steps:3 W))
-                            })))
-                        )
-                        (if (and { ("HasNeverMoved" "King") ("HasNeverMoved" "RookRight") })
-                            (move (from) (to (ahead (from) steps:2 E) if:(and {
-                                (is Empty (who at:(to)))
-                                (is Empty (ahead (from) steps:1 E))
-                                (is Empty (ahead (from) steps:2 E))
-                            })))
-                        )
+                        (move (from) (to (ahead (from) steps:2 W) if:(and {
+                            ("HasNeverMoved" "King")
+                            ("HasNeverMoved" "RookLeft")
+                            (is Empty (ahead (from) steps:1 W))
+                            (is Empty (ahead (from) steps:2 W))
+                            (is Empty (ahead (from) steps:3 W))
+                        })))
+                        (move (from) (to (ahead (from) steps:2 E) if:(and {
+                            ("HasNeverMoved" "King")
+                            ("HasNeverMoved" "RookRight")
+                            (is Empty (ahead (from) steps:1 E))
+                            (is Empty (ahead (from) steps:2 E))
+                        })))
                     })
                 )
             )
@@ -973,6 +985,7 @@
         (= (count Pieces "King") 2)
     })
 )
+
 (define "KingVsKingAndSingleBishop"
     (and {
         (= (count Pieces) 3)
@@ -980,6 +993,7 @@
         (= (count Pieces "Bishop") 1)
     })
 )
+
 (define "KingVsKingAndSingleKnight"
     (and {
         (= (count Pieces) 3)
@@ -987,6 +1001,7 @@
         (= (count Pieces "Knight") 1)
     })
 )
+
 (define "KingsAndBishopsPerSide"
     (and {
         (= (count Pieces) 4)
@@ -996,6 +1011,7 @@
         (= (count Pieces P2 "Bishop") 1)
     })
 )
+
 (define "KingsAndBishopsSameColor"
     (and {
         "KingsAndBishopsPerSide"
@@ -1017,6 +1033,7 @@
         )
     })
 )
+
 (define "KingsAndBishopsOppositeColor"
     (and {
         "KingsAndBishopsPerSide"
@@ -1038,6 +1055,7 @@
         )
     })
 )
+
 (define "InsufficientMaterial"
     (or {
         "OnlyKingsRemaining"
@@ -1047,32 +1065,38 @@
         "KingsAndBishopsOppositeColor"
     })
 )
+
 (define "ResetIllegalMovesList"
     (and {
         (forget Value "IllegalMovesP1" All)
         (forget Value "IllegalMovesP2" All)
     })
 )
+
 (define "CacheAttemptedMove"
     (and {
         (set Var "AttemptedMoveFrom"
             (if (>= (last From) 0)
                 (last From)
+
                 (var "AttemptedMoveFrom")
             )
         )
         (set Var "AttemptedMoveTo"
             (if (>= (last To) 0)
                 (last To)
+
                 (var "AttemptedMoveTo")
             )
         )
         (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
             (set Var "AttemptedMoveHash" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")))
+
             (set Var "AttemptedMoveHash" -1)
         )
     })
 )
+
 (define "RememberIllegalMove"
     (and {
         (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
@@ -1087,6 +1111,17 @@
         )
     })
 )
+
+(define "RememberEquipmentMode"
+    (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (remember Value "EquipmentMode" 1)
+    )
+)
+
+(define "ForgetEquipmentMode"
+    (forget Value "EquipmentMode" All)
+)
+
 (define "GenerateValidMoves"
     (move Select
         (from (sites Occupied by:Mover))
@@ -1103,6 +1138,7 @@
                                     (values Remembered "IllegalMovesP1")
                                 )
                             )
+
                             (not
                                 (is In
                                     (+ (* (from) 100) (last To))
@@ -1120,12 +1156,14 @@
                 (set Var "AttemptedMoveTo" (last To))
                 (if (and (>= (last From) 0) (>= (last To) 0))
                     (set Var "AttemptedMoveHash" (+ (* (last From) 100) (last To)))
+
                     (set Var "AttemptedMoveHash" -1)
                 )
             })
         )
     )
 )
+
 (game "Kriegspiel (Chess)"
     (players {(player N) (player S)})
     (equipment {
@@ -1175,8 +1213,7 @@
                         )
                     )
                 )
-                (if
-                    (or
+                (if (or
                         ("NewTurn")
                         (not "PromotionCondition")
                     )
@@ -1212,8 +1249,7 @@
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
-            (if
-                (or {
+            (if (or {
                     (= (var "DrawCondition") 1)
                     ("InsufficientMaterial")
                 })
@@ -1222,6 +1258,7 @@
         })
     )
 )
+
 (metadata
     (info
         {
