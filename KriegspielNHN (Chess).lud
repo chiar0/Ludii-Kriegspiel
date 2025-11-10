@@ -537,84 +537,69 @@
 )
 
 (define "CommonPostMoveActions"
-    (if ("KingInCheck" (next) (mover))
-        (and {
-            "CheckType"
-            (if ("NextCanNotMove")
-                (set Var "NextLost" 1)
-            )
-        })
-    )
-    (if (= (var "DrawCondition") 0)
-        (if (not ("KingInCheck" (next) (mover)))
+    (and {
+        (if ("KingInCheck" (next) (mover))
             (and {
+                "CheckType"
+                (if ("NextCanNotMove")
+                    (set Var "NextLost" 1)
+                )
+            })
+        )
+        (if (= (var "DrawCondition") 0)
+            (if (not ("KingInCheck" (next) (mover)))
                 (if ("NextCanNotMove")
                     (and {
-                        (set Var "DrawReason" 1)
                         (set Var "DrawCondition" 1)
                         (note "Draw by stalemate")
                     })
                 )
-            })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if (= (counter) 99)
-            (and {
-                (set Var "DrawReason" 2)
-                (set Var "DrawCondition" 1)
-                (note "Draw by fifty-move rule")
-            })
+        (if (= (var "DrawCondition") 0)
+            (if (= (counter) 99)
+                (and {
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by fifty-move rule")
+                })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if "OnlyKingsRemaining"
-            (and {
-                (set Var "DrawReason" 3)
-                (set Var "DrawCondition" 1)
-                (note "Draw by insufficient material: kings only")
-            })
+        (if (= (var "DrawCondition") 0)
+            (if "OnlyKingsRemaining"
+                (and {
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by insufficient material: kings only")
+                })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if "KingVsKingAndSingleBishop"
-            (and {
-                (set Var "DrawReason" 4)
-                (set Var "DrawCondition" 1)
-                (note "Draw by insufficient material: king and bishop vs king")
-            })
+        (if (= (var "DrawCondition") 0)
+            (if "KingVsKingAndSingleBishop"
+                (and {
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by insufficient material: king and bishop vs king")
+                })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if "KingVsKingAndSingleKnight"
-            (and {
-                (set Var "DrawReason" 5)
-                (set Var "DrawCondition" 1)
-                (note "Draw by insufficient material: king and knight vs king")
-            })
+        (if (= (var "DrawCondition") 0)
+            (if "KingVsKingAndSingleKnight"
+                (and {
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by insufficient material: king and knight vs king")
+                })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if "KingsAndBishopsSameColor"
-            (and {
-                (set Var "DrawReason" 6)
-                (set Var "DrawCondition" 1)
-                (note "Draw by insufficient material: same-color bishops")
-            })
+        (if (= (var "DrawCondition") 0)
+            (if "KingsAndBishopsPerSide"
+                (and {
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by insufficient material: kings and bishops")
+                })
+            )
         )
-    )
-    (if (= (var "DrawCondition") 0)
-        (if "KingsAndBishopsOppositeColor"
-            (and {
-                (set Var "DrawReason" 7)
-                (set Var "DrawCondition" 1)
-                (note "Draw by insufficient material: opposite-color bishops")
-            })
-        )
-    )
-    "CountTries"
-    ("ResetIllegalMovesList")
-    ("ForgetEquipmentMode")
+        "CountTries"
+        ("ResetIllegalMovesList")
+        ("ForgetEquipmentMode")
+    })
 )
 
 (define "SetEnPassantLocation"
@@ -1012,60 +997,6 @@
     })
 )
 
-(define "KingsAndBishopsSameColor"
-    (and {
-        "KingsAndBishopsPerSide"
-        (=
-            (mod
-                (+
-                    (row of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
-                    (column of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
-                )
-                2
-            )
-            (mod
-                (+
-                    (row of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
-                    (column of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
-                )
-                2
-            )
-        )
-    })
-)
-
-(define "KingsAndBishopsOppositeColor"
-    (and {
-        "KingsAndBishopsPerSide"
-        (!=
-            (mod
-                (+
-                    (row of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
-                    (column of:(regionSite (sites Occupied by:P1 component:"Bishop") index:0))
-                )
-                2
-            )
-            (mod
-                (+
-                    (row of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
-                    (column of:(regionSite (sites Occupied by:P2 component:"Bishop") index:0))
-                )
-                2
-            )
-        )
-    })
-)
-
-(define "InsufficientMaterial"
-    (or {
-        "OnlyKingsRemaining"
-        "KingVsKingAndSingleBishop"
-        "KingVsKingAndSingleKnight"
-        "KingsAndBishopsSameColor"
-        "KingsAndBishopsOppositeColor"
-    })
-)
-
 (define "ResetIllegalMovesList"
     (and {
         (forget Value "IllegalMovesP1" All)
@@ -1089,25 +1020,16 @@
                 (var "AttemptedMoveTo")
             )
         )
-        (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
-            (set Var "AttemptedMoveHash" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")))
-
-            (set Var "AttemptedMoveHash" -1)
-        )
     })
 )
 
 (define "RememberIllegalMove"
     (and {
-        (if (and (>= (var "AttemptedMoveFrom") 0) (>= (var "AttemptedMoveTo") 0))
-            (and {
-                (if (= (mover) 1)
-                    (remember Value "IllegalMovesP1" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
-                )
-                (if (= (mover) 2)
-                    (remember Value "IllegalMovesP2" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
-                )
-            })
+        (if (= (mover) 1)
+            (remember Value "IllegalMovesP1" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
+        )
+        (if (= (mover) 2)
+            (remember Value "IllegalMovesP2" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
         )
     })
 )
@@ -1151,15 +1073,7 @@
             )
         )
         (then
-            (and {
-                (set Var "AttemptedMoveFrom" (last From))
-                (set Var "AttemptedMoveTo" (last To))
-                (if (and (>= (last From) 0) (>= (last To) 0))
-                    (set Var "AttemptedMoveHash" (+ (* (last From) 100) (last To)))
-
-                    (set Var "AttemptedMoveHash" -1)
-                )
-            })
+            (if (not "LegalMove") ("CacheAttemptedMove"))
         )
     )
 )
@@ -1207,9 +1121,7 @@
                 (if "PromotionCondition"
                     (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
                         (then
-                            (and {
-                                ("CommonPostMoveActions")
-                            })
+                            ("CommonPostMoveActions")
                         )
                     )
                 )
@@ -1220,25 +1132,17 @@
                     ("GenerateValidMoves")
                     (then
                         (and {
-                            (set Var "NextLost" 0)
-                            (set Var "DrawCondition" 0)
-                            (set Var "DrawReason" 0)
-                            (set Var "AttemptedMoveFrom" -1)
-                            (set Var "AttemptedMoveTo" -1)
-                            (set Var "AttemptedMoveHash" -1)
                             (priority
                                 (if "LegalMove"
                                     (and {
-                                        ("CacheAttemptedMove")
                                         ("RememberEquipmentMode")
                                         "PerformLegalMove"
                                     })
                                 )
                                 (and {
-                                    ("CacheAttemptedMove")
+                                    ("RememberIllegalMove")
                                     (note "Illegal move")
                                     (moveAgain)
-                                    ("RememberIllegalMove")
                                 })
                             )
                         })
@@ -1248,12 +1152,7 @@
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
-            (if (or {
-                    (= (var "DrawCondition") 1)
-                    ("InsufficientMaterial")
-                })
-                (result Mover Draw)
-            )
+            (if (= (var "DrawCondition") 1) (result Mover Draw))
         })
     )
 )
