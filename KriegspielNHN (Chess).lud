@@ -908,7 +908,6 @@
                 "AttemptStepForward"
                 (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStep")
                 (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
-                "EnPassant"
             })
 
             (or {
@@ -1004,32 +1003,13 @@
     })
 )
 
-(define "CacheAttemptedMove"
-    (and {
-        (set Var "AttemptedMoveFrom"
-            (if (>= (last From) 0)
-                (last From)
-
-                (var "AttemptedMoveFrom")
-            )
-        )
-        (set Var "AttemptedMoveTo"
-            (if (>= (last To) 0)
-                (last To)
-
-                (var "AttemptedMoveTo")
-            )
-        )
-    })
-)
-
 (define "RememberIllegalMove"
     (and {
         (if (= (mover) 1)
-            (remember Value "IllegalMovesP1" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
+            (remember Value "IllegalMovesP1" (+ (* (last From) 100) (last To)) unique:True)
         )
         (if (= (mover) 2)
-            (remember Value "IllegalMovesP2" (+ (* (var "AttemptedMoveFrom") 100) (var "AttemptedMoveTo")) unique:True)
+            (remember Value "IllegalMovesP2" (+ (* (last From) 100) (last To)) unique:True)
         )
     })
 )
@@ -1071,9 +1051,6 @@
                     })
                 )
             )
-        )
-        (then
-            (if (not "LegalMove") ("CacheAttemptedMove"))
         )
     )
 )
