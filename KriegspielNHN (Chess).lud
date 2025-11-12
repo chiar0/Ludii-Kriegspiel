@@ -203,6 +203,7 @@
 
 (define "CheckType"
     (and {
+        (remember Value "CheckedKingSite" (where "King" (next)) unique:True)
         (if
             (or
                 ("DiagonalCheck" (next) (mover) SE)
@@ -212,6 +213,15 @@
                 )
             )
             (and {
+                (forEach Site
+                    (sites Direction
+                        from:(where "King" (next))
+                        SE
+                        included:False
+                        distance:7
+                    )
+                    (remember Value "CheckingPieceSite" (site) unique:True)
+                )
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
             })
@@ -225,6 +235,15 @@
                 )
             )
             (and {
+                (forEach Site
+                    (sites Direction
+                        from:(where "King" (next))
+                        SW
+                        included:False
+                        distance:7
+                    )
+                    (remember Value "CheckingPieceSite" (site) unique:True)
+                )
                 (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
             })
@@ -238,6 +257,15 @@
                 )
             )
             (and {
+                (forEach Site
+                    (sites Direction
+                        from:(where "King" (next))
+                        NE
+                        included:False
+                        distance:7
+                    )
+                    (remember Value "CheckingPieceSite" (site) unique:True)
+                )
                 (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
             })
@@ -251,12 +279,73 @@
                 )
             )
             (and {
+                (forEach Site
+                    (sites Direction
+                        from:(where "King" (next))
+                        NW
+                        included:False
+                        distance:7
+                    )
+                    (remember Value "CheckingPieceSite" (site) unique:True)
+                )
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
             })
         )
-        (if ("FileCheck" (next) (mover)) (note "File check"))
-        (if ("RankCheck" (next) (mover)) (note "Rank check"))
+        (if ("FileCheck" (next) (mover)) 
+            (and {
+                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) N)) 0)
+                    (forEach Site
+                        (sites Direction
+                            from:(where "King" (next))
+                            N
+                            included:False
+                            distance:7
+                        )
+                        (remember Value "CheckingPieceSite" (site) unique:True)
+                    )
+                )
+                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) S)) 0)
+                    (forEach Site
+                        (sites Direction
+                            from:(where "King" (next))
+                            S
+                            included:False
+                            distance:7
+                        )
+                        (remember Value "CheckingPieceSite" (site) unique:True)
+                    )
+                )
+                (note "File check")
+            })
+        )
+        (if ("RankCheck" (next) (mover))
+            (and {
+                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) E)) 0)
+                    (forEach Site
+                        (sites Direction
+                            from:(where "King" (next))
+                            E
+                            included:False
+                            distance:7
+                        )
+                        (remember Value "CheckingPieceSite" (site) unique:True)
+                    )
+                )
+                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) W)) 0)
+                    (forEach Site
+                        (sites Direction
+                            from:(where "King" (next))
+                            W
+                            included:False
+                            distance:7
+                        )
+                        (remember Value "CheckingPieceSite" (site) unique:True)
+                    )
+                )
+                (note "Rank check")
+            })
+        )
         (if
             (or {
                 ("KnightCheck" (next) (mover) N E)
@@ -268,7 +357,24 @@
                 ("KnightCheck" (next) (mover) E S)
                 ("KnightCheck" (next) (mover) E N)
             })
-            (note "Knight Check")
+            (and {
+                (forEach Site (difference
+                    (union {
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
+                    })
+                    (sites Occupied by:Next))
+                    
+                    (remember Value "CheckingPieceSite" (site) unique:True)
+                )
+                (note "Knight Check")
+            })
         )
     })
 )
@@ -1024,6 +1130,14 @@
     (forget Value "EquipmentMode" All)
 )
 
+(define "CanMove"
+    (or {
+        (is In (last From) (values Remembered "CheckedKingSite"))
+        (= 0 (size Array (values Remembered "CheckingPieceSite")))
+        (is In (last To) (values Remembered "CheckingPieceSite"))
+    })
+)
+
 (define "GenerateValidMoves"
     (move Select
         (from (sites Occupied by:Mover))
@@ -1032,6 +1146,7 @@
                 (do
                     (forEach Piece)
                     ifAfterwards:(and {
+                        ("CanMove")
                         (= (from) (last From))
                         (if (= (mover) 1)
                             (not
@@ -1114,6 +1229,8 @@
                                     (and {
                                         ("RememberEquipmentMode")
                                         "PerformLegalMove"
+                                        (forget Value "CheckedKingSite" All)
+                                        (forget Value "CheckingPieceSite" All)
                                     })
                                 )
                                 (and {
