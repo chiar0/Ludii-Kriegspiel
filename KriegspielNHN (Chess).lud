@@ -312,28 +312,33 @@
 
 (define "CanPawnCapture"
     (and {
-        (is Friend (who at:(ahead #1 #2)))
+        (is Friend (who at:(ahead (value) #1)))
         (can Move
             (do
-                (move (from: #1) (to: (ahead #1 #2)))
+                (move (from: (value)) (to: (ahead (value) #1)))
                 ifAfterwards:(not ("KingInCheck" (next) (mover)))
             )
         )
     })
 )
 
+
 (define "CountTries"
     (and {
         (set Score Next 0)
-        (forEach Site (sites Occupied by:Next "Pawn")
-            (and {
-                (if ("CanPawnCapture" (site) FR)
-                    (addScore Next 1)
-                )
-                (if ("CanPawnCapture" (site) FL)
-                    (addScore Next 1)
-                )
-            })
+        (forEach Value min:1 max:63
+            (if (= (what at: (value)) (next))
+                (and {
+                    (if
+                        ("CanPawnCapture" FR)
+                        (addScore Next 1)
+                    )
+                    (if
+                        ("CanPawnCapture" FL)
+                        (addScore Next 1)
+                    )
+                })
+            )
         )
     })
 )
