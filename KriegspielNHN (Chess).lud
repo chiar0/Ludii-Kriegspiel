@@ -18,136 +18,10 @@
 )
 
 (define "NoteCapture"
-    (and {
-        (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
-        (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
-        (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
-        (if (and (= (#1)(coord:"A2")) (> (#2) 2)) (note "Piece at A2 captured"))
-        (if (and (= (#1)(coord:"A3")) (<= (#2) 2)) (note "Pawn at A3 captured"))
-        (if (and (= (#1)(coord:"A3")) (> (#2) 2)) (note "Piece at A3 captured"))
-        (if (and (= (#1)(coord:"A4")) (<= (#2) 2)) (note "Pawn at A4 captured"))
-        (if (and (= (#1)(coord:"A4")) (> (#2) 2)) (note "Piece at A4 captured"))
-        (if (and (= (#1)(coord:"A5")) (<= (#2) 2)) (note "Pawn at A5 captured"))
-        (if (and (= (#1)(coord:"A5")) (> (#2) 2)) (note "Piece at A5 captured"))
-        (if (and (= (#1)(coord:"A6")) (<= (#2) 2)) (note "Pawn at A6 captured"))
-        (if (and (= (#1)(coord:"A6")) (> (#2) 2)) (note "Piece at A6 captured"))
-        (if (and (= (#1)(coord:"A7")) (<= (#2) 2)) (note "Pawn at A7 captured"))
-        (if (and (= (#1)(coord:"A7")) (> (#2) 2)) (note "Piece at A7 captured"))
-        (if (and (= (#1)(coord:"A8")) (<= (#2) 2)) (note "Pawn at A8 captured"))
-        (if (and (= (#1)(coord:"A8")) (> (#2) 2)) (note "Piece at A8 captured"))
-        (if (and (= (#1)(coord:"B1")) (<= (#2) 2)) (note "Pawn at B1 captured"))
-        (if (and (= (#1)(coord:"B1")) (> (#2) 2)) (note "Piece at B1 captured"))
-        (if (and (= (#1)(coord:"B2")) (<= (#2) 2)) (note "Pawn at B2 captured"))
-        (if (and (= (#1)(coord:"B2")) (> (#2) 2)) (note "Piece at B2 captured"))
-        (if (and (= (#1)(coord:"B3")) (<= (#2) 2)) (note "Pawn at B3 captured"))
-        (if (and (= (#1)(coord:"B3")) (> (#2) 2)) (note "Piece at B3 captured"))
-        (if (and (= (#1)(coord:"B4")) (<= (#2) 2)) (note "Pawn at B4 captured"))
-        (if (and (= (#1)(coord:"B4")) (> (#2) 2)) (note "Piece at B4 captured"))
-        (if (and (= (#1)(coord:"B5")) (<= (#2) 2)) (note "Pawn at B5 captured"))
-        (if (and (= (#1)(coord:"B5")) (> (#2) 2)) (note "Piece at B5 captured"))
-        (if (and (= (#1)(coord:"B6")) (<= (#2) 2)) (note "Pawn at B6 captured"))
-        (if (and (= (#1)(coord:"B6")) (> (#2) 2)) (note "Piece at B6 captured"))
-        (if (and (= (#1)(coord:"B7")) (<= (#2) 2)) (note "Pawn at B7 captured"))
-        (if (and (= (#1)(coord:"B7")) (> (#2) 2)) (note "Piece at B7 captured"))
-        (if (and (= (#1)(coord:"B8")) (<= (#2) 2)) (note "Pawn at B8 captured"))
-        (if (and (= (#1)(coord:"B8")) (> (#2) 2)) (note "Piece at B8 captured"))
-        (if (and (= (#1)(coord:"C1")) (<= (#2) 2)) (note "Pawn at C1 captured"))
-        (if (and (= (#1)(coord:"C1")) (> (#2) 2)) (note "Piece at C1 captured"))
-        (if (and (= (#1)(coord:"C2")) (<= (#2) 2)) (note "Pawn at C2 captured"))
-        (if (and (= (#1)(coord:"C2")) (> (#2) 2)) (note "Piece at C2 captured"))
-        (if (and (= (#1)(coord:"C3")) (<= (#2) 2)) (note "Pawn at C3 captured"))
-        (if (and (= (#1)(coord:"C3")) (> (#2) 2)) (note "Piece at C3 captured"))
-        (if (and (= (#1)(coord:"C4")) (<= (#2) 2)) (note "Pawn at C4 captured"))
-        (if (and (= (#1)(coord:"C4")) (> (#2) 2)) (note "Piece at C4 captured"))
-        (if (and (= (#1)(coord:"C5")) (<= (#2) 2)) (note "Pawn at C5 captured"))
-        (if (and (= (#1)(coord:"C5")) (> (#2) 2)) (note "Piece at C5 captured"))
-        (if (and (= (#1)(coord:"C6")) (<= (#2) 2)) (note "Pawn at C6 captured"))
-        (if (and (= (#1)(coord:"C6")) (> (#2) 2)) (note "Piece at C6 captured"))
-        (if (and (= (#1)(coord:"C7")) (<= (#2) 2)) (note "Pawn at C7 captured"))
-        (if (and (= (#1)(coord:"C7")) (> (#2) 2)) (note "Piece at C7 captured"))
-        (if (and (= (#1)(coord:"C8")) (<= (#2) 2)) (note "Pawn at C8 captured"))
-        (if (and (= (#1)(coord:"C8")) (> (#2) 2)) (note "Piece at C8 captured"))
-        (if (and (= (#1)(coord:"D1")) (<= (#2) 2)) (note "Pawn at D1 captured"))
-        (if (and (= (#1)(coord:"D1")) (> (#2) 2)) (note "Piece at D1 captured"))
-        (if (and (= (#1)(coord:"D2")) (<= (#2) 2)) (note "Pawn at D2 captured"))
-        (if (and (= (#1)(coord:"D2")) (> (#2) 2)) (note "Piece at D2 captured"))
-        (if (and (= (#1)(coord:"D3")) (<= (#2) 2)) (note "Pawn at D3 captured"))
-        (if (and (= (#1)(coord:"D3")) (> (#2) 2)) (note "Piece at D3 captured"))
-        (if (and (= (#1)(coord:"D4")) (<= (#2) 2)) (note "Pawn at D4 captured"))
-        (if (and (= (#1)(coord:"D4")) (> (#2) 2)) (note "Piece at D4 captured"))
-        (if (and (= (#1)(coord:"D5")) (<= (#2) 2)) (note "Pawn at D5 captured"))
-        (if (and (= (#1)(coord:"D5")) (> (#2) 2)) (note "Piece at D5 captured"))
-        (if (and (= (#1)(coord:"D6")) (<= (#2) 2)) (note "Pawn at D6 captured"))
-        (if (and (= (#1)(coord:"D6")) (> (#2) 2)) (note "Piece at D6 captured"))
-        (if (and (= (#1)(coord:"D7")) (<= (#2) 2)) (note "Pawn at D7 captured"))
-        (if (and (= (#1)(coord:"D7")) (> (#2) 2)) (note "Piece at D7 captured"))
-        (if (and (= (#1)(coord:"D8")) (<= (#2) 2)) (note "Pawn at D8 captured"))
-        (if (and (= (#1)(coord:"D8")) (> (#2) 2)) (note "Piece at D8 captured"))
-        (if (and (= (#1)(coord:"E1")) (<= (#2) 2)) (note "Pawn at E1 captured"))
-        (if (and (= (#1)(coord:"E1")) (> (#2) 2)) (note "Piece at E1 captured"))
-        (if (and (= (#1)(coord:"E2")) (<= (#2) 2)) (note "Pawn at E2 captured"))
-        (if (and (= (#1)(coord:"E2")) (> (#2) 2)) (note "Piece at E2 captured"))
-        (if (and (= (#1)(coord:"E3")) (<= (#2) 2)) (note "Pawn at E3 captured"))
-        (if (and (= (#1)(coord:"E3")) (> (#2) 2)) (note "Piece at E3 captured"))
-        (if (and (= (#1)(coord:"E4")) (<= (#2) 2)) (note "Pawn at E4 captured"))
-        (if (and (= (#1)(coord:"E4")) (> (#2) 2)) (note "Piece at E4 captured"))
-        (if (and (= (#1)(coord:"E5")) (<= (#2) 2)) (note "Pawn at E5 captured"))
-        (if (and (= (#1)(coord:"E5")) (> (#2) 2)) (note "Piece at E5 captured"))
-        (if (and (= (#1)(coord:"E6")) (<= (#2) 2)) (note "Pawn at E6 captured"))
-        (if (and (= (#1)(coord:"E6")) (> (#2) 2)) (note "Piece at E6 captured"))
-        (if (and (= (#1)(coord:"E7")) (<= (#2) 2)) (note "Pawn at E7 captured"))
-        (if (and (= (#1)(coord:"E7")) (> (#2) 2)) (note "Piece at E7 captured"))
-        (if (and (= (#1)(coord:"E8")) (<= (#2) 2)) (note "Pawn at E8 captured"))
-        (if (and (= (#1)(coord:"E8")) (> (#2) 2)) (note "Piece at E8 captured"))
-        (if (and (= (#1)(coord:"F1")) (<= (#2) 2)) (note "Pawn at F1 captured"))
-        (if (and (= (#1)(coord:"F1")) (> (#2) 2)) (note "Piece at F1 captured"))
-        (if (and (= (#1)(coord:"F2")) (<= (#2) 2)) (note "Pawn at F2 captured"))
-        (if (and (= (#1)(coord:"F2")) (> (#2) 2)) (note "Piece at F2 captured"))
-        (if (and (= (#1)(coord:"F3")) (<= (#2) 2)) (note "Pawn at F3 captured"))
-        (if (and (= (#1)(coord:"F3")) (> (#2) 2)) (note "Piece at F3 captured"))
-        (if (and (= (#1)(coord:"F4")) (<= (#2) 2)) (note "Pawn at F4 captured"))
-        (if (and (= (#1)(coord:"F4")) (> (#2) 2)) (note "Piece at F4 captured"))
-        (if (and (= (#1)(coord:"F5")) (<= (#2) 2)) (note "Pawn at F5 captured"))
-        (if (and (= (#1)(coord:"F5")) (> (#2) 2)) (note "Piece at F5 captured"))
-        (if (and (= (#1)(coord:"F6")) (<= (#2) 2)) (note "Pawn at F6 captured"))
-        (if (and (= (#1)(coord:"F6")) (> (#2) 2)) (note "Piece at F6 captured"))
-        (if (and (= (#1)(coord:"F7")) (<= (#2) 2)) (note "Pawn at F7 captured"))
-        (if (and (= (#1)(coord:"F7")) (> (#2) 2)) (note "Piece at F7 captured"))
-        (if (and (= (#1)(coord:"F8")) (<= (#2) 2)) (note "Pawn at F8 captured"))
-        (if (and (= (#1)(coord:"F8")) (> (#2) 2)) (note "Piece at F8 captured"))
-        (if (and (= (#1)(coord:"G1")) (<= (#2) 2)) (note "Pawn at G1 captured"))
-        (if (and (= (#1)(coord:"G1")) (> (#2) 2)) (note "Piece at G1 captured"))
-        (if (and (= (#1)(coord:"G2")) (<= (#2) 2)) (note "Pawn at G2 captured"))
-        (if (and (= (#1)(coord:"G2")) (> (#2) 2)) (note "Piece at G2 captured"))
-        (if (and (= (#1)(coord:"G3")) (<= (#2) 2)) (note "Pawn at G3 captured"))
-        (if (and (= (#1)(coord:"G3")) (> (#2) 2)) (note "Piece at G3 captured"))
-        (if (and (= (#1)(coord:"G4")) (<= (#2) 2)) (note "Pawn at G4 captured"))
-        (if (and (= (#1)(coord:"G4")) (> (#2) 2)) (note "Piece at G4 captured"))
-        (if (and (= (#1)(coord:"G5")) (<= (#2) 2)) (note "Pawn at G5 captured"))
-        (if (and (= (#1)(coord:"G5")) (> (#2) 2)) (note "Piece at G5 captured"))
-        (if (and (= (#1)(coord:"G6")) (<= (#2) 2)) (note "Pawn at G6 captured"))
-        (if (and (= (#1)(coord:"G6")) (> (#2) 2)) (note "Piece at G6 captured"))
-        (if (and (= (#1)(coord:"G7")) (<= (#2) 2)) (note "Pawn at G7 captured"))
-        (if (and (= (#1)(coord:"G7")) (> (#2) 2)) (note "Piece at G7 captured"))
-        (if (and (= (#1)(coord:"G8")) (<= (#2) 2)) (note "Pawn at G8 captured"))
-        (if (and (= (#1)(coord:"G8")) (> (#2) 2)) (note "Piece at G8 captured"))
-        (if (and (= (#1)(coord:"H1")) (<= (#2) 2)) (note "Pawn at H1 captured"))
-        (if (and (= (#1)(coord:"H1")) (> (#2) 2)) (note "Piece at H1 captured"))
-        (if (and (= (#1)(coord:"H2")) (<= (#2) 2)) (note "Pawn at H2 captured"))
-        (if (and (= (#1)(coord:"H2")) (> (#2) 2)) (note "Piece at H2 captured"))
-        (if (and (= (#1)(coord:"H3")) (<= (#2) 2)) (note "Pawn at H3 captured"))
-        (if (and (= (#1)(coord:"H3")) (> (#2) 2)) (note "Piece at H3 captured"))
-        (if (and (= (#1)(coord:"H4")) (<= (#2) 2)) (note "Pawn at H4 captured"))
-        (if (and (= (#1)(coord:"H4")) (> (#2) 2)) (note "Piece at H4 captured"))
-        (if (and (= (#1)(coord:"H5")) (<= (#2) 2)) (note "Pawn at H5 captured"))
-        (if (and (= (#1)(coord:"H5")) (> (#2) 2)) (note "Piece at H5 captured"))
-        (if (and (= (#1)(coord:"H6")) (<= (#2) 2)) (note "Pawn at H6 captured"))
-        (if (and (= (#1)(coord:"H6")) (> (#2) 2)) (note "Piece at H6 captured"))
-        (if (and (= (#1)(coord:"H7")) (<= (#2) 2)) (note "Pawn at H7 captured"))
-        (if (and (= (#1)(coord:"H7")) (> (#2) 2)) (note "Piece at H7 captured"))
-        (if (and (= (#1)(coord:"H8")) (<= (#2) 2)) (note "Pawn at H8 captured"))
-        (if (and (= (#1)(coord:"H8")) (> (#2) 2)) (note "Piece at H8 captured"))
-    })
+    (if (<= (#2) 2)
+        (note (mapEntry "CaptureNotePawn" #1))
+        (note (mapEntry "CaptureNotePiece" #1))
+    )
 )
 
 (define "KingGravitatesToMainDiagonal"
@@ -438,10 +312,10 @@
 
 (define "CanPawnCapture"
     (and {
-        (is Friend (who at:(ahead (value) #1)))
+        (is Friend (who at:(ahead #1 #2)))
         (can Move
             (do
-                (move (from: (value)) (to: (ahead (value) #1)))
+                (move (from: #1) (to: (ahead #1 #2)))
                 ifAfterwards:(not ("KingInCheck" (next) (mover)))
             )
         )
@@ -451,19 +325,15 @@
 (define "CountTries"
     (and {
         (set Score Next 0)
-        (forEach Value min:1 max:63
-            (if (= (what at: (value)) (next))
-                (and {
-                    (if
-                        ("CanPawnCapture" FR)
-                        (addScore Next 1)
-                    )
-                    (if
-                        ("CanPawnCapture" FL)
-                        (addScore Next 1)
-                    )
-                })
-            )
+        (forEach Site (sites Occupied by:Next "Pawn")
+            (and {
+                (if ("CanPawnCapture" (site) FR)
+                    (addScore Next 1)
+                )
+                (if ("CanPawnCapture" (site) FL)
+                    (addScore Next 1)
+                )
+            })
         )
     })
 )
@@ -559,7 +429,10 @@
         )
         (or
             (is Enemy (who at:(last To)))
-            (= (last To) (var "EnPassantLocation"))
+            (and
+                (is Pending)
+                (= (last To) (value Pending))
+            )
         )
     })
 )
@@ -704,12 +577,11 @@
         )
         "CountTries"
         ("ResetIllegalMovesList")
-        ("ForgetEquipmentMode")
+        (set Var "EquipmentMode" 0)
     })
 )
 
 (define "SetEnPassantLocation"
-    (set Var "EnPassantLocation" (ahead (last To) Backward))
     (set Pending (ahead (last To) Backward))
 )
 
@@ -730,7 +602,6 @@
                 (to (last To))
                 (then
                     (and {
-                        (set Var "EnPassantLocation" -1)
                         (if (is In (last To) (sites Mover "Promotion"))
                             (moveAgain)
                         )
@@ -748,7 +619,6 @@
                     (to (last To))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" -1)
                             ("NoteCapture" (last To) (var "CapturedPiece"))
                             (if (is In (last To) (sites Mover "Promotion"))
                                 (moveAgain)
@@ -760,7 +630,11 @@
                 )
             })
         )
-        (if (and ("IsMovingPiece" "Pawn") (= (last To) (var "EnPassantLocation")))
+        (if (and {
+                ("IsMovingPiece" "Pawn")
+                (is Pending)
+                (= (last To) (value Pending))
+            })
             (move
                 (from (last From))
                 (to (last To))
@@ -772,7 +646,6 @@
                             (ahead (last To) Backward)
                             (then
                                 (and {
-                                    (set Var "EnPassantLocation" -1)
                                     ("NoteCapture" (var "CaptureLocation") (var "CapturedPiece"))
                                     "CommonPostMoveActions"
                                     (set Counter)
@@ -811,7 +684,6 @@
                     (to (last To))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" -1)
                             ("NoteCapture" (last To) (var "CapturedPiece"))
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (last To))
@@ -833,7 +705,6 @@
                 (to (last To))
                 (then
                     (and {
-                        (set Var "EnPassantLocation" -1)
                         "CommonPostMoveActions"
                         ("PieceHasMoved" (last To))
                     })
@@ -848,7 +719,6 @@
                     (to (last To))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" -1)
                             ("NoteCapture" (last To) (var "CapturedPiece"))
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (last To))
@@ -864,7 +734,6 @@
                 (to (last To))
                 (then
                     (and {
-                        (set Var "EnPassantLocation" -1)
                         "CommonPostMoveActions"
                         ("PieceHasMoved" (last To))
                     })
@@ -879,7 +748,6 @@
                     (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" -1)
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
                         })
@@ -895,7 +763,6 @@
                     (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" -1)
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
                         })
@@ -926,19 +793,6 @@
     )
 )
 
-(define "CaptureForwardDiagonal"
-    (move
-        Step
-        (directions {FR FL})
-        (to
-            if:(is Enemy (who at:(to)))
-            (apply
-                (remove (to))
-            )
-        )
-    )
-)
-
 (define "PromotionCondition"
     (and
         (is In (last To) (sites Mover "Promotion"))
@@ -946,11 +800,7 @@
     )
 )
 
-(define "DoubleStep"
-    (move Slide (directions Forward) (between (exact 2)) (to if:(is Empty (to))))
-)
-
-(define "AttemptDoubleStep"
+(define "AttemptDoubleStepForward"
     (move Slide (directions Forward) (between (exact 2)) (to if:(not (is Friend (who at:(to))))))
 )
 
@@ -979,7 +829,7 @@
 
 (define "KriegspielRook"
     (piece "Rook" Each
-        (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (if (not (= (var "EquipmentMode") 1))
             ("AttemptSlide" Orthogonal)
 
             (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -989,7 +839,7 @@
 
 (define "KriegspielBishop"
     (piece "Bishop" Each
-        (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (if (not (= (var "EquipmentMode") 1))
             ("AttemptSlide" Diagonal)
 
             (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -999,7 +849,7 @@
 
 (define "KriegspielQueen"
     (piece "Queen" Each
-        (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (if (not (= (var "EquipmentMode") 1))
             ("AttemptSlide" (union Orthogonal Diagonal))
 
             (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -1009,16 +859,16 @@
 
 (define "KriegspielPawn"
     (piece "Pawn" Each
-        (if (not (is In 1 (values Remembered "EquipmentMode")))
+        (if (not (= (var "EquipmentMode") 1))
             (or {
                 "AttemptStepForward"
-                (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStep")
+                (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStepForward")
                 (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
             })
 
             (or {
                 "StepForwardToEmpty"
-                (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStep")
+                (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStepForwardToEmpty")
                 ("StepToEnemy" (directions {FR FL}))
                 "EnPassant"
             })
@@ -1031,7 +881,7 @@
         (or {
             (move Step All (to if:(not (is Friend (who at:(to)))) (apply (if (is Enemy (who at:(to))) (remove (to))))))
             (if (= (from) (where "King" Mover))
-                (if (not (is In 1 (values Remembered "EquipmentMode")))
+                (if (not (= (var "EquipmentMode") 1))
                     (or {
                         (move (from) (to (ahead (from) steps:2 W) if:(and {
                             ("HasNeverMoved" "King")
@@ -1120,16 +970,6 @@
     })
 )
 
-(define "RememberEquipmentMode"
-    (if (not (is In 1 (values Remembered "EquipmentMode")))
-        (remember Value "EquipmentMode" 1)
-    )
-)
-
-(define "ForgetEquipmentMode"
-    (forget Value "EquipmentMode" All)
-)
-
 (define "CanMove"
     (or {
         (is In (last From) (values Remembered "CheckedKingSite"))
@@ -1188,6 +1028,142 @@
         (map "Pawn" {(pair 1 1) (pair 2 2)})
         (map "RookLeft" {(pair 1 "A1") (pair 2 "A8")})
         (map "RookRight" {(pair 1 "H1") (pair 2 "H8")})
+        (map "CaptureNotePawn"
+            {
+                (pair (coord:"A1") "Pawn at A1 captured")
+                (pair (coord:"A2") "Pawn at A2 captured")
+                (pair (coord:"A3") "Pawn at A3 captured")
+                (pair (coord:"A4") "Pawn at A4 captured")
+                (pair (coord:"A5") "Pawn at A5 captured")
+                (pair (coord:"A6") "Pawn at A6 captured")
+                (pair (coord:"A7") "Pawn at A7 captured")
+                (pair (coord:"A8") "Pawn at A8 captured")
+                (pair (coord:"B1") "Pawn at B1 captured")
+                (pair (coord:"B2") "Pawn at B2 captured")
+                (pair (coord:"B3") "Pawn at B3 captured")
+                (pair (coord:"B4") "Pawn at B4 captured")
+                (pair (coord:"B5") "Pawn at B5 captured")
+                (pair (coord:"B6") "Pawn at B6 captured")
+                (pair (coord:"B7") "Pawn at B7 captured")
+                (pair (coord:"B8") "Pawn at B8 captured")
+                (pair (coord:"C1") "Pawn at C1 captured")
+                (pair (coord:"C2") "Pawn at C2 captured")
+                (pair (coord:"C3") "Pawn at C3 captured")
+                (pair (coord:"C4") "Pawn at C4 captured")
+                (pair (coord:"C5") "Pawn at C5 captured")
+                (pair (coord:"C6") "Pawn at C6 captured")
+                (pair (coord:"C7") "Pawn at C7 captured")
+                (pair (coord:"C8") "Pawn at C8 captured")
+                (pair (coord:"D1") "Pawn at D1 captured")
+                (pair (coord:"D2") "Pawn at D2 captured")
+                (pair (coord:"D3") "Pawn at D3 captured")
+                (pair (coord:"D4") "Pawn at D4 captured")
+                (pair (coord:"D5") "Pawn at D5 captured")
+                (pair (coord:"D6") "Pawn at D6 captured")
+                (pair (coord:"D7") "Pawn at D7 captured")
+                (pair (coord:"D8") "Pawn at D8 captured")
+                (pair (coord:"E1") "Pawn at E1 captured")
+                (pair (coord:"E2") "Pawn at E2 captured")
+                (pair (coord:"E3") "Pawn at E3 captured")
+                (pair (coord:"E4") "Pawn at E4 captured")
+                (pair (coord:"E5") "Pawn at E5 captured")
+                (pair (coord:"E6") "Pawn at E6 captured")
+                (pair (coord:"E7") "Pawn at E7 captured")
+                (pair (coord:"E8") "Pawn at E8 captured")
+                (pair (coord:"F1") "Pawn at F1 captured")
+                (pair (coord:"F2") "Pawn at F2 captured")
+                (pair (coord:"F3") "Pawn at F3 captured")
+                (pair (coord:"F4") "Pawn at F4 captured")
+                (pair (coord:"F5") "Pawn at F5 captured")
+                (pair (coord:"F6") "Pawn at F6 captured")
+                (pair (coord:"F7") "Pawn at F7 captured")
+                (pair (coord:"F8") "Pawn at F8 captured")
+                (pair (coord:"G1") "Pawn at G1 captured")
+                (pair (coord:"G2") "Pawn at G2 captured")
+                (pair (coord:"G3") "Pawn at G3 captured")
+                (pair (coord:"G4") "Pawn at G4 captured")
+                (pair (coord:"G5") "Pawn at G5 captured")
+                (pair (coord:"G6") "Pawn at G6 captured")
+                (pair (coord:"G7") "Pawn at G7 captured")
+                (pair (coord:"G8") "Pawn at G8 captured")
+                (pair (coord:"H1") "Pawn at H1 captured")
+                (pair (coord:"H2") "Pawn at H2 captured")
+                (pair (coord:"H3") "Pawn at H3 captured")
+                (pair (coord:"H4") "Pawn at H4 captured")
+                (pair (coord:"H5") "Pawn at H5 captured")
+                (pair (coord:"H6") "Pawn at H6 captured")
+                (pair (coord:"H7") "Pawn at H7 captured")
+                (pair (coord:"H8") "Pawn at H8 captured")
+            }
+        )
+        (map "CaptureNotePiece"
+            {
+                (pair (coord:"A1") "Piece at A1 captured")
+                (pair (coord:"A2") "Piece at A2 captured")
+                (pair (coord:"A3") "Piece at A3 captured")
+                (pair (coord:"A4") "Piece at A4 captured")
+                (pair (coord:"A5") "Piece at A5 captured")
+                (pair (coord:"A6") "Piece at A6 captured")
+                (pair (coord:"A7") "Piece at A7 captured")
+                (pair (coord:"A8") "Piece at A8 captured")
+                (pair (coord:"B1") "Piece at B1 captured")
+                (pair (coord:"B2") "Piece at B2 captured")
+                (pair (coord:"B3") "Piece at B3 captured")
+                (pair (coord:"B4") "Piece at B4 captured")
+                (pair (coord:"B5") "Piece at B5 captured")
+                (pair (coord:"B6") "Piece at B6 captured")
+                (pair (coord:"B7") "Piece at B7 captured")
+                (pair (coord:"B8") "Piece at B8 captured")
+                (pair (coord:"C1") "Piece at C1 captured")
+                (pair (coord:"C2") "Piece at C2 captured")
+                (pair (coord:"C3") "Piece at C3 captured")
+                (pair (coord:"C4") "Piece at C4 captured")
+                (pair (coord:"C5") "Piece at C5 captured")
+                (pair (coord:"C6") "Piece at C6 captured")
+                (pair (coord:"C7") "Piece at C7 captured")
+                (pair (coord:"C8") "Piece at C8 captured")
+                (pair (coord:"D1") "Piece at D1 captured")
+                (pair (coord:"D2") "Piece at D2 captured")
+                (pair (coord:"D3") "Piece at D3 captured")
+                (pair (coord:"D4") "Piece at D4 captured")
+                (pair (coord:"D5") "Piece at D5 captured")
+                (pair (coord:"D6") "Piece at D6 captured")
+                (pair (coord:"D7") "Piece at D7 captured")
+                (pair (coord:"D8") "Piece at D8 captured")
+                (pair (coord:"E1") "Piece at E1 captured")
+                (pair (coord:"E2") "Piece at E2 captured")
+                (pair (coord:"E3") "Piece at E3 captured")
+                (pair (coord:"E4") "Piece at E4 captured")
+                (pair (coord:"E5") "Piece at E5 captured")
+                (pair (coord:"E6") "Piece at E6 captured")
+                (pair (coord:"E7") "Piece at E7 captured")
+                (pair (coord:"E8") "Piece at E8 captured")
+                (pair (coord:"F1") "Piece at F1 captured")
+                (pair (coord:"F2") "Piece at F2 captured")
+                (pair (coord:"F3") "Piece at F3 captured")
+                (pair (coord:"F4") "Piece at F4 captured")
+                (pair (coord:"F5") "Piece at F5 captured")
+                (pair (coord:"F6") "Piece at F6 captured")
+                (pair (coord:"F7") "Piece at F7 captured")
+                (pair (coord:"F8") "Piece at F8 captured")
+                (pair (coord:"G1") "Piece at G1 captured")
+                (pair (coord:"G2") "Piece at G2 captured")
+                (pair (coord:"G3") "Piece at G3 captured")
+                (pair (coord:"G4") "Piece at G4 captured")
+                (pair (coord:"G5") "Piece at G5 captured")
+                (pair (coord:"G6") "Piece at G6 captured")
+                (pair (coord:"G7") "Piece at G7 captured")
+                (pair (coord:"G8") "Piece at G8 captured")
+                (pair (coord:"H1") "Piece at H1 captured")
+                (pair (coord:"H2") "Piece at H2 captured")
+                (pair (coord:"H3") "Piece at H3 captured")
+                (pair (coord:"H4") "Piece at H4 captured")
+                (pair (coord:"H5") "Piece at H5 captured")
+                (pair (coord:"H6") "Piece at H6 captured")
+                (pair (coord:"H7") "Piece at H7 captured")
+                (pair (coord:"H8") "Piece at H8 captured")
+            }
+        )
         (regions "Promotion" P1 (sites Top))
         (regions "Promotion" P2 (sites Bottom))
     })
@@ -1227,7 +1203,7 @@
                             (priority
                                 (if "LegalMove"
                                     (and {
-                                        ("RememberEquipmentMode")
+                                        (set Var "EquipmentMode" 1)
                                         "PerformLegalMove"
                                         (forget Value "CheckedKingSite" All)
                                         (forget Value "CheckingPieceSite" All)
@@ -1288,3 +1264,4 @@
         (board Style Chess)
     })
 )
+
