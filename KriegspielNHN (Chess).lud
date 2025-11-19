@@ -221,6 +221,29 @@
                         distance:7
                     )
                     (remember Value "CheckingPieceSite" (site) unique:True)
+                    (then (and {
+                        (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)))
+                        (if (= (next) 1)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:2 S) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:1 S) unique:True)
+                                )
+                            })
+                        )
+                        (if (= (next) 2)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:2 N) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SE distance:7)) 1)) steps:1 N) unique:True)
+                                )
+                            })
+                        )
+                    }))
                 )
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
@@ -243,6 +266,29 @@
                         distance:7
                     )
                     (remember Value "CheckingPieceSite" (site) unique:True)
+                    (then (and {
+                        (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)))
+                        (if (= (next) 1)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:2 S) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:1 S) unique:True)
+                                )
+                            })
+                        )
+                        (if (= (next) 2)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:2 N) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) SW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) SW distance:7)) 1)) steps:1 N) unique:True)
+                                )
+                            })
+                        )
+                    }))
                 )
                 (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
@@ -265,6 +311,29 @@
                         distance:7
                     )
                     (remember Value "CheckingPieceSite" (site) unique:True)
+                    (then (and {
+                        (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)))
+                        (if (= (next) 1)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:2 S) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:1 S) unique:True)
+                                )
+                            })
+                        )
+                        (if (= (next) 2)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:2 N) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NE distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NE distance:7)) 1)) steps:1 N) unique:True)
+                                )
+                            })
+                        )
+                    }))
                 )
                 (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
@@ -287,6 +356,29 @@
                         distance:7
                     )
                     (remember Value "CheckingPieceSite" (site) unique:True)
+                    (then (and {
+                        (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)))
+                        (if (= (next) 1)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:2 S) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:1 S) unique:True)
+                                )
+                            })
+                        )
+                        (if (= (next) 2)
+                            (and {
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:2 N) unique:True)
+                                )
+                                (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) NW distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) NW distance:7)) 1)) steps:1 N) unique:True)
+                                )
+                            })
+                        )
+                    }))
                 )
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
@@ -295,26 +387,76 @@
         (if ("FileCheck" (next) (mover)) 
             (and {
                 (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) N)) 0)
-                    (forEach Site
-                        (sites Direction
-                            from:(where "King" (next))
-                            N
-                            included:False
-                            distance:7
+                    (and {
+                        (forEach Site
+                            (sites Direction
+                                from:(where "King" (next))
+                                N
+                                included:False
+                                distance:7
+                            )
+                            (remember Value "CheckingPieceSite" (site) unique:True)
+                            (then (and {
+                                (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)))
+                                (if (= (next) 1)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:2 S) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:1 S) unique:True)
+                                        )
+                                    })
+                                )
+                                (if (= (next) 2)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:2 N) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) N distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) N distance:7)) 1)) steps:1 N) unique:True)
+                                        )
+                                    })
+                                )
+                            }))
                         )
-                        (remember Value "CheckingPieceSite" (site) unique:True)
-                    )
+                    })
                 )
                 (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) S)) 0)
-                    (forEach Site
-                        (sites Direction
-                            from:(where "King" (next))
-                            S
-                            included:False
-                            distance:7
+                    (and {
+                        (forEach Site
+                            (sites Direction
+                                from:(where "King" (next))
+                                S
+                                included:False
+                                distance:7
+                            )
+                            (remember Value "CheckingPieceSite" (site) unique:True)
+                            (then (and {
+                                (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)))
+                                (if (= (next) 1)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:2 S) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:1 S) unique:True)
+                                        )
+                                    })
+                                )
+                                (if (= (next) 2)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:2 N) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) S distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) S distance:7)) 1)) steps:1 N) unique:True)
+                                        )
+                                    })
+                                )
+                            }))
                         )
-                        (remember Value "CheckingPieceSite" (site) unique:True)
-                    )
+                    })
                 )
                 (note "File check")
             })
@@ -322,26 +464,76 @@
         (if ("RankCheck" (next) (mover))
             (and {
                 (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) E)) 0)
-                    (forEach Site
-                        (sites Direction
-                            from:(where "King" (next))
-                            E
-                            included:False
-                            distance:7
+                    (and {
+                        (forEach Site
+                            (sites Direction
+                                from:(where "King" (next))
+                                E
+                                included:False
+                                distance:7
+                            )
+                            (remember Value "CheckingPieceSite" (site) unique:True)
+                            (then (and {
+                                (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)))
+                                (if (= (next) 1)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:2 S) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:1 S) unique:True)
+                                        )
+                                    })
+                                )
+                                (if (= (next) 2)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:2 N) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) E distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) E distance:7)) 1)) steps:1 N) unique:True)
+                                        )
+                                    })
+                                )
+                            }))
                         )
-                        (remember Value "CheckingPieceSite" (site) unique:True)
-                    )
+                    })
                 )
                 (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) W)) 0)
-                    (forEach Site
-                        (sites Direction
-                            from:(where "King" (next))
-                            W
-                            included:False
-                            distance:7
+                    (and {
+                        (forEach Site
+                            (sites Direction
+                                from:(where "King" (next))
+                                W
+                                included:False
+                                distance:7
+                            )
+                            (remember Value "CheckingPieceSite" (site) unique:True)
+                            (then (and {
+                                (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)))
+                                (if (= (next) 1)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:2 S) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:1 S) unique:True)
+                                        )
+                                    })
+                                )
+                                (if (= (next) 2)
+                                    (and {
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:2 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:2 N) unique:True)
+                                        )
+                                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:1 N)) (mapEntry "Pawn" (next)))
+                                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) W distance:7) index: (- (count Sites in:(sites Direction from:(where "King" (next)) W distance:7)) 1)) steps:1 N) unique:True)
+                                        )
+                                    })
+                                )
+                            }))
                         )
-                        (remember Value "CheckingPieceSite" (site) unique:True)
-                    )
+                    })
                 )
                 (note "Rank check")
             })
@@ -371,7 +563,30 @@
                     })
                     (sites Occupied by:Next))
                     
-                    (remember Value "CheckingPieceSite" (site) unique:True)
+                    (and {
+                        (remember Value "CheckingPieceSite" (site) unique:True)
+                        (remember Value "LastCheckingSite" (site) unique:True)
+                        (if (= (next) 1)
+                            (and {
+                                (if (= (what at:(ahead (site) steps:2 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (site) steps:2 S) unique:True)
+                                )
+                                (if (= (what at:(ahead (site) steps:1 S)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (site) steps:1 S) unique:True)
+                                )
+                            })
+                        )
+                        (if (= (next) 2)
+                            (and {
+                                (if (= (what at:(ahead (site) steps:2 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (site) steps:2 N) unique:True)
+                                )
+                                (if (= (what at:(ahead (site) steps:1 N)) (mapEntry "Pawn" (next)))
+                                    (remember Value "BannedPawnSite" (ahead (site) steps:1 N) unique:True)
+                                )
+                            })
+                        )
+                    })
                 )
                 (note "Knight Check")
             })
@@ -1105,7 +1320,9 @@
     (or {
         (is In (last From) (values Remembered "CheckedKingSite"))
         (= 0 (size Array (values Remembered "CheckingPieceSite")))
-        (is In (last To) (values Remembered "CheckingPieceSite"))
+        (if (not (and { (is In (last From) (values Remembered "BannedPawnSite")) (is In (last To) (values Remembered "LastCheckingSite")) }))
+            (is In (last To) (values Remembered "CheckingPieceSite"))
+        )
     })
 )
 
@@ -1202,6 +1419,8 @@
                                         "PerformLegalMove"
                                         (forget Value "CheckedKingSite" All)
                                         (forget Value "CheckingPieceSite" All)
+                                        (forget Value "LastCheckingSite" All)
+                                        (forget Value "BannedPawnSite" All)
                                     })
                                 )
                                 (and {
