@@ -202,37 +202,39 @@
 )
 
 (define "ProcessCheck" 
-    (forEach Site
-        (sites Direction
-            from:(where "King" (next))
-            #1
-            stop:(is Enemy (who at:(to)))
-            stopIncluded:False
-        )
-        (remember Value "CheckingPieceSite" (site) unique:True)
-        (then 
-            (and {
-                (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
-                (if (= (next) 1)
-                    (and {
-                    (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                        (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
-                    )
-                    (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                        (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
-                    )
-                    })
+    (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
+        (forEach Site
+            (sites Direction
+                from:(where "King" (next))
+                #1
+                stop:(is Enemy (who at:(to)))
+                stopIncluded:False
+            )
+            (remember Value "CheckingPieceSite" (site) unique:True)
+            (then 
+                (and {
+                    (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+                    (if (= (next) 1)
+                        (and {
+                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                        )
+                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                        )
+                        })
 
-                    (and {
-                    (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                        (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                        (and {
+                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                        )
+                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                        )
+                        })
                     )
-                    (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                        (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
-                    )
-                    })
-                )
-            })
+                })
+            )
         )
     )
 )
@@ -241,80 +243,56 @@
     (and {
         (remember Value "CheckedKingSite" (where "King" (next)) unique:True)
         (if
-            (or
+            (or {
                 ("DiagonalCheck" (next) (mover) SE)
                 (and
                     (= (next) 2)
                     ("PawnDiagonalCheck" (next) (mover) SE)
                 )
-            )
-            (and {
-                ("ProcessCheck" SE)
-                (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
-                (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
-            })
-        )
-        (if
-            (or
-                ("DiagonalCheck" (next) (mover) SW)
-                (and
-                    (= (next) 2)
-                    ("PawnDiagonalCheck" (next) (mover) SW)
-                )
-            )
-            (and {
-                ("ProcessCheck" SW)
-                (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
-                (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
-            })
-        )
-        (if
-            (or
-                ("DiagonalCheck" (next) (mover) NE)
-                (and
-                    (= (next) 1)
-                    ("PawnDiagonalCheck" (next) (mover) NE)
-                )
-            )
-            (and {
-                ("ProcessCheck" NE)
-                (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
-                (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
-            })
-        )
-        (if
-            (or
                 ("DiagonalCheck" (next) (mover) NW)
                 (and
                     (= (next) 1)
                     ("PawnDiagonalCheck" (next) (mover) NW)
                 )
-            )
+            })
             (and {
+                ("ProcessCheck" SE)
                 ("ProcessCheck" NW)
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
             })
         )
+        (if
+            (or {
+                ("DiagonalCheck" (next) (mover) SW)
+                (and
+                    (= (next) 2)
+                    ("PawnDiagonalCheck" (next) (mover) SW)
+                )
+                ("DiagonalCheck" (next) (mover) NE)
+                (and
+                    (= (next) 1)
+                    ("PawnDiagonalCheck" (next) (mover) NE)
+                )
+            })
+            (and {
+                ("ProcessCheck" SW)
+                ("ProcessCheck" NE)
+                (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
+                (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
+            })
+        )
         (if ("FileCheck" (next) (mover)) 
             (and {
-                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) N)) 0)
-                    ("ProcessCheck" N)
-                )
-                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) S)) 0)
-                    ("ProcessCheck" S)
-                )
+                ("ProcessCheck" N)
+                ("ProcessCheck" S)
                 (note "File check")
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
-                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) E)) 0)
-                    ("ProcessCheck" E)
-                )
-                (if (> (count Sites in:(sites LineOfSight Piece at:(where "King" (next)) W)) 0)
-                    ("ProcessCheck" W)
-                )
+                ("ProcessCheck" E)
+                ("ProcessCheck" W)
                 (note "Rank check")
             })
         )
