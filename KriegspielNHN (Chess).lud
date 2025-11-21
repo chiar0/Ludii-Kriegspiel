@@ -688,7 +688,6 @@
 
 (define "SetEnPassantLocation"
     (set Var "EnPassantLocation" (ahead (last To) Backward))
-    (set Pending (sites { (ahead (last To) Backward) }))
 )
 
 (define "CountEnPassantTries"
@@ -839,10 +838,7 @@
 )
 
 (define "InLocationEnPassant"
-    (and
-        (is Pending)
-        (is In (to) (sites Pending))
-    )
+    (= (to) (var "EnPassantLocation"))
 )
 
 (define "EnPassant"
