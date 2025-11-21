@@ -210,26 +210,26 @@
                 stop:(is Enemy (who at:(to)))
                 stopIncluded:False
             )
-            (remember Value "CheckingPieceSite" (site) unique:True)
+            (remember Value "CheckSites" (site) unique:True)
             (then 
                 (and {
-                    (remember Value "LastCheckingSite" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+                    (remember Value "LastCheckSites" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) unique:True)
                     (if (= (next) 1)
                         (and {
                         (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
                         )
                         (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
                         )
                         })
 
                         (and {
                         (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
                         )
                         (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "BannedPawnSite" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
                         )
                         })
                     )
@@ -579,26 +579,22 @@
                     ("KnightMovement" E S)
                 })
             )
-            (and
+            (and {
                 ("IsMovingPiece" "Queen")
                 (or {
                     ("DiagonalMovement")
                     ("OrthogonalMovement")
                 })
-            )
-            (and
+            })
+            (and {
                 ("IsMovingPiece" "Rook")
-                (or {
-                    ("OrthogonalMovement")
-                })
-            )
-            (and
+                ("OrthogonalMovement")
+            })
+            (and {
                 ("IsMovingPiece" "Bishop")
-                (or {
-                    ("DiagonalMovement")
-                })
-            )
-            (and
+                ("DiagonalMovement")
+            })
+            (and {
                 ("MovingTheKing")
                 (or {
                     ("KingMovement")
@@ -614,7 +610,7 @@
                         (is Empty (ahead (last From) steps: 3 W))
                     })
                 })
-            )
+            })
         })
     )
 )
@@ -680,7 +676,7 @@
             )
         )
         "CountTries"
-        ("ResetIllegalMovesList")
+        ("ResetIllegalMoves")
         (set Var "EquipmentMode" 0)
     })
 )
@@ -1056,7 +1052,16 @@
     })
 )
 
-(define "ResetIllegalMovesList"
+(define "ResetCheck"
+    (and {
+        (forget Value "CheckedKingSite" All)
+        (forget Value "CheckSites" All)
+        (forget Value "LastCheckSites" All)
+        (forget Value "PawnSites" All)
+    })
+)
+
+(define "ResetIllegalMoves"
     (and {
         (forget Value "IllegalMovesP1" All)
         (forget Value "IllegalMovesP2" All)
@@ -1077,9 +1082,9 @@
 (define "CanMove"
     (or {
         (is In (last From) (values Remembered "CheckedKingSite"))
-        (= 0 (size Array (values Remembered "CheckingPieceSite")))
-        (if (not (and { (is In (last From) (values Remembered "BannedPawnSite")) (is In (last To) (values Remembered "LastCheckingSite")) }))
-            (is In (last To) (values Remembered "CheckingPieceSite"))
+        (= 0 (size Array (values Remembered "CheckSites")))
+        (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (last To) (values Remembered "LastCheckSites")) }))
+            (is In (last To) (values Remembered "CheckSites"))
         )
     })
 )
@@ -1175,10 +1180,7 @@
                                     (and {
                                         (set Var "EquipmentMode" 1)
                                         "PerformLegalMove"
-                                        (forget Value "CheckedKingSite" All)
-                                        (forget Value "CheckingPieceSite" All)
-                                        (forget Value "LastCheckingSite" All)
-                                        (forget Value "BannedPawnSite" All)
+                                        ("ResetCheck")
                                     })
                                 )
                                 (and {
