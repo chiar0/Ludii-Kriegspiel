@@ -203,37 +203,31 @@
 
 (define "ProcessCheck" 
     (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
-        (forEach Site
-            (sites Direction
-                from:(where "King" (next))
-                #1
-                stop:(is Enemy (who at:(to)))
-                stopIncluded:False
-            )
+        (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
             (remember Value "CheckSites" (site) unique:True)
             (then 
-                (and {
+                (and 
                     (remember Value "LastCheckSites" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) unique:True)
                     (if (= (next) 1)
-                        (and {
-                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                        (and
+                            (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                            )
+                            (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                            )
                         )
-                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
-                        )
-                        })
 
-                        (and {
-                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                        (and 
+                            (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S)) (mapEntry "Pawn" (next)))
+                                (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:2 S) unique:True)
+                            )
+                            (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
+                                (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
+                            )
                         )
-                        (if (= (what at:(ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S)) (mapEntry "Pawn" (next)))
-                            (remember Value "PawnSites" (ahead (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) steps:1 S) unique:True)
-                        )
-                        })
                     )
-                })
+                )
             )
         )
     )
@@ -325,24 +319,24 @@
                         (remember Value "CheckingPieceSite" (site) unique:True)
                         (remember Value "LastCheckingSite" (site) unique:True)
                         (if (= (next) 1)
-                            (and {
+                            (and 
                                 (if (= (what at:(ahead (site) steps:2 S)) (mapEntry "Pawn" (next)))
                                     (remember Value "BannedPawnSite" (ahead (site) steps:2 S) unique:True)
                                 )
                                 (if (= (what at:(ahead (site) steps:1 S)) (mapEntry "Pawn" (next)))
                                     (remember Value "BannedPawnSite" (ahead (site) steps:1 S) unique:True)
                                 )
-                            })
+                            )
                         )
                         (if (= (next) 2)
-                            (and {
+                            (and
                                 (if (= (what at:(ahead (site) steps:2 N)) (mapEntry "Pawn" (next)))
                                     (remember Value "BannedPawnSite" (ahead (site) steps:2 N) unique:True)
                                 )
                                 (if (= (what at:(ahead (site) steps:1 N)) (mapEntry "Pawn" (next)))
                                     (remember Value "BannedPawnSite" (ahead (site) steps:1 N) unique:True)
                                 )
-                            })
+                            )
                         )
                     })
                 )
@@ -410,7 +404,7 @@
 )
 
 (define "CanPawnCapture"
-    (and {
+    (and
         (is Friend (who at:(ahead (value) #1)))
         (can Move
             (do
@@ -418,28 +412,26 @@
                 ifAfterwards:(not ("KingInCheck" (next) (mover)))
             )
         )
-    })
+    )
 )
 
 
 (define "CountTries"
-    (and {
+    (and
         (set Score Next 0)
         (forEach Value min:1 max:63
             (if (= (what at: (value)) (next))
-                (and {
-                    (if
-                        ("CanPawnCapture" FR)
+                (and
+                    (if ("CanPawnCapture" FR)
                         (addScore Next 1)
                     )
-                    (if
-                        ("CanPawnCapture" FL)
+                    (if ("CanPawnCapture" FL)
                         (addScore Next 1)
                     )
-                })
+                )
             )
         )
-    })
+    )
 )
 
 (define "SafePassingLocation"
@@ -579,22 +571,22 @@
                     ("KnightMovement" E S)
                 })
             )
-            (and {
+            (and
                 ("IsMovingPiece" "Queen")
-                (or {
+                (or
                     ("DiagonalMovement")
                     ("OrthogonalMovement")
-                })
-            })
-            (and {
+                )
+            )
+            (and
                 ("IsMovingPiece" "Rook")
                 ("OrthogonalMovement")
-            })
-            (and {
+            )
+            (and
                 ("IsMovingPiece" "Bishop")
                 ("DiagonalMovement")
-            })
-            (and {
+            )
+            (and 
                 ("MovingTheKing")
                 (or {
                     ("KingMovement")
@@ -610,7 +602,7 @@
                         (is Empty (ahead (last From) steps: 3 W))
                     })
                 })
-            })
+            )
         })
     )
 )
@@ -618,61 +610,61 @@
 (define "CommonPostMoveActions"
     (and {
         (if ("KingInCheck" (next) (mover))
-            (and {
+            (and 
                 "CheckType"
                 (if ("NextCanNotMove")
                     (set Var "NextLost" 1)
                 )
-            })
+            )
         )
         (if (= (var "DrawCondition") 0)
             (if (not ("KingInCheck" (next) (mover)))
                 (if ("NextCanNotMove")
-                    (and {
+                    (and 
                         (set Var "DrawCondition" 1)
                         (note "Draw by stalemate")
-                    })
+                    )
                 )
             )
         )
         (if (= (var "DrawCondition") 0)
             (if (= (counter) 99)
-                (and {
+                (and 
                     (set Var "DrawCondition" 1)
                     (note "Draw by fifty-move rule")
-                })
+                )
             )
         )
         (if (= (var "DrawCondition") 0)
             (if "OnlyKingsRemaining"
-                (and {
+                (and
                     (set Var "DrawCondition" 1)
                     (note "Draw by insufficient material: kings only")
-                })
+                )
             )
         )
         (if (= (var "DrawCondition") 0)
             (if "KingVsKingAndSingleBishop"
-                (and {
+                (and
                     (set Var "DrawCondition" 1)
                     (note "Draw by insufficient material: king and bishop vs king")
-                })
+                )
             )
         )
         (if (= (var "DrawCondition") 0)
             (if "KingVsKingAndSingleKnight"
-                (and {
+                (and
                     (set Var "DrawCondition" 1)
                     (note "Draw by insufficient material: king and knight vs king")
-                })
+                )
             )
         )
         (if (= (var "DrawCondition") 0)
             (if "KingsAndBishopsPerSide"
-                (and {
+                (and
                     (set Var "DrawCondition" 1)
                     (note "Draw by insufficient material: kings and bishops")
-                })
+                )
             )
         )
         "CountTries"
@@ -772,8 +764,10 @@
         )
         (if (and
                 (or {
-                    ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen")
-                    ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")
+                    ("IsMovingPiece" "Knight") 
+                    ("IsMovingPiece" "Queen")
+                    ("IsMovingPiece" "Rook") 
+                    ("IsMovingPiece" "Bishop")
                 })
                 (is Enemy (who at:(last To)))
             )
@@ -795,8 +789,10 @@
         )
         (if (and
                 (or {
-                    ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen")
-                    ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")
+                    ("IsMovingPiece" "Knight") 
+                    ("IsMovingPiece" "Queen")
+                    ("IsMovingPiece" "Rook") 
+                    ("IsMovingPiece" "Bishop")
                 })
                 (is Empty (last To))
             )
@@ -804,10 +800,10 @@
                 (from (last From))
                 (to (last To))
                 (then
-                    (and {
+                    (and
                         "CommonPostMoveActions"
                         ("PieceHasMoved" (last To))
-                    })
+                    )
                 )
             )
         )
@@ -833,10 +829,10 @@
                 (from (last From))
                 (to (last To))
                 (then
-                    (and {
+                    (and
                         "CommonPostMoveActions"
                         ("PieceHasMoved" (last To))
-                    })
+                    )
                 )
             )
         )
@@ -847,10 +843,10 @@
                     (from (mapEntry "RookRight" (mover)))
                     (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
                     (then
-                        (and {
+                        (and
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                        })
+                        )
                     )
                 )
             )
@@ -862,10 +858,10 @@
                     (from (mapEntry "RookLeft" (mover)))
                     (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
                     (then
-                        (and {
+                        (and 
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                        })
+                        )
                     )
                 )
             )
