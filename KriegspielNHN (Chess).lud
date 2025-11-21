@@ -682,14 +682,13 @@
         "CountTries"
         ("ResetIllegalMoves")
         (set Var "EquipmentMode" 0)
-        (if (>= (counter) 0) (set Var "EnPassantLocation" -1)
-        )
+        (if (and (= (counter) 0) (!= (var "EnPassantLocation") -1)) (set Var "EnPassantLocation" -1))
     })
 )
 
 (define "SetEnPassantLocation"
     (set Var "EnPassantLocation" (ahead (last To) Backward))
-    (set Pending (sites { (ahead (last To) Backward) 0 }))
+    (set Pending (sites { (ahead (last To) Backward) }))
 )
 
 (define "CountEnPassantTries"
@@ -1028,21 +1027,21 @@
 )
 
 (define "ResetIllegalMoves"
-    (and {
+    (and
         (forget Value "IllegalMovesP1" All)
         (forget Value "IllegalMovesP2" All)
-    })
+    )
 )
 
 (define "RememberIllegalMove"
-    (and {
+    (and
         (if (= (mover) 1)
             (remember Value "IllegalMovesP1" (+ (* (last From) 100) (last To)) unique:True)
         )
         (if (= (mover) 2)
             (remember Value "IllegalMovesP2" (+ (* (last From) 100) (last To)) unique:True)
         )
-    })
+    )
 )
 
 (define "CanMove"
@@ -1152,6 +1151,7 @@
                                 )
                                 (and {
                                     ("RememberIllegalMove")
+                                    (set Counter (- (counter) 1))
                                     (note "Illegal move")
                                     (moveAgain)
                                 })
