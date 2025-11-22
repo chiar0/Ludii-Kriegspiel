@@ -1051,40 +1051,72 @@
     })
 )
 
-(define "GenerateValidMoves"
-    (and {
-        (move Select
-            (from (sites Occupied by:Mover))
-            (to
-                (sites To
-                    (do
-                        (forEach Piece)
-                        ifAfterwards:(and {
-                            ("CanMove")
-                            (= (from) (last From))
-                            (if (= (mover) 1)
-                                (not
-                                    (is In
-                                        (+ (* (from) 100) (last To))
-                                        (values Remembered "IllegalMovesP1")
-                                    )
-                                )
+//(define "GenerateValidMoves"
+//    (and {
+//        (move Select
+//            (from (sites Occupied by:Mover))
+//            (to
+//                (sites To
+//                    (do
+//                        (forEach Piece)
+//                        ifAfterwards:(and {
+//                            ("CanMove")
+//                            (= (from) (last From))
+//                            (if (= (mover) 1)
+//                                (not
+//                                    (is In
+//                                        (+ (* (from) 100) (last To))
+//                                        (values Remembered "IllegalMovesP1")
+//                                    )
+//                                )
+//                                (not
+//                                    (is In
+//                                        (+ (* (from) 100) (last To))
+//                                        (values Remembered "IllegalMovesP2")
+//                                    )
+//                                )
+//                            )
+//                        })
+//                    )
+//                )
+//            )
+//        )
+//        (move Propose "End" (then (note "Proposed draw")))
+//    })
+//)
 
-                                (not
-                                    (is In
-                                        (+ (* (from) 100) (last To))
-                                        (values Remembered "IllegalMovesP2")
-                                    )
+(define "GenerateValidMoves"
+    (move Select
+        (from (sites Occupied by:Mover))
+        (to
+            (sites To
+                (do
+                    (forEach Piece)
+                    ifAfterwards:(and {
+                        ("CanMove")
+                        (= (from) (last From))
+                        (if (= (mover) 1)
+                            (not
+                                (is In
+                                    (+ (* (from) 100) (last To))
+                                    (values Remembered "IllegalMovesP1")
                                 )
                             )
-                        })
-                    )
+
+                            (not
+                                (is In
+                                    (+ (* (from) 100) (last To))
+                                    (values Remembered "IllegalMovesP2")
+                                )
+                            )
+                        )
+                    })
                 )
             )
         )
-        (move Propose "End" (then (note "Proposed draw")))
-    })
+    )
 )
+
 
 (game "Kriegspiel (Chess)"
     (players {(player N) (player S)})
