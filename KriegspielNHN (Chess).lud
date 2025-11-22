@@ -679,7 +679,7 @@
                 )
             )
         )
-        (if (is Repeat Positional) (set Var "ProposedRepeat" 1))
+        (if (is Repeat Positional) (set Var "ProposedRepeat" (count Moves)))
         "CountTries"
         ("ResetIllegalMoves")
         (set Var "EquipmentMode" 0)
@@ -1126,10 +1126,13 @@
         })
         (play
             (if (is Proposed "End") 
-                (or (move Vote "End") (move Vote "No" (then (set Counter))))
+                (or (move Vote "End") (move Vote "No" (then (moveAgain))))
 
-                (if (= (var "ProposedRepeat") 1)
-                    (move Propose "End" (then (and (note "Proposed draw by repetition") (set Var "ProposedRepeat" 0))))
+                (if (= (var "ProposedRepeat") (count Moves))
+                    (and {
+                        (move Propose "End" (then (and (note "Proposed draw by repetition") (move Vote "End"))))
+                        (set Var "ProposedRepeat" 0)
+                    })
                     
                     (and
                         (if "PromotionCondition"
