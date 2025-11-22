@@ -679,6 +679,7 @@
                 )
             )
         )
+        (if (is Repeat Positional) (set Var "ProposedRepeat" 1))
         "CountTries"
         ("ResetIllegalMoves")
         (set Var "EquipmentMode" 0)
@@ -1121,44 +1122,53 @@
             (set Hidden (sites Occupied by: Next) to:Mover)
         })
         (play
-            (and
-                (if "PromotionCondition"
-                    (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
-                        (then
-                            ("CommonPostMoveActions")
-                        )
-                    )
-                )
-                (if (or
-                        ("NewTurn")
-                        (not "PromotionCondition")
-                    )
-                    ("GenerateValidMoves")
-                    (then
-                        (and {
-                            (priority
-                                (if "LegalMove"
-                                    (and {
-                                        (set Var "CapturedPiece"(what at:(ahead (last To) Backward)))
-                                        (set Var "EquipmentMode" 1)
-                                        "PerformLegalMove"
-                                        ("ResetCheck")
-                                    })
+            (if (is Proposed "End") 
+                (or (move Vote "End") (move Vote "No" (then (set Counter))))
+
+                (if (= (var "ProposedRepeat") 1)
+                    (move Propose "End" (then (and (note "Proposed draw by repetition") (set Var "ProposedRepeat" 0))))
+                    
+                    (and
+                        (if "PromotionCondition"
+                            (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
+                                (then
+                                    ("CommonPostMoveActions")
                                 )
+                            )
+                        )
+                        (if (or
+                                ("NewTurn")
+                                (not "PromotionCondition")
+                            )
+                            ("GenerateValidMoves")
+                            (then
                                 (and {
-                                    ("RememberIllegalMove")
-                                    (set Counter (- (counter) 1))
-                                    (note "Illegal move")
-                                    (moveAgain)
+                                    (priority
+                                        (if "LegalMove"
+                                            (and {
+                                                (set Var "CapturedPiece"(what at:(ahead (last To) Backward)))
+                                                (set Var "EquipmentMode" 1)
+                                                "PerformLegalMove"
+                                                ("ResetCheck")
+                                            })
+                                        )
+                                        (and {
+                                            ("RememberIllegalMove")
+                                            (set Counter (- (counter) 1))
+                                            (note "Illegal move")
+                                            (moveAgain)
+                                        })
+                                    )
                                 })
                             )
-                        })
+                        )
                     )
                 )
             )
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
+            (if (is Decided "End") (result Mover Draw))
             (if (= (var "DrawCondition") 1) (result Mover Draw))
         })
     )
