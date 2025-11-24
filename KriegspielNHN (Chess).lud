@@ -19,7 +19,7 @@
 
 (define "NoteCapture"
     (and {
-        (remember Value "AttackerSite" #1)
+        (remember Value "AttackerSite" #1 unique:True)
         ("BanPawnStep" #1)
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
@@ -262,20 +262,19 @@
                 (sites Occupied by:Next))
                 
                 (and {
-                    (remember Value "CheckSites" (site) unique:True)
-                    (remember Value "LastCheckSites" (site) unique:True)
+                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
                     ("BanPawnStep" (site))
                 })
             )
 
             (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
                 (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
-                    (remember Value "CheckSites" (site) unique:True)
-                    (then 
-                        (and 
-                            (remember Value "LastCheckSites" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) unique:True)
-                            ("BanPawnStep" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
-                        )
+                    (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+                        (and {
+                            (remember Value "CheckSites" (+ 100 (site)) unique:True)
+                            ("BanPawnStep" (site))
+                        })
+                        (remember Value "CheckSites" (site) unique:True)
                     )
                 )
             )
@@ -1016,27 +1015,16 @@
 (define "ResetCheck"
     (and {
         (forget Value "CheckSites" All)
-        (forget Value "LastCheckSites" All)
         (forget Value "PawnSites" All)
     })
 )
 
 (define "ResetIllegalMoves"
-    (and
-        (forget Value "IllegalMovesP1" All)
-        (forget Value "IllegalMovesP2" All)
-    )
+    (forget Value "IllegalMoves" All)
 )
 
 (define "RememberIllegalMove"
-    (and
-        (if (= (mover) 1)
-            (remember Value "IllegalMovesP1" (+ (* (last From) 100) (last To)) unique:True)
-        )
-        (if (= (mover) 2)
-            (remember Value "IllegalMovesP2" (+ (* (last From) 100) (last To)) unique:True)
-        )
-    )
+    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
 )
 
 (define "CanMove"
@@ -1049,8 +1037,8 @@
 
             (or 
                 (= 0 (size Array (values Remembered "CheckSites")))
-                (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (last To) (values Remembered "LastCheckSites")) }))
-                    (is In (last To) (values Remembered "CheckSites"))
+                    (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) }))
+                        (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
                 )
             )
         )
@@ -1068,20 +1056,12 @@
 //                        ifAfterwards:(and {
 //                            ("CanMove")
 //                            (= (from) (last From))
-//                            (if (= (mover) 1)
 //                                (not
 //                                    (is In
-//                                        (+ (* (from) 100) (last To))
-//                                        (values Remembered "IllegalMovesP1")
+//                                        (+ (* (last From) 100) (last To))
+//                                        (values Remembered "IllegalMoves")
 //                                    )
 //                                )
-//                                (not
-//                                    (is In
-//                                        (+ (* (from) 100) (last To))
-//                                        (values Remembered "IllegalMovesP2")
-//                                    )
-//                                )
-//                            )
 //                        })
 //                    )
 //                )
@@ -1101,19 +1081,10 @@
                     ifAfterwards:(and {
                         ("CanMove")
                         (= (from) (last From))
-                        (if (= (mover) 1)
-                            (not
-                                (is In
-                                    (+ (* (from) 100) (last To))
-                                    (values Remembered "IllegalMovesP1")
-                                )
-                            )
-
-                            (not
-                                (is In
-                                    (+ (* (from) 100) (last To))
-                                    (values Remembered "IllegalMovesP2")
-                                )
+                        (not
+                            (is In
+                                (+ (* (last From) 100) (last To))
+                                (values Remembered "IllegalMoves")
                             )
                         )
                     })
