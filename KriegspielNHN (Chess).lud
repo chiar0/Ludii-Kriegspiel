@@ -245,13 +245,38 @@
 )
 
 (define "ProcessCheck" 
-    (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
-        (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
-            (remember Value "CheckSites" (site) unique:True)
-            (then 
-                (and 
-                    (remember Value "LastCheckSites" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) unique:True)
-                    ("BanPawnStep" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+    (and
+        (remember Value "CheckSites" (where "King" (next)) unique:True)
+        (if (#2)
+            (forEach Site (difference
+                (union {
+                    (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
+                    (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
+                })
+                (sites Occupied by:Next))
+                
+                (and {
+                    (remember Value "CheckSites" (site) unique:True)
+                    (remember Value "LastCheckSites" (site) unique:True)
+                    ("BanPawnStep" (site))
+                })
+            )
+
+            (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
+                (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
+                    (remember Value "CheckSites" (site) unique:True)
+                    (then 
+                        (and 
+                            (remember Value "LastCheckSites" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)) unique:True)
+                            ("BanPawnStep" (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+                        )
+                    )
                 )
             )
         )
@@ -260,7 +285,6 @@
 
 (define "CheckType"
     (and {
-        (remember Value "CheckedKingSite" (where "King" (next)) unique:True)
         (if
             (or {
                 ("DiagonalCheck" (next) (mover) SE)
@@ -275,8 +299,8 @@
                 )
             })
             (and {
-                ("ProcessCheck" SE)
-                ("ProcessCheck" NW)
+                ("ProcessCheck" SE (toBool 0))
+                ("ProcessCheck" NW (toBool 0))
                 (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
             })
@@ -295,23 +319,23 @@
                 )
             })
             (and {
-                ("ProcessCheck" SW)
-                ("ProcessCheck" NE)
+                ("ProcessCheck" SW (toBool 0))
+                ("ProcessCheck" NE (toBool 0))
                 (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                 (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
             })
         )
         (if ("FileCheck" (next) (mover)) 
             (and {
-                ("ProcessCheck" N)
-                ("ProcessCheck" S)
+                ("ProcessCheck" N (toBool 0))
+                ("ProcessCheck" S (toBool 0))
                 (note "File check")
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
-                ("ProcessCheck" E)
-                ("ProcessCheck" W)
+                ("ProcessCheck" E (toBool 0))
+                ("ProcessCheck" W (toBool 0))
                 (note "Rank check")
             })
         )
@@ -327,25 +351,7 @@
                 ("KnightCheck" (next) (mover) E N)
             })
             (and {
-                (forEach Site (difference
-                    (union {
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
-                    })
-                    (sites Occupied by:Next))
-                    
-                    (and {
-                        (remember Value "CheckSites" (site) unique:True)
-                        (remember Value "LastCheckSites" (site) unique:True)
-                        ("BanPawnStep" (site))
-                    })
-                )
+                ("ProcessCheck" N (toBool 1))
                 (note "Knight Check")
             })
         )
@@ -1009,7 +1015,6 @@
 
 (define "ResetCheck"
     (and {
-        (forget Value "CheckedKingSite" All)
         (forget Value "CheckSites" All)
         (forget Value "LastCheckSites" All)
         (forget Value "PawnSites" All)
@@ -1036,7 +1041,7 @@
 
 (define "CanMove"
     (or {
-        (is In (last From) (values Remembered "CheckedKingSite"))
+        (is In (last From) (values Remembered "CheckSites"))
         (if (not (and
                 (is In (last From) (values Remembered "PawnSites"))
                 (is In (last To) (values Remembered "AttackerSite"))
