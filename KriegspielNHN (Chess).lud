@@ -20,6 +20,7 @@
 (define "NoteCapture"
     (and {
         (remember Value "AttackerSite" #1)
+        (remember Value "AttackerVacatedSite" (ahead #1 Backward) unique:True)
         ("BanPawnStep" #1)
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
@@ -861,15 +862,24 @@
 )
 
 (define "AttemptDoubleStepForward"
-    (move Slide (directions Forward) (between (exact 2)) (to if:(not (is Friend (who at:(to))))))
+    (move Slide (directions Forward) (between (exact 2)) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
 )
 
 (define "AttemptStepForward"
-    (move Step (directions Forward) (to if:(not (is Friend (who at:(to))))))
+    (move Step (directions Forward) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
 )
 
 (define "AttemptCaptureForwardDiagonal"
-    (move Step (directions {FR FL}) (to if:(not (is Friend (who at:(to))))))
+    (move Step (directions {FR FL}) 
+        (to if:
+            (not 
+                (or 
+                    (is Friend (who at:(to))) 
+                    (is In (to) (ahead (values Remembered "AttackerSite") steps:1 Backward))
+                )
+            )
+        )
+    )
 )
 
 (define "AttemptSlide"
@@ -1016,6 +1026,7 @@
     (and {
         (forget Value "CheckSites" All)
         (forget Value "PawnSites" All)
+        (forget Value "AttackerVacatedSite" All)
     })
 )
 
