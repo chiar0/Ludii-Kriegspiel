@@ -19,7 +19,7 @@
 
 (define "NoteCapture"
     (and {
-        (remember Value "AttackerSite" #1 unique:True)
+        (remember Value "AttackerSite" #1)
         ("BanPawnStep" #1)
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
@@ -879,8 +879,8 @@
             (sites Direction
                 from:(from)
                 #1
-                stop:(is Friend (who at:(to)))
-                stopIncluded:False
+                stop:(or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")))
+                stopIncluded:(if (is In (to) (values Remembered "AttackerSite")) True False)
             )
             if:(not (is Friend (who at:(to))))
         )
