@@ -213,44 +213,32 @@
     })
 )
 
-(define "BanPawnStep"
-    (forEach Value min:1 max:2
-        (if (= (what at:(ahead #1 steps:(value) (if (= (next) 1) S N))) (mapEntry "Pawn" (next)))
-            (remember Value "PawnSites" (ahead #1 steps:(value) (if (= (next) 1) S N)) unique:True)
-        )
-    )
-)
-
 (define "ProcessCheck" 
     (and
         (remember Value "CheckSites" (where "King" (next)) unique:True)
         (if (#2)
-            (forEach Site (difference
-                (union {
-                    (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
-                    (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
-                })
-                (sites Occupied by:Next))
+            (forEach Site 
+                (difference
+                    (union {
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
+                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
+                    })
+                    (sites Occupied by:Next)
+                )
                 
-                (and {
-                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
-                    ("BanPawnStep" (site))
-                })
+                (remember Value "CheckSites" (+ 100 (site)) unique:True)
             )
 
             (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
                 (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
                     (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
-                        (and {
-                            (remember Value "CheckSites" (+ 100 (site)) unique:True)
-                            ("BanPawnStep" (site))
-                        })
+                        (remember Value "CheckSites" (+ 100 (site)) unique:True)
                         (remember Value "CheckSites" (site) unique:True)
                     )
                 )
@@ -839,8 +827,8 @@
 
 (define "AttemptForward"
     (if (= #1 2)
-        (move Slide (directions Forward) (between (exact 2)) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
-        (move Step (directions Forward) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
+        (move Slide (directions Forward) (between (exact 2)) (to if:(not (or { (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")) (is In (+ 100 (to)) (values Remembered "CheckSites"))}))))
+        (move Step (directions Forward) (to if:(not (or { (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")) (is In (+ 100 (to)) (values Remembered "CheckSites"))}))))
     )
 )
 
@@ -998,11 +986,10 @@
 )
 
 (define "ResetCheck"
-    (and {
+    (and
         (forget Value "CheckSites" All)
-        (forget Value "PawnSites" All)
         (forget Value "AttackerVacatedSite" All)
-    })
+    )
 )
 
 (define "ResetIllegalMoves"
@@ -1017,9 +1004,7 @@
     (or {
         (is In (last From) (values Remembered "CheckSites"))
         (= 0 (size Array (values Remembered "CheckSites")))
-        (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) }))
-            (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
-        )
+        (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
     })
 )
 
