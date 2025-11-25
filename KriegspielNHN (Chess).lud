@@ -214,26 +214,9 @@
 )
 
 (define "BanPawnStep"
-    (and
-        (if (= (next) 1)
-            (and 
-                (if (= (what at:(ahead #1 steps:2 S)) (mapEntry "Pawn" (next)))
-                    (remember Value "PawnSites" (ahead #1 steps:2 S) unique:True)
-                )
-                (if (= (what at:(ahead #1 steps:1 S)) (mapEntry "Pawn" (next)))
-                    (remember Value "PawnSites" (ahead #1 steps:1 S) unique:True)
-                )
-            )
-        )
-        (if (= (next) 2)
-            (and
-                (if (= (what at:(ahead #1 steps:2 N)) (mapEntry "Pawn" (next)))
-                    (remember Value "PawnSites" (ahead #1 steps:2 N) unique:True)
-                )
-                (if (= (what at:(ahead #1 steps:1 N)) (mapEntry "Pawn" (next)))
-                    (remember Value "PawnSites" (ahead #1 steps:1 N) unique:True)
-                )
-            )
+    (forEach Value min:1 max:2
+        (if (= (what at:(ahead #1 steps:(value) (if (= (next) 1) S N))) (mapEntry "Pawn" (next)))
+            (remember Value "PawnSites" (ahead #1 steps:(value) (if (= (next) 1) S N)) unique:True)
         )
     )
 )
@@ -854,12 +837,11 @@
     )
 )
 
-(define "AttemptDoubleStepForward"
-    (move Slide (directions Forward) (between (exact 2)) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
-)
-
-(define "AttemptStepForward"
-    (move Step (directions Forward) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
+(define "AttemptForward"
+    (if (= #1 2)
+        (move Slide (directions Forward) (between (exact 2)) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
+        (move Step (directions Forward) (to if:(not (or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite"))))))
+    )
 )
 
 (define "AttemptCaptureForwardDiagonal"
@@ -923,10 +905,10 @@
 (define "KriegspielPawn"
     (piece "Pawn" Each
         (if (not (= (var "EquipmentMode") 1))
-            (or {
-                "AttemptStepForward"
-                (if (is In (from) (sites Start (piece (what at:(from))))) "AttemptDoubleStepForward")
-                (if (> (score Mover) 0) "AttemptCaptureForwardDiagonal")
+                (or {
+                ("AttemptForward" 1)
+                (if (is In (from) (sites Start (piece (what at:(from))))) ("AttemptForward" 2))
+                (if (> (score Mover) 0) ("AttemptCaptureForwardDiagonal") )
             })
 
             (or {
