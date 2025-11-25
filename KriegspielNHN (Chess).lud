@@ -20,8 +20,7 @@
 (define "NoteCapture"
     (and {
         (remember Value "AttackerSite" #1)
-        (remember Value "AttackerVacatedSite" (ahead #1 Backward) unique:True)
-        ("BanPawnStep" #1)
+        (if (!= (var "EnPassantLocation") -1) (remember Value "AttackerVacatedSite" (ahead #1 Backward) unique:True))
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
@@ -170,17 +169,11 @@
 )
 
 (define "KingGravitatesToMainDiagonal"
-    (or
-        (and (< (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
-        (and (>= (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
-    )
+    (not (xor (< (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4)))
 )
 
 (define "KingGravitatesToAntiDiagonal"
-    (or
-        (and (< (row of:(where "King" Next)) 4) (>= (column of:(where "King" Next)) 4))
-        (and (>= (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
-    )
+    (xor (< (row of:(where "King" Next)) 4) (< (column of:(where "King" Next)) 4))
 )
 
 (define "PawnDiagonalCheck"
@@ -875,7 +868,7 @@
             (not 
                 (or 
                     (is Friend (who at:(to))) 
-                    (is In (to) (ahead (values Remembered "AttackerSite") steps:1 Backward))
+                    (is In (to) (values Remembered "AttackerVacatedSite"))
                 )
             )
         )
@@ -1041,17 +1034,9 @@
 (define "CanMove"
     (or {
         (is In (last From) (values Remembered "CheckSites"))
-        (if (not (and
-                (is In (last From) (values Remembered "PawnSites"))
-                (is In (last To) (values Remembered "AttackerSite"))
-            ))
-
-            (or 
-                (= 0 (size Array (values Remembered "CheckSites")))
-                    (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) }))
-                        (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
-                )
-            )
+        (= 0 (size Array (values Remembered "CheckSites")))
+        (if (not (and { (is In (last From) (values Remembered "PawnSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) }))
+            (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
         )
     })
 )
