@@ -20,7 +20,7 @@
 (define "NoteCapture"
     (and {
         (remember Value "AttackerSite" #1)
-        (if (!= (var "EnPassantLocation") -1) (remember Value "AttackerVacatedSite" (ahead #1 Backward) unique:True))
+        (if (= (var "EnPassantLocation") #1) (remember Value "AttackerVacatedSite" (ahead #1 Backward) unique:True))
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
