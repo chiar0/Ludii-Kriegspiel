@@ -669,36 +669,36 @@
             ("NoteCapture" (last To) (what at:(last To)))
         )
         (if ("IsMovingPiece" "Pawn")
-            (move
-                (from (last From))
-                (to (last To))
-                (then
-                    (and {
-                        (if (is In (last To) (sites Mover "Promotion"))
-                            (moveAgain)
-                        )
-                        (if (= (last To) (var "EnPassantLocation"))
-                            (remove (ahead (last To) Backward)
-                                (then ("NoteCapture" (last To) (var "CapturedPiece")))
-                            )
-                        )
-                        "CommonPostMoveActions"
-                        (set Counter)
-                    })
+            (if ("InitialPawnMove")
+                (move
+                    (from (last From))
+                    (to (last To))
+                    (then
+                        (and {
+                            "SetEnPassantLocation"
+                            "CommonPostMoveActions"
+                            "CountEnPassantTries"
+                            (set Counter)
+                        })
+                    )
                 )
-            )
-        )
-        (if (and ("IsMovingPiece" "Pawn") ("InitialPawnMove"))
-            (move
-                (from (last From))
-                (to (last To))
-                (then
-                    (and {
-                        "SetEnPassantLocation"
-                        "CommonPostMoveActions"
-                        "CountEnPassantTries"
-                        (set Counter)
-                    })
+                (move
+                    (from (last From))
+                    (to (last To))
+                    (then
+                        (and {
+                            (if (is In (last To) (sites Mover "Promotion"))
+                                (moveAgain)
+                            )
+                            (if (= (last To) (var "EnPassantLocation"))
+                                (remove (ahead (last To) Backward)
+                                    (then ("NoteCapture" (last To) (var "CapturedPiece")))
+                                )
+                            )
+                            "CommonPostMoveActions"
+                            (set Counter)
+                        })
+                    )
                 )
             )
         )
