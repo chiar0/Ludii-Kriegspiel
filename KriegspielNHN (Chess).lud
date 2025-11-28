@@ -734,16 +734,8 @@
                     )
                 )
             )
-        )
-        (if (and
-                (or {
-                    ("IsMovingPiece" "Knight") 
-                    ("IsMovingPiece" "Queen")
-                    ("IsMovingPiece" "Rook") 
-                    ("IsMovingPiece" "Bishop")
-                })
-                (is Empty (last To))
-            )
+        ) 
+        (if (or { ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
             (move
                 (from (last From))
                 (to (last To))
@@ -755,43 +747,45 @@
                 )
             )
         )
-        (if (and ("MovingTheKing") (is Empty (last To)))
-            (move
-                (from (last From))
-                (to (last To))
-                (then
-                    (and
-                        "CommonPostMoveActions"
-                        ("PieceHasMoved" (last To))
-                    )
-                )
-            )
-        )
-        (if (and ("MovingTheKing") ("DecideToCastle" 2 E "RookRight"))
-            (and
-                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                (move
-                    (from (mapEntry "RookRight" (mover)))
-                    (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                    (then
-                        (and
-                            "CommonPostMoveActions"
-                            ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
+        (if ("MovingTheKing")
+            (if ("DecideToCastle" 2 E "RookRight")
+                (and
+                    (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
+                    (move
+                        (from (mapEntry "RookRight" (mover)))
+                        (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
+                        (then
+                            (and
+                                "CommonPostMoveActions"
+                                ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
+                            )
                         )
                     )
                 )
-            )
-        )
-        (if (and ("MovingTheKing") ("DecideToCastle" 2 W "RookLeft"))
-            (and
-                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                (move
-                    (from (mapEntry "RookLeft" (mover)))
-                    (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                    (then
-                        (and 
-                            "CommonPostMoveActions"
-                            ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
+
+                (if ("DecideToCastle" 2 W "RookLeft")
+                    (and
+                        (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
+                        (move
+                            (from (mapEntry "RookLeft" (mover)))
+                            (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
+                            (then
+                                (and 
+                                    "CommonPostMoveActions"
+                                    ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
+                                )
+                            )
+                        )
+                    )
+
+                    (move
+                        (from (last From))
+                        (to (last To))
+                        (then
+                            (and
+                                "CommonPostMoveActions"
+                                ("PieceHasMoved" (last To))
+                            )
                         )
                     )
                 )
@@ -802,19 +796,6 @@
 
 (define "InLocationEnPassant"
     (= (to) (var "EnPassantLocation"))
-)
-
-(define "EnPassant"
-    (move
-        Step
-        (directions {FR FL})
-        (to if: "InLocationEnPassant")
-        (then
-            (remove
-                (ahead (last To) Backward)
-            )
-        )
-    )
 )
 
 (define "PromotionCondition"
@@ -852,7 +833,7 @@
                 from:(from)
                 #1
                 stop:(or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")))
-                stopIncluded:(if (is In (to) (values Remembered "AttackerSite")) True False)
+                stopIncluded:(is In (to) (values Remembered "AttackerSite"))
             )
             if:(not (is Friend (who at:(to))))
         )
@@ -896,7 +877,6 @@
                 ("AttemptForward" 1)
                 (if (is In (from) (sites Start (piece (what at:(from))))) ("AttemptForward" 2))
                 (if (> (score Mover) 0) ("AttemptCaptureForwardDiagonal"))
-                "EnPassant"
             })
 
             (or {
@@ -910,44 +890,30 @@
 
 (define "KriegspielKing"
     (piece "King" Each
-        (or {
+        (or
             (move Step All (to if:(not (is Friend (who at:(to)))) (apply (if (is Enemy (who at:(to))) (remove (to))))))
-            (if (= (from) (where "King" Mover))
-                (if (not (= (var "EquipmentMode") 1))
-                    (or {
-                        (move (from) (to (ahead (from) steps:2 W) if:(and {
+            (if (and (= (from) (where "King" Mover)) (not (= (var "EquipmentMode") 1)))
+                (or
+                    (move (from) (to (ahead (from) steps:2 W) 
+                        if:(and {
                             ("HasNeverMoved" "King")
                             ("HasNeverMoved" "RookLeft")
                             (not (is Friend (who at:(ahead (from) steps:1 W))))
                             (not (is Friend (who at:(ahead (from) steps:2 W))))
                             (not (is Friend (who at:(ahead (from) steps:3 W))))
-                        })))
-                        (move (from) (to (ahead (from) steps:2 E) if:(and {
+                        })
+                    ))
+                    (move (from) (to (ahead (from) steps:2 E) 
+                        if:(and {
                             ("HasNeverMoved" "King")
                             ("HasNeverMoved" "RookRight")
                             (not (is Friend (who at:(ahead (from) steps:1 E))))
                             (not (is Friend (who at:(ahead (from) steps:2 E))))
-                        })))
-                    })
-
-                    (or {
-                        (move (from) (to (ahead (from) steps:2 W) if:(and {
-                            ("HasNeverMoved" "King")
-                            ("HasNeverMoved" "RookLeft")
-                            (is Empty (ahead (from) steps:1 W))
-                            (is Empty (ahead (from) steps:2 W))
-                            (is Empty (ahead (from) steps:3 W))
-                        })))
-                        (move (from) (to (ahead (from) steps:2 E) if:(and {
-                            ("HasNeverMoved" "King")
-                            ("HasNeverMoved" "RookRight")
-                            (is Empty (ahead (from) steps:1 E))
-                            (is Empty (ahead (from) steps:2 E))
-                        })))
-                    })
+                        })
+                    ))
                 )
             )
-        })
+        )
     )
 )
 
