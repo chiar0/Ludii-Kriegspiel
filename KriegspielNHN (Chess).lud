@@ -640,7 +640,22 @@
             )
         )
         (if (is Repeat Positional)
-            (set Var "ProposedRepeat" (count Moves))
+            (if (>= (var "ProposedRepeatCount") 3)
+                (and
+                    (set Var "DrawCondition" 1)
+                    (note "Draw by fivefold repetition")
+                )
+
+                (and {
+                    (remember Value "CanClaimDraw" (next) unique:True)
+                    (if (= (mover) 1)
+                        (note "White can claim a draw by threefold repetition")
+
+                        (note "Black can claim a draw by threefold repetition")
+                    )
+                    (set Var "ProposedRepeatCount" (+ (var "ProposedRepeatCount") 1))
+                })
+            )
         )
         "CountTries"
         ("ResetIllegalMoves")
@@ -666,7 +681,7 @@
 (define "PerformLegalMove"
     (or {
         (if (is Enemy (who at:(last To)))
-            ("NoteCapture" (last To) (what at:(last To)))
+            (and ("NoteCapture" (last To) (what at:(last To))) (set Counter))
         )
         (if ("IsMovingPiece" "Pawn")
             (if ("InitialPawnMove")
@@ -682,6 +697,7 @@
                         })
                     )
                 )
+
                 (move
                     (from (last From))
                     (to (last To))
@@ -709,27 +725,6 @@
                     ("IsMovingPiece" "Rook") 
                     ("IsMovingPiece" "Bishop")
                 })
-                (is Enemy (who at:(last To)))
-            )
-            (move
-                (from (last From))
-                (to (last To))
-                (then
-                    (and {
-                        "CommonPostMoveActions"
-                        ("PieceHasMoved" (last To))
-                        (set Counter)
-                    })
-                )
-            )
-        )
-        (if (and
-                (or {
-                    ("IsMovingPiece" "Knight") 
-                    ("IsMovingPiece" "Queen")
-                    ("IsMovingPiece" "Rook") 
-                    ("IsMovingPiece" "Bishop")
-                })
                 (is Empty (last To))
             )
             (move
@@ -740,19 +735,6 @@
                         "CommonPostMoveActions"
                         ("PieceHasMoved" (last To))
                     )
-                )
-            )
-        )
-        (if (and ("MovingTheKing") (is Enemy (who at:(last To))))
-            (move
-                (from (last From))
-                (to (last To))
-                (then
-                    (and {
-                        "CommonPostMoveActions"
-                        ("PieceHasMoved" (last To))
-                        (set Counter)
-                    })
                 )
             )
         )
@@ -1004,53 +986,40 @@
     (or {
         (is In (last From) (values Remembered "CheckSites"))
         (= 0 (size Array (values Remembered "CheckSites")))
-        (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")))
+        (is In (last To) (values Remembered "CheckSites")) 
+        (is In (+ 100 (last To)) (values Remembered "CheckSites"))
     })
 )
 
-//(define "GenerateValidMoves"
-//    (and {
-//        (move Select
-//            (from (sites Occupied by:Mover))
-//            (to
-//                (sites To
-//                    (do
-//                        (forEach Piece)
-//                        ifAfterwards:(and {
-//                            ("CanMove")
-//                            (= (from) (last From))
-//                                (not
-//                                    (is In
-//                                        (+ (* (last From) 100) (last To))
-//                                        (values Remembered "IllegalMoves")
-//                                    )
-//                                )
-//                        })
-//                    )
-//                )
-//            )
-//        )
-//        (move Propose "End" (then (note "Proposed draw")))
-//    })
-//)
-
 (define "GenerateValidMoves"
-    (move Select
-        (from (sites Occupied by:Mover))
-        (to
-            (sites To
-                (do
-                    (forEach Piece)
-                    ifAfterwards:(and {
-                        ("CanMove")
-                        (= (from) (last From))
-                        (not
-                            (is In
-                                (+ (* (last From) 100) (last To))
-                                (values Remembered "IllegalMoves")
+    (and 
+        (move Select
+            (from (sites Occupied by:Mover))
+            (to
+                (sites To
+                    (do
+                        (forEach Piece)
+                        ifAfterwards:(and {
+                            ("CanMove")
+                            (= (from) (last From))
+                            (not
+                                (is In
+                                    (+ (* (last From) 100) (last To))
+                                    (values Remembered "IllegalMoves")
+                                )
                             )
-                        )
-                    })
+                        })
+                    )
+                )
+            )
+        )
+        (if (is In (mover) (values Remembered "CanClaimDraw"))
+            (move Propose "End"
+                (then 
+                    (and
+                        (note "Draw by threefold repetition")
+                        (set Var "DrawCondition" 1)
+                    )
                 )
             )
         )
@@ -1099,56 +1068,40 @@
         (play
             (if (is Proposed "End") 
                 (or (move Vote "End") (move Vote "No" (then (moveAgain))))
-
-                (if (= (var "ProposedRepeat") (count Moves))
-                    (and {
-                        (move Propose "End" (then (and {
-                            (note "Proposed draw by repetition")
-                            (set Var "ProposedRepeatCount" (+ (var "ProposedRepeatCount") 1))
-                            (if (>= (var "ProposedRepeatCount") 3)
-                                (and {
-                                    (set Var "DrawCondition" 1)
-                                    (note "Draw by threefold repetition")
-                                })
-                            )
-                        })))
-                        (set Var "ProposedRepeat" 0)
-                    })
                     
-                    (and
-                        (if "PromotionCondition"
-                            (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
-                                (then
-                                    ("CommonPostMoveActions")
-                                )
+                (and
+                    (if "PromotionCondition"
+                        (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
+                            (then
+                                ("CommonPostMoveActions")
                             )
                         )
-                        (if (or
-                                ("NewTurn")
-                                (not "PromotionCondition")
-                            )
-                            ("GenerateValidMoves")
-                            (then
-                                (and {
-                                    (priority
-                                        (if "LegalMove"
-                                            (and {
-                                                (set Var "CapturedPiece"(what at:(ahead (last To) Backward)))
-                                                (set Var "EquipmentMode" 1)
-                                                "PerformLegalMove"
-                                                ("ResetCheck")
-                                                (forget Value "AttackerSite" All)
-                                            })
-                                        )
+                    )
+                    (if (or
+                            ("NewTurn")
+                            (not "PromotionCondition")
+                        )
+                        ("GenerateValidMoves")
+                        (then
+                            (and {
+                                (priority
+                                    (if "LegalMove"
                                         (and {
-                                            ("RememberIllegalMove")
-                                            (set Counter (- (counter) 1))
-                                            (note "Illegal move")
-                                            (moveAgain)
+                                            (set Var "CapturedPiece"(what at:(ahead (last To) Backward)))
+                                            (set Var "EquipmentMode" 1)
+                                            "PerformLegalMove"
+                                            ("ResetCheck")
+                                            (forget Value "AttackerSite" All)
                                         })
                                     )
-                                })
-                            )
+                                    (and {
+                                        ("RememberIllegalMove")
+                                        (set Counter (- (counter) 1))
+                                        (note "Illegal move")
+                                        (moveAgain)
+                                    })
+                                )
+                            })
                         )
                     )
                 )
