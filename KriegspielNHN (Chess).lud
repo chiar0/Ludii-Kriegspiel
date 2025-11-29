@@ -293,33 +293,30 @@
 )
 
 (define "ProcessCheck" 
-    (and
-        (remember Value "CheckSites" (where "King" (next)) unique:True)
-        (if (#2)
-            (forEach Site 
-                (difference
-                    (union {
-                        (if (and { (>= (+ (where "King" (next)) 17) 0) (<= (+ (where "King" (next)) 17) 63) (= (abs (- (% (+ (where "King" (next)) 17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)}))
-                        (if (and { (>= (+ (where "King" (next)) 15) 0) (<= (+ (where "King" (next)) 15) 63) (= (abs (- (% (+ (where "King" (next)) 15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)}))
-                        (if (and { (>= (+ (where "King" (next)) -15) 0) (<= (+ (where "King" (next)) -15) 63) (= (abs (- (% (+ (where "King" (next)) -15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)}))
-                        (if (and { (>= (+ (where "King" (next)) -17) 0) (<= (+ (where "King" (next)) -17) 63) (= (abs (- (% (+ (where "King" (next)) -17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)}))
-                        (if (and { (>= (+ (where "King" (next)) 10) 0) (<= (+ (where "King" (next)) 10) 63) (= (abs (- (% (+ (where "King" (next)) 10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)}))
-                        (if (and { (>= (+ (where "King" (next)) 6) 0) (<= (+ (where "King" (next)) 6) 63) (= (abs (- (% (+ (where "King" (next)) 6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)}))
-                        (if (and { (>= (+ (where "King" (next)) -6) 0) (<= (+ (where "King" (next)) -6) 63) (= (abs (- (% (+ (where "King" (next)) -6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)}))
-                        (if (and { (>= (+ (where "King" (next)) -10) 0) (<= (+ (where "King" (next)) -10) 63) (= (abs (- (% (+ (where "King" (next)) -10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)}))
-                    })
-                    (sites Occupied by:Next)
-                )
-                
-                (remember Value "CheckSites" (+ 100 (site)) unique:True)
+    (if (#2)
+        (forEach Site 
+            (difference
+                (union {
+                    (if (and { (>= (+ (where "King" (next)) 17) 0) (<= (+ (where "King" (next)) 17) 63) (= (abs (- (% (+ (where "King" (next)) 17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)}))
+                    (if (and { (>= (+ (where "King" (next)) 15) 0) (<= (+ (where "King" (next)) 15) 63) (= (abs (- (% (+ (where "King" (next)) 15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)}))
+                    (if (and { (>= (+ (where "King" (next)) -15) 0) (<= (+ (where "King" (next)) -15) 63) (= (abs (- (% (+ (where "King" (next)) -15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)}))
+                    (if (and { (>= (+ (where "King" (next)) -17) 0) (<= (+ (where "King" (next)) -17) 63) (= (abs (- (% (+ (where "King" (next)) -17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)}))
+                    (if (and { (>= (+ (where "King" (next)) 10) 0) (<= (+ (where "King" (next)) 10) 63) (= (abs (- (% (+ (where "King" (next)) 10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)}))
+                    (if (and { (>= (+ (where "King" (next)) 6) 0) (<= (+ (where "King" (next)) 6) 63) (= (abs (- (% (+ (where "King" (next)) 6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)}))
+                    (if (and { (>= (+ (where "King" (next)) -6) 0) (<= (+ (where "King" (next)) -6) 63) (= (abs (- (% (+ (where "King" (next)) -6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)}))
+                    (if (and { (>= (+ (where "King" (next)) -10) 0) (<= (+ (where "King" (next)) -10) 63) (= (abs (- (% (+ (where "King" (next)) -10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)}))
+                })
+                (sites Occupied by:Next)
             )
+            
+            (remember Value "CheckSites" (+ 100 (site)) unique:True)
+        )
 
-            (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
-                (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
-                    (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
-                        (remember Value "CheckSites" (+ 100 (site)) unique:True)
-                        (remember Value "CheckSites" (site) unique:True)
-                    )
+        (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
+            (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
+                (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
+                    (remember Value "CheckSites" (site) unique:True)
                 )
             )
         )
@@ -658,31 +655,78 @@
     )
 )
 
-(define "CommonPostMoveActions"
-    (if ("KingInCheck" (next) (mover))
-        (and 
-            "CheckType"
-            (if ("NextCanNotMove") (set Var "NextLost" 1))
-        )
-
-        (and {
-            (if ("NextCanNotMove") (and (set Var "DrawCondition" 1) (note "Draw by stalemate")))
-            (if (= (counter) 99) (and (set Var "DrawCondition" 1) (note "Draw by fifty-move rule")))
-            (if "OnlyKingsRemaining" (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings only")))
-            (if "KingVsKingAndSingleBishop" (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and bishop vs king")))
-            (if "KingVsKingAndSingleKnight" (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and knight vs king")))
-            (if "KingsAndBishopsPerSide" (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings and bishops")))
-            (if (is Repeat Positional) (and (set Var "DrawCondition" 1) (note "Draw by repetition threefold")))
-            "CountTries"
-            (forget Value "IllegalMoves" All)
-            (set Var "EquipmentMode" 0)
-            (if (and (= (counter) 0) (!= (var "EnPassantLocation") -1)) (set Var "EnPassantLocation" -1))
-        })
-    )
+(define "OnlyKingsRemaining"
+    (and {
+        (= (count Pieces) 2)
+        (= (count Pieces "King") 2)
+    })
 )
 
-(define "SetEnPassantLocation"
-    (set Var "EnPassantLocation" (ahead (last To) Backward))
+(define "KingVsKingAndSingleBishop"
+    (and {
+        (= (count Pieces) 3)
+        (= (count Pieces "King") 2)
+        (= (count Pieces "Bishop") 1)
+    })
+)
+
+(define "KingVsKingAndSingleKnight"
+    (and {
+        (= (count Pieces) 3)
+        (= (count Pieces "King") 2)
+        (= (count Pieces "Knight") 1)
+    })
+)
+
+(define "KingsAndBishopsPerSide"
+    (and {
+        (= (count Pieces) 4)
+        (= (count Pieces "King") 2)
+        (= (count Pieces "Bishop") 2)
+        (= (count Pieces P1 "Bishop") 1)
+        (= (count Pieces P2 "Bishop") 1)
+    })
+)
+
+(define "CommonPostMoveActions"
+    (if ("KingInCheck" (next) (mover))
+        (and "CheckType" (if ("NextCanNotMove") (set Var "NextLost" 1)))
+
+        (if ("NextCanNotMove") 
+            (and (set Var "DrawCondition" 1) (note "Draw by stalemate"))
+
+            (if (= (counter) 99) 
+                (and (set Var "DrawCondition" 1) (note "Draw by fifty-move rule"))
+
+                (if "OnlyKingsRemaining" 
+                    (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings only"))
+
+                    (if "KingVsKingAndSingleBishop" 
+                        (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and bishop vs king"))
+                    
+                        (if "KingVsKingAndSingleKnight" 
+                            (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and knight vs king"))
+                        
+                            (if "KingsAndBishopsPerSide" 
+                                (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings and bishops"))
+                            
+                                (if (is Repeat Positional) 
+                                    (and (set Var "DrawCondition" 1) (note "Draw by repetition threefold"))
+
+                                    (and {
+                                        "CountTries"
+                                        (forget Value "IllegalMoves" All)
+                                        (set Var "EquipmentMode" 0)
+                                        (if (and (= (counter) 0) (!= (var "EnPassantLocation") -1)) (set Var "EnPassantLocation" -1))
+                                    })
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+    )
 )
 
 (define "CountEnPassantTries"
@@ -706,7 +750,7 @@
                     (to (last To))
                     (then
                         (and {
-                            "SetEnPassantLocation"
+                            (set Var "EnPassantLocation" (ahead (last To) Backward))
                             "CommonPostMoveActions"
                             "CountEnPassantTries"
                             (set Counter)
@@ -929,42 +973,9 @@
     )
 )
 
-(define "OnlyKingsRemaining"
-    (and {
-        (= (count Pieces) 2)
-        (= (count Pieces "King") 2)
-    })
-)
-
-(define "KingVsKingAndSingleBishop"
-    (and {
-        (= (count Pieces) 3)
-        (= (count Pieces "King") 2)
-        (= (count Pieces "Bishop") 1)
-    })
-)
-
-(define "KingVsKingAndSingleKnight"
-    (and {
-        (= (count Pieces) 3)
-        (= (count Pieces "King") 2)
-        (= (count Pieces "Knight") 1)
-    })
-)
-
-(define "KingsAndBishopsPerSide"
-    (and {
-        (= (count Pieces) 4)
-        (= (count Pieces "King") 2)
-        (= (count Pieces "Bishop") 2)
-        (= (count Pieces P1 "Bishop") 1)
-        (= (count Pieces P2 "Bishop") 1)
-    })
-)
-
 (define "CanMove"
     (or {
-        (is In (last From) (values Remembered "CheckSites"))
+        (= (last To) (where "King" Mover))
         (= 0 (size Array (values Remembered "CheckSites")))
         (is In (last To) (values Remembered "CheckSites")) 
         (is In (+ 100 (last To)) (values Remembered "CheckSites"))
