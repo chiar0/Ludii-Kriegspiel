@@ -299,14 +299,14 @@
             (forEach Site 
                 (difference
                     (union {
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)})
-                        (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)})
+                        (if (and { (>= (+ (where "King" (next)) 17) 0) (<= (+ (where "King" (next)) 17) 63) (= (abs (- (% (+ (where "King" (next)) 17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)}))
+                        (if (and { (>= (+ (where "King" (next)) 15) 0) (<= (+ (where "King" (next)) 15) 63) (= (abs (- (% (+ (where "King" (next)) 15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)}))
+                        (if (and { (>= (+ (where "King" (next)) -15) 0) (<= (+ (where "King" (next)) -15) 63) (= (abs (- (% (+ (where "King" (next)) -15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)}))
+                        (if (and { (>= (+ (where "King" (next)) -17) 0) (<= (+ (where "King" (next)) -17) 63) (= (abs (- (% (+ (where "King" (next)) -17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)}))
+                        (if (and { (>= (+ (where "King" (next)) 10) 0) (<= (+ (where "King" (next)) 10) 63) (= (abs (- (% (+ (where "King" (next)) 10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)}))
+                        (if (and { (>= (+ (where "King" (next)) 6) 0) (<= (+ (where "King" (next)) 6) 63) (= (abs (- (% (+ (where "King" (next)) 6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)}))
+                        (if (and { (>= (+ (where "King" (next)) -6) 0) (<= (+ (where "King" (next)) -6) 63) (= (abs (- (% (+ (where "King" (next)) -6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)}))
+                        (if (and { (>= (+ (where "King" (next)) -10) 0) (<= (+ (where "King" (next)) -10) 63) (= (abs (- (% (+ (where "King" (next)) -10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)}))
                     })
                     (sites Occupied by:Next)
                 )
