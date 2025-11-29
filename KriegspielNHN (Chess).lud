@@ -932,7 +932,15 @@
             (or {
                 ("AttemptForward" 1)
                 (if (is In (from) (sites Start (piece (what at:(from))))) ("AttemptForward" 2))
-                (if (> (score Mover) 0) ("AttemptCaptureForwardDiagonal"))
+                (if (> (score Mover) 0)
+                    (if (> (count Moves) 2) 
+                        ("AttemptCaptureForwardDiagonal")
+                        
+                        (if (not (is In (from) (sites Start (piece (what at:(from))))))
+                            ("AttemptCaptureForwardDiagonal")
+                        )
+                    )
+                )
             })
 
             (or {
