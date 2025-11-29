@@ -20,7 +20,6 @@
 (define "NoteCapture"
     (and {
         (remember Value "AttackerSite" #1)
-        (if (= (var "EnPassantLocation") #1) (remember Value "EmptySite" (ahead #1 Backward) unique:True))
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
@@ -675,7 +674,7 @@
             (if "KingsAndBishopsPerSide" (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings and bishops")))
             (if (is Repeat Positional) (and (set Var "DrawCondition" 1) (note "Draw by repetition threefold")))
             "CountTries"
-            ("ResetIllegalMoves")
+            (forget Value "IllegalMoves" All)
             (set Var "EquipmentMode" 0)
             (if (and (= (counter) 0) (!= (var "EnPassantLocation") -1)) (set Var "EnPassantLocation" -1))
         })
@@ -725,7 +724,10 @@
                             )
                             (if (= (last To) (var "EnPassantLocation"))
                                 (remove (ahead (last To) Backward)
-                                    (then ("NoteCapture" (last To) (var "CapturedPiece")))
+                                    (then (and
+                                        ("NoteCapture" (last To) (what at:(last To)))
+                                        (remember Value "EmptySite" (ahead (last To) Backward) unique:True)
+                                    ))
                                 )
                             )
                             "CommonPostMoveActions"
@@ -794,10 +796,6 @@
     })
 )
 
-(define "InLocationEnPassant"
-    (= (to) (var "EnPassantLocation"))
-)
-
 (define "PromotionCondition"
     (and
         (is In (last To) (sites Mover "Promotion"))
@@ -807,8 +805,22 @@
 
 (define "AttemptForward"
     (if (= #1 2)
-        (move Slide (directions Forward) (between (exact 2)) (to if:(not (or { (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")) (is In (+ 100 (to)) (values Remembered "CheckSites"))}))))
-        (move Step (directions Forward) (to if:(not (or { (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")) (is In (+ 100 (to)) (values Remembered "CheckSites"))}))))
+        (move Slide (directions Forward) 
+            (between (exact 2)) 
+            (to if:(not (or { 
+                (is Friend (who at:(to))) 
+                (is In (to) (values Remembered "AttackerSite")) 
+                (is In (+ 100 (to)) (values Remembered "CheckSites"))
+            })))
+        )
+
+        (move Step (directions Forward) 
+            (to if:(not (or { 
+                (is Friend (who at:(to))) 
+                (is In (to) (values Remembered "AttackerSite")) 
+                (is In (+ 100 (to)) (values Remembered "CheckSites"))
+            })))
+        )
     )
 )
 
@@ -950,21 +962,6 @@
     })
 )
 
-(define "ResetCheck"
-    (and
-        (forget Value "CheckSites" All)
-        (forget Value "EmptySite" All)
-    )
-)
-
-(define "ResetIllegalMoves"
-    (forget Value "IllegalMoves" All)
-)
-
-(define "RememberIllegalMove"
-    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
-)
-
 (define "CanMove"
     (or {
         (is In (last From) (values Remembered "CheckSites"))
@@ -1068,15 +1065,15 @@
                                 (priority
                                     (if "LegalMove"
                                         (and {
-                                            (set Var "CapturedPiece"(what at:(ahead (last To) Backward)))
                                             (set Var "EquipmentMode" 1)
                                             "PerformLegalMove"
-                                            ("ResetCheck")
+                                            (forget Value "CheckSites" All)
+                                            (forget Value "EmptySite" All)
                                             (forget Value "AttackerSite" All)
                                         })
                                     )
                                     (and {
-                                        ("RememberIllegalMove")
+                                        (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
                                         (set Counter (- (counter) 1))
                                         (note "Illegal move")
                                         (moveAgain)
