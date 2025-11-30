@@ -1048,37 +1048,30 @@
                     (move Vote "No" (then (moveAgain)))
                 )
                     
-                (and
-                    (if "PromotionCondition"
-                        (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
-                            (then
-                                ("CommonPostMoveActions")
-                            )
-                        )
+                
+                (if "PromotionCondition"
+                    (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
+                        (then "CommonPostMoveActions")
                     )
-                    (if (or ("NewTurn") (not "PromotionCondition"))
+
+                    (if "NewTurn"
                         (move Select
                             (from (sites Occupied by:Mover))
                             (to (sites To (do (forEach Piece) ifAfterwards: "CanMove")))
                         )
-                        (then
+                        (then (if "LegalMove"
+                            (and
+                                (set Var "EquipmentMode" 1)
+                                "PerformLegalMove"
+                            )
+
                             (and {
-                                (priority
-                                    (if "LegalMove"
-                                        (and
-                                            (set Var "EquipmentMode" 1)
-                                            "PerformLegalMove"
-                                        )
-                                    )
-                                    (and {
-                                        (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
-                                        (set Counter (- (counter) 1))
-                                        (note "Illegal move")
-                                        (moveAgain)
-                                    })
-                                )
+                                (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
+                                (set Counter (- (counter) 1))
+                                (note "Illegal move")
+                                (moveAgain)
                             })
-                        )
+                        ))
                     )
                 )
             )
