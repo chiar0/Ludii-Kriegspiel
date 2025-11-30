@@ -1071,15 +1071,17 @@
                                 })
                             ))
                         )
-                        (move Propose "End" 
-                            (then (and 
-                                (move Vote "End") 
-                                (if (= (mover) 1) 
-                                    (note "Player 1 proposes to end the game") 
-                                    
-                                    (note "Player 2 proposes to end the game")
-                                )
-                            ))
+                        (if (!= (count Moves) (var "ProposedEnd"))
+                            (move Propose "End" 
+                                (then (and
+                                    (move Vote "End" (then (set Var "ProposedEnd" (+ (count Moves) 1)))) 
+                                    (if (= (mover) 1) 
+                                        (note "Player 1 proposes to end the game") 
+                                        
+                                        (note "Player 2 proposes to end the game")
+                                    )
+                                ))
+                            )
                         )
                     )
                 )
