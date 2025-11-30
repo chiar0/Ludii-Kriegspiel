@@ -695,8 +695,8 @@
         (if ("NextCanNotMove") 
             (and (set Var "DrawCondition" 1) (note "Draw by stalemate"))
 
-            (if (= (counter) 99) 
-                (and (set Var "DrawCondition" 2) (note "Draw by fifty-move rule"))
+            (if (is Repeat Positional)
+                (and (set Var "DrawCondition" 2) (note "Draw by repetition threefold"))
 
                 (if "OnlyKingsRemaining" 
                     (and (set Var "DrawCondition" 3) (note "Draw by insufficient material kings only"))
@@ -710,8 +710,8 @@
                             (if "KingsAndBishopsPerSide" 
                                 (and (set Var "DrawCondition" 6) (note "Draw by insufficient material kings and bishops"))
                             
-                                (if (is Repeat Positional) 
-                                    (and (set Var "DrawCondition" 7) (note "Draw by repetition threefold"))
+                                (if (= (counter) 99)
+                                    (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule"))
 
                                     (and {
                                         "CountTries"
@@ -1100,22 +1100,24 @@
         (description "In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information. This implementation suppresses any move that fails feasibility checks, so 'Hell no' announcements for impossible attempts never occur and the agents explore a tighter decision space.")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
-            The umpire announces:
-            -'White's [or Black's] turn'.
-            -'Pawn at (square) captured', when a pawn is captured. The square of the capture is announced, e.g. Pawn gone on d4, or Pawn captured on d4. (En passant captures are specifically announced as such.)
-            -'Piece at (square) captured', when a piece is captured. The square of the capture is announced.
-            -'Illegal move' when the attempted move is illegal, given the opponent's position. For example: moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; moving a piece under an absolute pin.
+            The umpire makes the following announcements where appropriate:
+            -'Player 1 (White)'s [or Player 2 (Black)'s] turn'.
+            -'Pawn [or Piece] at (square) captured', when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. 'Pawn at A4 captured en passant')
+            -'Illegal move' when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; moving a piece under an absolute pin).
             -'Rank check'.
             -'File check'.
             -'Long-diagonal check' (the longer of the two diagonals, from the king's point of view).
-            -'Short-diagonal check'.
+            -'Short-diagonal check' (e.g. for a king on E1, the short diagonal is E1 to H4).
             -'Knight check'.
-            -'(number)  tries' (number of legal capturing moves using pawns).
-            -'Checkmate', 'stalemate', 'draw by insufficient force', '50-move draw'. (Draw by repetition is intentionally excluded in this version.)
+            -'(number) tries' (the number of legal pawn-capture moves available in the turn, displayed in each player's score).
+            -'Checkmate', 'stalemate'
+            -'draw by repetition' (threefold).
+            -'draw by insufficient force: kings only [or king and bishop versus king; king and knight versus king; kings and bishops only (bishops on same colour squares)]'.
+            -'50-move draw' (the illegal moves do not count towards the fifty moves).
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
             Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries."
         )
-        (id "4185")
+        (id "4185") 
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
         (version "1.3.14")
         (classification "board/war/replacement/checkmate/chess")
