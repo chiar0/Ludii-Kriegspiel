@@ -25,7 +25,7 @@
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
         (if (and (= (#1)(coord:"A2")) (> (#2) 2)) (note "Piece at A2 captured"))
         (if (and (= (#1)(coord:"A3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at A4 captured en passant")
 
                 (note "Pawn at A3 captured")
@@ -37,7 +37,7 @@
         (if (and (= (#1)(coord:"A5")) (<= (#2) 2)) (note "Pawn at A5 captured"))
         (if (and (= (#1)(coord:"A5")) (> (#2) 2)) (note "Piece at A5 captured"))
         (if (and (= (#1)(coord:"A6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at A5 captured en passant")
 
                 (note "Pawn at A6 captured")
@@ -53,7 +53,7 @@
         (if (and (= (#1)(coord:"B2")) (<= (#2) 2)) (note "Pawn at B2 captured"))
         (if (and (= (#1)(coord:"B2")) (> (#2) 2)) (note "Piece at B2 captured"))
         (if (and (= (#1)(coord:"B3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at B4 captured en passant")
 
                 (note "Pawn at B3 captured")
@@ -65,7 +65,7 @@
         (if (and (= (#1)(coord:"B5")) (<= (#2) 2)) (note "Pawn at B5 captured"))
         (if (and (= (#1)(coord:"B5")) (> (#2) 2)) (note "Piece at B5 captured"))
         (if (and (= (#1)(coord:"B6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at B5 captured en passant")
 
                 (note "Pawn at B6 captured")
@@ -81,7 +81,7 @@
         (if (and (= (#1)(coord:"C2")) (<= (#2) 2)) (note "Pawn at C2 captured"))
         (if (and (= (#1)(coord:"C2")) (> (#2) 2)) (note "Piece at C2 captured"))
         (if (and (= (#1)(coord:"C3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at C4 captured en passant")
 
                 (note "Pawn at C3 captured")
@@ -93,7 +93,7 @@
         (if (and (= (#1)(coord:"C5")) (<= (#2) 2)) (note "Pawn at C5 captured"))
         (if (and (= (#1)(coord:"C5")) (> (#2) 2)) (note "Piece at C5 captured"))
         (if (and (= (#1)(coord:"C6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at C5 captured en passant")
 
                 (note "Pawn at C6 captured")
@@ -109,7 +109,7 @@
         (if (and (= (#1)(coord:"D2")) (<= (#2) 2)) (note "Pawn at D2 captured"))
         (if (and (= (#1)(coord:"D2")) (> (#2) 2)) (note "Piece at D2 captured"))
         (if (and (= (#1)(coord:"D3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at D4 captured en passant")
 
                 (note "Pawn at D3 captured")
@@ -121,7 +121,7 @@
         (if (and (= (#1)(coord:"D5")) (<= (#2) 2)) (note "Pawn at D5 captured"))
         (if (and (= (#1)(coord:"D5")) (> (#2) 2)) (note "Piece at D5 captured"))
         (if (and (= (#1)(coord:"D6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at D5 captured en passant")
 
                 (note "Pawn at D6 captured")
@@ -137,7 +137,7 @@
         (if (and (= (#1)(coord:"E2")) (<= (#2) 2)) (note "Pawn at E2 captured"))
         (if (and (= (#1)(coord:"E2")) (> (#2) 2)) (note "Piece at E2 captured"))
         (if (and (= (#1)(coord:"E3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at E4 captured en passant")
 
                 (note "Pawn at E3 captured")
@@ -149,7 +149,7 @@
         (if (and (= (#1)(coord:"E5")) (<= (#2) 2)) (note "Pawn at E5 captured"))
         (if (and (= (#1)(coord:"E5")) (> (#2) 2)) (note "Piece at E5 captured"))
         (if (and (= (#1)(coord:"E6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at E5 captured en passant")
 
                 (note "Pawn at E6 captured")
@@ -165,7 +165,7 @@
         (if (and (= (#1)(coord:"F2")) (<= (#2) 2)) (note "Pawn at F2 captured"))
         (if (and (= (#1)(coord:"F2")) (> (#2) 2)) (note "Piece at F2 captured"))
         (if (and (= (#1)(coord:"F3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at F4 captured en passant")
 
                 (note "Pawn at F3 captured")
@@ -177,7 +177,7 @@
         (if (and (= (#1)(coord:"F5")) (<= (#2) 2)) (note "Pawn at F5 captured"))
         (if (and (= (#1)(coord:"F5")) (> (#2) 2)) (note "Piece at F5 captured"))
         (if (and (= (#1)(coord:"F6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at F5 captured en passant")
 
                 (note "Pawn at F6 captured")
@@ -193,7 +193,7 @@
         (if (and (= (#1)(coord:"G2")) (<= (#2) 2)) (note "Pawn at G2 captured"))
         (if (and (= (#1)(coord:"G2")) (> (#2) 2)) (note "Piece at G2 captured"))
         (if (and (= (#1)(coord:"G3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at G4 captured en passant")
 
                 (note "Pawn at G3 captured")
@@ -205,7 +205,7 @@
         (if (and (= (#1)(coord:"G5")) (<= (#2) 2)) (note "Pawn at G5 captured"))
         (if (and (= (#1)(coord:"G5")) (> (#2) 2)) (note "Piece at G5 captured"))
         (if (and (= (#1)(coord:"G6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at G5 captured en passant")
 
                 (note "Pawn at G6 captured")
@@ -221,7 +221,7 @@
         (if (and (= (#1)(coord:"H2")) (<= (#2) 2)) (note "Pawn at H2 captured"))
         (if (and (= (#1)(coord:"H2")) (> (#2) 2)) (note "Piece at H2 captured"))
         (if (and (= (#1)(coord:"H3")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at H4 captured en passant")
 
                 (note "Pawn at H3 captured")
@@ -233,7 +233,7 @@
         (if (and (= (#1)(coord:"H5")) (<= (#2) 2)) (note "Pawn at H5 captured"))
         (if (and (= (#1)(coord:"H5")) (> (#2) 2)) (note "Piece at H5 captured"))
         (if (and (= (#1)(coord:"H6")) (<= (#2) 2)) 
-            (if (= #1 (var "EnPassantLocation")) 
+            (if (= #1 (value Pending)) 
                 (note "Pawn at H5 captured en passant")
 
                 (note "Pawn at H6 captured")
@@ -576,7 +576,7 @@
         )
         (or
             (is Enemy (who at:(last To)))
-            (= (last To) (var "EnPassantLocation"))
+            (if (is Pending) (= (last To) (value Pending)))
         )
     })
 )
@@ -696,28 +696,30 @@
             (and (set Var "DrawCondition" 1) (note "Draw by stalemate"))
 
             (if (= (counter) 99) 
-                (and (set Var "DrawCondition" 1) (note "Draw by fifty-move rule"))
+                (and (set Var "DrawCondition" 2) (note "Draw by fifty-move rule"))
 
                 (if "OnlyKingsRemaining" 
-                    (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings only"))
+                    (and (set Var "DrawCondition" 3) (note "Draw by insufficient material kings only"))
 
                     (if "KingVsKingAndSingleBishop" 
-                        (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and bishop vs king"))
+                        (and (set Var "DrawCondition" 4) (note "Draw by insufficient material king and bishop vs king"))
                     
                         (if "KingVsKingAndSingleKnight" 
-                            (and (set Var "DrawCondition" 1) (note "Draw by insufficient material king and knight vs king"))
+                            (and (set Var "DrawCondition" 5) (note "Draw by insufficient material king and knight vs king"))
                         
                             (if "KingsAndBishopsPerSide" 
-                                (and (set Var "DrawCondition" 1) (note "Draw by insufficient material kings and bishops"))
+                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient material kings and bishops"))
                             
                                 (if (is Repeat Positional) 
-                                    (and (set Var "DrawCondition" 1) (note "Draw by repetition threefold"))
+                                    (and (set Var "DrawCondition" 7) (note "Draw by repetition threefold"))
 
                                     (and {
                                         "CountTries"
                                         (forget Value "IllegalMoves" All)
+                                        (forget Value "CheckSites" All)
+                                        (forget Value "EmptySite" All)
+                                        (forget Value "AttackerSite" All)
                                         (set Var "EquipmentMode" 0)
-                                        (if (and (= (counter) 0) (!= (var "EnPassantLocation") -1)) (set Var "EnPassantLocation" -1))
                                     })
                                 )
                             )
@@ -750,7 +752,7 @@
                     (to (last To))
                     (then
                         (and {
-                            (set Var "EnPassantLocation" (ahead (last To) Backward))
+                            (set Pending (ahead (last To) Backward))
                             "CommonPostMoveActions"
                             "CountEnPassantTries"
                             (set Counter)
@@ -766,7 +768,7 @@
                             (if (is In (last To) (sites Mover "Promotion"))
                                 (moveAgain)
                             )
-                            (if (= (last To) (var "EnPassantLocation"))
+                            (if (= (last To) (value Pending))
                                 (remove (ahead (last To) Backward)
                                     (then (and
                                         ("NoteCapture" (last To) (what at:(last To)))
@@ -982,39 +984,19 @@
 )
 
 (define "CanMove"
-    (or {
-        (= (last To) (where "King" Mover))
-        (= 0 (size Array (values Remembered "CheckSites")))
-        (is In (last To) (values Remembered "CheckSites")) 
-        (is In (+ 100 (last To)) (values Remembered "CheckSites"))
-    })
-)
-
-//(move Propose "End" (then (and (move Vote "End") (if (= (mover) 1) (note "Player 1 proposes to end the game") (note "Player 2 proposes to end the game")))))
-(define "GenerateValidMoves"
-    (move Select
-        (from (sites Occupied by:Mover))
-        (to
-            (sites To
-                (do
-                    (forEach Piece)
-                    ifAfterwards:(and {
-                        ("CanMove")
-                        (= (from) (last From))
-                        (not
-                            (is In
-                                (+ (* (last From) 100) (last To))
-                                (values Remembered "IllegalMoves")
-                            )
-                        )
-                    })
-                )
-            )
+    (if (= (from) (last From))
+        (if (not (is In (+ (* (last From) 100) (last To)) (values Remembered "IllegalMoves")))
+            (or {
+                (= (last To) (where "King" Mover))
+                (= 0 (size Array (values Remembered "CheckSites")))
+                (is In (last To) (values Remembered "CheckSites")) 
+                (is In (+ 100 (last To)) (values Remembered "CheckSites"))
+            })
         )
     )
 )
 
-
+//(move Propose "End" (then (and (move Vote "End") (if (= (mover) 1) (note "Player 1 proposes to end the game") (note "Player 2 proposes to end the game")))))
 (game "Kriegspiel (Chess)"
     (players {(player N) (player S)})
     (equipment {
@@ -1074,22 +1056,19 @@
                             )
                         )
                     )
-                    (if (or
-                            ("NewTurn")
-                            (not "PromotionCondition")
+                    (if (or ("NewTurn") (not "PromotionCondition"))
+                        (move Select
+                            (from (sites Occupied by:Mover))
+                            (to (sites To (do (forEach Piece) ifAfterwards: "CanMove")))
                         )
-                        ("GenerateValidMoves")
                         (then
                             (and {
                                 (priority
                                     (if "LegalMove"
-                                        (and {
+                                        (and
                                             (set Var "EquipmentMode" 1)
                                             "PerformLegalMove"
-                                            (forget Value "CheckSites" All)
-                                            (forget Value "EmptySite" All)
-                                            (forget Value "AttackerSite" All)
-                                        })
+                                        )
                                     )
                                     (and {
                                         (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
@@ -1106,7 +1085,7 @@
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
-            (if (or (= (var "DrawCondition") 1) (is Decided "End")) (result Mover Draw))
+            (if (or (>= (var "DrawCondition") 1) (is Decided "End")) (result Mover Draw))
         })
     )
 )
