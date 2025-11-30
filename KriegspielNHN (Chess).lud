@@ -996,7 +996,6 @@
     )
 )
 
-//(move Propose "End" (then (and (move Vote "End") (if (= (mover) 1) (note "Player 1 proposes to end the game") (note "Player 2 proposes to end the game")))))
 (game "Kriegspiel (Chess)"
     (players {(player N) (player S)})
     (equipment {
@@ -1036,7 +1035,7 @@
             (set Hidden (sites Occupied by: Next) to:Mover)
         })
         (play
-            (if (is Proposed "End") 
+            (if (is Proposed "End")
                 (or 
                     (move Vote "End"
                         (then (if (= (mover) 1) 
@@ -1045,7 +1044,7 @@
                             (note "Player 2 accepted to end the game")
                         ))
                     ) 
-                    (move Vote "No" (then (moveAgain)))
+                    (move Vote "No" (then (do (move Pass))))
                 )
                     
                 
@@ -1054,24 +1053,34 @@
                         (then "CommonPostMoveActions")
                     )
 
-                    (if "NewTurn"
+                    (or
                         (move Select
                             (from (sites Occupied by:Mover))
                             (to (sites To (do (forEach Piece) ifAfterwards: "CanMove")))
-                        )
-                        (then (if "LegalMove"
-                            (and
-                                (set Var "EquipmentMode" 1)
-                                "PerformLegalMove"
-                            )
+                            (then (if "LegalMove"
+                                (and
+                                    (set Var "EquipmentMode" 1)
+                                    "PerformLegalMove"
+                                )
 
-                            (and {
-                                (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
-                                (set Counter (- (counter) 1))
-                                (note "Illegal move")
-                                (moveAgain)
-                            })
-                        ))
+                                (and {
+                                    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
+                                    (set Counter (- (counter) 1))
+                                    (note "Illegal move")
+                                    (moveAgain)
+                                })
+                            ))
+                        )
+                        (move Propose "End" 
+                            (then (and 
+                                (move Vote "End") 
+                                (if (= (mover) 1) 
+                                    (note "Player 1 proposes to end the game") 
+                                    
+                                    (note "Player 2 proposes to end the game")
+                                )
+                            ))
+                        )
                     )
                 )
             )
