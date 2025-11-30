@@ -699,16 +699,16 @@
                 (and (set Var "DrawCondition" 2) (note "Draw by repetition threefold"))
 
                 (if "OnlyKingsRemaining" 
-                    (and (set Var "DrawCondition" 3) (note "Draw by insufficient material kings only"))
+                    (and (set Var "DrawCondition" 3) (note "Draw by insufficient force kings only"))
 
                     (if "KingVsKingAndSingleBishop" 
-                        (and (set Var "DrawCondition" 4) (note "Draw by insufficient material king and bishop vs king"))
+                        (and (set Var "DrawCondition" 4) (note "Draw by insufficient force king and bishop vs king"))
                     
                         (if "KingVsKingAndSingleKnight" 
-                            (and (set Var "DrawCondition" 5) (note "Draw by insufficient material king and knight vs king"))
+                            (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king"))
                         
                             (if "KingsAndBishopsPerSide" 
-                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient material kings and bishops"))
+                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same color squares"))
                             
                                 (if (= (counter) 99)
                                     (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule"))
@@ -1111,8 +1111,8 @@
             -'Knight check'.
             -'(number) tries' (the number of legal pawn-capture moves available in the turn, displayed in each player's score).
             -'Checkmate', 'stalemate'
-            -'draw by repetition' (threefold).
-            -'draw by insufficient force: kings only [or king and bishop versus king; king and knight versus king; kings and bishops only (bishops on same colour squares)]'.
+            -'draw by repetition' when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
+            -'draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same color squares]'.
             -'50-move draw' (the illegal moves do not count towards the fifty moves).
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
             Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries."
