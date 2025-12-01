@@ -753,10 +753,10 @@
             (and ("NoteCapture" (last To) (what at:(last To))) (set Counter))
         )
         (if (= (last To) (var "EnPassantSite"))
-            (remove (ahead (last To) Backward)
+            (remove (if (= (mover) 1) (ahead (last To) Backward) (ahead (last To) Forward))
                 (then (and
                     ("NoteCapture" (last To) (what at:(last To)))
-                    (remember Value "EmptySite" (ahead (last To) Backward) unique:True)
+                    (remember Value "EmptySite" (if (= (mover) 1) (ahead (last To) Backward) (ahead (last To) Forward)) unique:True)
                 ))
             )
         )
@@ -871,7 +871,7 @@
         (to if: "InLocationEnPassant")
         (then
             (remove
-                (ahead (last To) Backward)
+                (if (=(mover) 1) (ahead (last To) Backward) (ahead (last To) Forward))
             )
         )
     )
