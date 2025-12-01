@@ -678,13 +678,15 @@
     })
 )
 
-(define "KingsAndBishopsPerSide"
+(define "KingsAndBishopsSameColor"
     (and {
         (= (count Pieces) 4)
         (= (count Pieces "King") 2)
         (= (count Pieces "Bishop") 2)
         (= (count Pieces P1 "Bishop") 1)
         (= (count Pieces P2 "Bishop") 1)
+        (= (% (+ (row of:(where "Bishop" P1)) (column of:(where "Bishop" P1))) 2)
+           (% (+ (row of:(where "Bishop" P2)) (column of:(where "Bishop" P2))) 2))
     })
 )
 
@@ -707,8 +709,8 @@
                         (if "KingVsKingAndSingleKnight" 
                             (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king"))
                         
-                            (if "KingsAndBishopsPerSide" 
-                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same color squares"))
+                            (if "KingsAndBishopsSameColor" 
+                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same-colored squares"))
                             
                                 (if (= (counter) 99)
                                     (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule"))
@@ -1071,7 +1073,7 @@
                                 })
                             ))
                         )
-                        (if (!= (count Moves) (var "ProposedEnd"))
+                        (if (< (var "ProposedEnd") 0)
                             (move Propose "End" 
                                 (then (and
                                     (move Vote "End" (then (set Var "ProposedEnd" (+ (count Moves) 1)))) 
@@ -1103,16 +1105,16 @@
             The umpire makes the following announcements where appropriate:
             -'Player 1 (White)'s [or Player 2 (Black)'s] turn'.
             -'Pawn [or Piece] at (square) captured', when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. 'Pawn at A4 captured en passant')
-            -'Illegal move' when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; moving a piece under an absolute pin).
+            -'Illegal move' when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin).
             -'Rank check'.
             -'File check'.
             -'Long-diagonal check' (the longer of the two diagonals, from the king's point of view).
             -'Short-diagonal check' (e.g. for a king on E1, the short diagonal is E1 to H4).
             -'Knight check'.
-            -'(number) tries' (the number of legal pawn-capture moves available in the turn, displayed in each player's score).
+            -'(number) tries' (the number of legal pawn-capture moves available in the turn; captures are not obligatory. Displayed in each player's score).
             -'Checkmate', 'stalemate'
             -'draw by repetition' when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
-            -'draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same color squares]'.
+            -'draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]'.
             -'50-move draw' (the illegal moves do not count towards the fifty moves).
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
             Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries."
