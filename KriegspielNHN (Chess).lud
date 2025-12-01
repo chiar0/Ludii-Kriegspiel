@@ -25,7 +25,7 @@
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
         (if (and (= (#1)(coord:"A2")) (> (#2) 2)) (note "Piece at A2 captured"))
         (if (and (= (#1)(coord:"A3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at A4 captured en passant")
 
                 (note "Pawn at A3 captured")
@@ -37,7 +37,7 @@
         (if (and (= (#1)(coord:"A5")) (<= (#2) 2)) (note "Pawn at A5 captured"))
         (if (and (= (#1)(coord:"A5")) (> (#2) 2)) (note "Piece at A5 captured"))
         (if (and (= (#1)(coord:"A6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at A5 captured en passant")
 
                 (note "Pawn at A6 captured")
@@ -53,7 +53,7 @@
         (if (and (= (#1)(coord:"B2")) (<= (#2) 2)) (note "Pawn at B2 captured"))
         (if (and (= (#1)(coord:"B2")) (> (#2) 2)) (note "Piece at B2 captured"))
         (if (and (= (#1)(coord:"B3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at B4 captured en passant")
 
                 (note "Pawn at B3 captured")
@@ -65,7 +65,7 @@
         (if (and (= (#1)(coord:"B5")) (<= (#2) 2)) (note "Pawn at B5 captured"))
         (if (and (= (#1)(coord:"B5")) (> (#2) 2)) (note "Piece at B5 captured"))
         (if (and (= (#1)(coord:"B6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at B5 captured en passant")
 
                 (note "Pawn at B6 captured")
@@ -81,7 +81,7 @@
         (if (and (= (#1)(coord:"C2")) (<= (#2) 2)) (note "Pawn at C2 captured"))
         (if (and (= (#1)(coord:"C2")) (> (#2) 2)) (note "Piece at C2 captured"))
         (if (and (= (#1)(coord:"C3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at C4 captured en passant")
 
                 (note "Pawn at C3 captured")
@@ -93,7 +93,7 @@
         (if (and (= (#1)(coord:"C5")) (<= (#2) 2)) (note "Pawn at C5 captured"))
         (if (and (= (#1)(coord:"C5")) (> (#2) 2)) (note "Piece at C5 captured"))
         (if (and (= (#1)(coord:"C6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at C5 captured en passant")
 
                 (note "Pawn at C6 captured")
@@ -109,7 +109,7 @@
         (if (and (= (#1)(coord:"D2")) (<= (#2) 2)) (note "Pawn at D2 captured"))
         (if (and (= (#1)(coord:"D2")) (> (#2) 2)) (note "Piece at D2 captured"))
         (if (and (= (#1)(coord:"D3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at D4 captured en passant")
 
                 (note "Pawn at D3 captured")
@@ -121,7 +121,7 @@
         (if (and (= (#1)(coord:"D5")) (<= (#2) 2)) (note "Pawn at D5 captured"))
         (if (and (= (#1)(coord:"D5")) (> (#2) 2)) (note "Piece at D5 captured"))
         (if (and (= (#1)(coord:"D6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at D5 captured en passant")
 
                 (note "Pawn at D6 captured")
@@ -137,7 +137,7 @@
         (if (and (= (#1)(coord:"E2")) (<= (#2) 2)) (note "Pawn at E2 captured"))
         (if (and (= (#1)(coord:"E2")) (> (#2) 2)) (note "Piece at E2 captured"))
         (if (and (= (#1)(coord:"E3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at E4 captured en passant")
 
                 (note "Pawn at E3 captured")
@@ -149,7 +149,7 @@
         (if (and (= (#1)(coord:"E5")) (<= (#2) 2)) (note "Pawn at E5 captured"))
         (if (and (= (#1)(coord:"E5")) (> (#2) 2)) (note "Piece at E5 captured"))
         (if (and (= (#1)(coord:"E6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at E5 captured en passant")
 
                 (note "Pawn at E6 captured")
@@ -165,7 +165,7 @@
         (if (and (= (#1)(coord:"F2")) (<= (#2) 2)) (note "Pawn at F2 captured"))
         (if (and (= (#1)(coord:"F2")) (> (#2) 2)) (note "Piece at F2 captured"))
         (if (and (= (#1)(coord:"F3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at F4 captured en passant")
 
                 (note "Pawn at F3 captured")
@@ -177,7 +177,7 @@
         (if (and (= (#1)(coord:"F5")) (<= (#2) 2)) (note "Pawn at F5 captured"))
         (if (and (= (#1)(coord:"F5")) (> (#2) 2)) (note "Piece at F5 captured"))
         (if (and (= (#1)(coord:"F6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at F5 captured en passant")
 
                 (note "Pawn at F6 captured")
@@ -193,7 +193,7 @@
         (if (and (= (#1)(coord:"G2")) (<= (#2) 2)) (note "Pawn at G2 captured"))
         (if (and (= (#1)(coord:"G2")) (> (#2) 2)) (note "Piece at G2 captured"))
         (if (and (= (#1)(coord:"G3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at G4 captured en passant")
 
                 (note "Pawn at G3 captured")
@@ -205,7 +205,7 @@
         (if (and (= (#1)(coord:"G5")) (<= (#2) 2)) (note "Pawn at G5 captured"))
         (if (and (= (#1)(coord:"G5")) (> (#2) 2)) (note "Piece at G5 captured"))
         (if (and (= (#1)(coord:"G6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at G5 captured en passant")
 
                 (note "Pawn at G6 captured")
@@ -221,7 +221,7 @@
         (if (and (= (#1)(coord:"H2")) (<= (#2) 2)) (note "Pawn at H2 captured"))
         (if (and (= (#1)(coord:"H2")) (> (#2) 2)) (note "Piece at H2 captured"))
         (if (and (= (#1)(coord:"H3")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at H4 captured en passant")
 
                 (note "Pawn at H3 captured")
@@ -233,7 +233,7 @@
         (if (and (= (#1)(coord:"H5")) (<= (#2) 2)) (note "Pawn at H5 captured"))
         (if (and (= (#1)(coord:"H5")) (> (#2) 2)) (note "Piece at H5 captured"))
         (if (and (= (#1)(coord:"H6")) (<= (#2) 2)) 
-            (if (= #1 (value Pending)) 
+            (if (= #1 (var "EnPassantSite")) 
                 (note "Pawn at H5 captured en passant")
 
                 (note "Pawn at H6 captured")
@@ -576,7 +576,7 @@
         )
         (or
             (is Enemy (who at:(last To)))
-            (if (is Pending) (= (last To) (value Pending)))
+            (= (last To) (var "EnPassantSite"))
         )
     })
 )
@@ -733,6 +733,11 @@
     )
 )
 
+(define "SetEnPassant"
+    (set Var "EnPassantSite" (ahead (last To) Backward))
+    (set Pending (ahead (last To) Backward))
+)
+
 (define "CountEnPassantTries"
     (if (= (what at: (ahead (last To) Rightward)) (next))
         (addScore Next 1)
@@ -747,6 +752,15 @@
         (if (is Enemy (who at:(last To)))
             (and ("NoteCapture" (last To) (what at:(last To))) (set Counter))
         )
+        (if (= (last To) (var "EnPassantSite"))
+            (remove (ahead (last To) Backward)
+                (then (and
+                    ("NoteCapture" (last To) (what at:(last To)))
+                    (remember Value "EmptySite" (ahead (last To) Backward) unique:True)
+                ))
+            )
+        )
+        (set Var "EnPassantSite" -1)
         (if ("IsMovingPiece" "Pawn")
             (if ("InitialPawnMove")
                 (move
@@ -754,7 +768,7 @@
                     (to (last To))
                     (then
                         (and {
-                            (set Pending (ahead (last To) Backward))
+                            "SetEnPassant"
                             "CommonPostMoveActions"
                             "CountEnPassantTries"
                             (set Counter)
@@ -769,14 +783,6 @@
                         (and {
                             (if (is In (last To) (sites Mover "Promotion"))
                                 (moveAgain)
-                            )
-                            (if (= (last To) (value Pending))
-                                (remove (ahead (last To) Backward)
-                                    (then (and
-                                        ("NoteCapture" (last To) (what at:(last To)))
-                                        (remember Value "EmptySite" (ahead (last To) Backward) unique:True)
-                                    ))
-                                )
                             )
                             "CommonPostMoveActions"
                             (set Counter)
@@ -848,6 +854,26 @@
     (and
         (is In (last To) (sites Mover "Promotion"))
         (= (what at: (last To)) (mapEntry "Pawn" Mover))
+    )
+)
+
+(define "InLocationEnPassant"
+    (and
+        (is Pending)
+        (= (to) (value Pending))
+    )
+)
+
+(define "EnPassant"
+    (move
+        Step
+        (directions {FR FL})
+        (to if: "InLocationEnPassant")
+        (then
+            (remove
+                (ahead (last To) Backward)
+            )
+        )
     )
 )
 
@@ -951,6 +977,7 @@
                 "StepForwardToEmpty"
                 (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStepForwardToEmpty")
                 ("StepToEnemy" (directions {FR FL}))
+                "EnPassant"
             })
         )
     )
