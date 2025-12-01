@@ -541,11 +541,13 @@
 
 (define "DecideToCastle"
     (and {
-        (= (ahead (last From) steps:#1 #2) (last To))
+        (= (ahead (last From) steps:2 #1) (last To))
         (not ("KingInCheck" (mover) (next)))
         ("HasNeverMoved" "King")
-        ("HasNeverMoved" #3)
+        ("HasNeverMoved" #2)
         (is Empty (last To))
+        ("SafePassingLocation" (ahead (last From) steps: 1 #1))
+        ("SafePassingLocation" (ahead (last From) steps: 2 #1))
     })
 )
 
@@ -621,34 +623,16 @@
             )
             (and
                 ("IsMovingPiece" "Queen")
-                (or
-                    ("DiagonalMovement")
-                    ("OrthogonalMovement")
-                )
+                (or ("DiagonalMovement") ("OrthogonalMovement"))
             )
-            (and
-                ("IsMovingPiece" "Rook")
-                ("OrthogonalMovement")
-            )
-            (and
-                ("IsMovingPiece" "Bishop")
-                ("DiagonalMovement")
-            )
+            (and ("IsMovingPiece" "Rook") ("OrthogonalMovement"))
+            (and ("IsMovingPiece" "Bishop") ("DiagonalMovement"))
             (and 
                 ("MovingTheKing")
                 (or {
                     ("KingMovement")
-                    (and {
-                        ("DecideToCastle" 2 E "RookRight")
-                        ("SafePassingLocation" (ahead (last From) steps: 1 E))
-                        ("SafePassingLocation" (ahead (last From) steps: 2 E))
-                    })
-                    (and {
-                        ("DecideToCastle" 2 W "RookLeft")
-                        ("SafePassingLocation" (ahead (last From) steps: 1 W))
-                        ("SafePassingLocation" (ahead (last From) steps: 2 W))
-                        (is Empty (ahead (last From) steps: 3 W))
-                    })
+                    ("DecideToCastle" E "RookRight")
+                    (and ("DecideToCastle" W "RookLeft") (is Empty (ahead (last From) steps: 3 W)))
                 })
             )
         })
@@ -766,28 +750,22 @@
                 (move
                     (from (last From))
                     (to (last To))
-                    (then
-                        (and {
-                            "SetEnPassant"
-                            "CommonPostMoveActions"
-                            "CountEnPassantTries"
-                            (set Counter)
-                        })
-                    )
+                    (then (and {
+                        "SetEnPassant"
+                        "CommonPostMoveActions"
+                        "CountEnPassantTries"
+                        (set Counter)
+                    }))
                 )
 
                 (move
                     (from (last From))
                     (to (last To))
-                    (then
-                        (and {
-                            (if (is In (last To) (sites Mover "Promotion"))
-                                (moveAgain)
-                            )
-                            "CommonPostMoveActions"
-                            (set Counter)
-                        })
-                    )
+                    (then (if (is In (last To) (sites Mover "Promotion"))
+                        (moveAgain)
+
+                        (and "CommonPostMoveActions" (set Counter))
+                    ))
                 )
             )
         ) 
@@ -795,54 +773,34 @@
             (move
                 (from (last From))
                 (to (last To))
-                (then
-                    (and
-                        "CommonPostMoveActions"
-                        ("PieceHasMoved" (last To))
-                    )
-                )
+                (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To))))
             )
         )
         (if ("MovingTheKing")
-            (if ("DecideToCastle" 2 E "RookRight")
+            (if ("DecideToCastle" E "RookRight")
                 (and
                     (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
                     (move
                         (from (mapEntry "RookRight" (mover)))
                         (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                        (then
-                            (and
-                                "CommonPostMoveActions"
-                                ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                            )
-                        )
+                        (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))))
                     )
                 )
 
-                (if ("DecideToCastle" 2 W "RookLeft")
+                (if ("DecideToCastle" W "RookLeft")
                     (and
                         (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
                         (move
                             (from (mapEntry "RookLeft" (mover)))
                             (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                            (then
-                                (and 
-                                    "CommonPostMoveActions"
-                                    ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                                )
-                            )
+                            (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))))
                         )
                     )
 
                     (move
                         (from (last From))
                         (to (last To))
-                        (then
-                            (and
-                                "CommonPostMoveActions"
-                                ("PieceHasMoved" (last To))
-                            )
-                        )
+                        (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To))))
                     )
                 )
             )
