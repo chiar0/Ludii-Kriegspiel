@@ -871,7 +871,7 @@
         (to if: "InLocationEnPassant")
         (then
             (remove
-                (if (=(mover) 1) (ahead (last To) Backward) (ahead (last To) Forward))
+                (ahead (last To) Backward)
             )
         )
     )
