@@ -749,7 +749,7 @@
         (if (is Enemy (who at:(last To)))
             (and ("NoteCapture" (last To) (what at:(last To))) (set Counter))
         )
-        (if (= (last To) (var "EnPassantSite"))
+        (if (and (= (last To) (var "EnPassantSite")) ("IsMovingPiece" "Pawn"))
             (remove (if (= (mover) 1) (ahead (last To) Backward) (ahead (last To) Forward))
                 (then (and
                     ("NoteCapture" (last To) (what at:(last To)))
