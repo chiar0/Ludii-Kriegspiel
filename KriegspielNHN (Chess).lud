@@ -757,7 +757,7 @@
                 ))
             )
         )
-        (set Var "EnPassantSite" -1)
+        (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
         (if ("IsMovingPiece" "Pawn")
             (if ("InitialPawnMove")
                 (move
@@ -848,51 +848,14 @@
     )
 )
 
-(define "AttemptForward"
-    (if (= #1 2)
-        (move Slide (directions Forward) 
-            (between (exact 2)) 
-            (to if:(not (or { 
-                (is Friend (who at:(to))) 
-                ("InAttackerSite" (to))
-                (is In (+ 100 (to)) (values Remembered "CheckSites"))
-            })))
-        )
-
-        (move Step (directions Forward) 
-            (to if:(not (or { 
-                (is Friend (who at:(to))) 
-                ("InAttackerSite" (to))
-                (is In (+ 100 (to)) (values Remembered "CheckSites"))
-            })))
-        )
-    )
-)
-
-(define "AttemptCaptureForwardDiagonal"
-    (move Step (directions {FR FL}) 
-        (to if: (not (or {
-            (is Friend (who at:(to))) 
-            (is In (to) (values Remembered "EmptySite"))
-            (and {
-                (not ("InAttackerSite" (to)))
-                (or 
-                    (and (>= (var "AttackerSite") 200) (= (score Mover) 2))
-                    (and (>= (var "AttackerSite") 100) (= (score Mover) 1))
-                )
-            }) 
-        })))
-    )
-)
-
-(define "AttemptSlide"
+(define "Attempt"
     (move Select
         (from (from))
         (to
             (sites Direction
                 from:(from)
                 #1
-                stop:(or { 
+                stop:(or {
                     (is Friend (who at:(to))) 
                     ("InAttackerSite" (to)) 
                     (and
@@ -900,9 +863,28 @@
                         (is In (+ (* (from) 100) (to)) (values Remembered "IllegalMoves"))
                     )
                 })
-                stopIncluded:("InAttackerSite" (to))
+                stopIncluded:(and {("InAttackerSite" (to)) (!= #2 1) (!= #2 2)})
             )
-            if:(not (is Friend (who at:(to))))
+            if:(and
+                (not (is Friend (who at:(to))))
+                (or {
+                    (and { (!= #2 1) (!= #2 2) (!= #2 3) } )
+                    (and { (= #2 1) (= 1 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} ) 
+                    (and { (= #2 2) (= 2 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} )
+                    (and {
+                        (= #2 3)
+                        (= 1 (count Steps (from) (to)))
+                        (not (is In (to) (values Remembered "EmptySite")))
+                        (not (and {
+                            (not ("InAttackerSite" (to)))
+                            (or 
+                                (and (>= (var "AttackerSite") 200) (= (score Mover) 2))
+                                (and (>= (var "AttackerSite") 100) (= (score Mover) 1))
+                            )
+                        }))
+                    })
+                })
+            )
         )
     )
 )
@@ -910,7 +892,7 @@
 (define "KriegspielRook"
     (piece "Rook" Each
         (if (not (= (var "EquipmentMode") 1))
-            ("AttemptSlide" Orthogonal)
+            ("Attempt" Orthogonal 0)
 
             (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
         )
@@ -920,7 +902,7 @@
 (define "KriegspielBishop"
     (piece "Bishop" Each
         (if (not (= (var "EquipmentMode") 1))
-            ("AttemptSlide" Diagonal)
+            ("Attempt" Diagonal 0)
 
             (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
         )
@@ -930,7 +912,7 @@
 (define "KriegspielQueen"
     (piece "Queen" Each
         (if (not (= (var "EquipmentMode") 1))
-            ("AttemptSlide" (union Orthogonal Diagonal))
+            ("Attempt" (union Orthogonal Diagonal) 0)
 
             (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
         )
@@ -941,14 +923,14 @@
     (piece "Pawn" Each
         (if (not (= (var "EquipmentMode") 1))
             (or {
-                ("AttemptForward" 1)
-                (if (is In (from) (sites Start (piece (what at:(from))))) ("AttemptForward" 2))
+                ("Attempt" Forward 1)
+                (if (is In (from) (sites Start (piece (what at:(from))))) ("Attempt" Forward 2))
                 (if (> (score Mover) 0)
                     (if (> (count Moves) 2) 
-                        ("AttemptCaptureForwardDiagonal")
+                        ("Attempt" (directions {FR FL}) 3)
                         
                         (if (not (is In (from) (sites Start (piece (what at:(from))))))
-                            ("AttemptCaptureForwardDiagonal")
+                            ("Attempt" (directions {FR FL}) 3)
                         )
                     )
                 )
