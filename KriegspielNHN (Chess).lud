@@ -25,13 +25,13 @@
     })
 )
 
-(define "CanBeCapturedByPawn"
+ (define "CanBeCapturedByPawn"
     (and {
-        (= (what at:(ahead (#1) steps:1 #2)) (mapEntry "Pawn" Mover))
+        (= (what at:(ahead (#1) steps:1 #2)) (mapEntry "Pawn" Next))
         (can Move
             (do
                 (move (from: (ahead (#1) steps:1 #2)) (to: (#1)))
-                ifAfterwards:(not ("KingInCheck" (next) (mover)))
+                ifAfterwards: (not ("KingInCheck" (next) (mover)))
             )
         )
     })
@@ -746,75 +746,133 @@
 
 (define "PerformLegalMove"
     (or {
-        (if (is Enemy (who at:(last To)))
-            (and ("NoteCapture" (last To) (what at:(last To))) (set Counter))
-        )
-        (if (and (= (last To) (var "EnPassantSite")) ("IsMovingPiece" "Pawn"))
-            (remove (if (= (mover) 1) (ahead (last To) Backward) (ahead (last To) Forward))
-                (then (and
-                    ("NoteCapture" (last To) (what at:(last To)))
-                    (remember Value "EmptySite" (if (= (mover) 1) (ahead (last To) Backward) (ahead (last To) Forward)) unique:True)
+        (if (and ("IsMovingPiece" "Pawn") (= (last To) (var "EnPassantSite")))
+            (move
+                (from (last From))
+                (to (last To))
+                (then (remove (ahead (last To) Backward)
+                    (then
+                        (and {
+                            ("NoteCapture" (last To) (what at:(last To)))
+                            (remember Value "EmptySite" (ahead (last To) Backward) unique:True)    
+                            "CommonPostMoveActions"
+                            (set Counter)
+                        })
+                    )
                 ))
             )
         )
         (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
-        (if ("IsMovingPiece" "Pawn")
-            (if ("InitialPawnMove")
-                (move
-                    (from (last From))
-                    (to (last To))
-                    (then (and {
-                        "SetEnPassant"
+        (if (and ("IsMovingPiece" "Pawn") ("InitialPawnMove"))
+            (move
+                (from (last From))
+                (to (last To))
+                (then (and {
+                    "SetEnPassant"
+                    "CommonPostMoveActions"
+                    "CountEnPassantTries"
+                    (set Counter)
+                }))
+            )
+        )
+        (if (and ("IsMovingPiece" "Pawn") ("PawnStep"))
+            (move
+                (from (last From))
+                (to (last To))
+                (then
+                    (and {
+                        (if (is In (last To) (sites Mover "Promotion"))
+                            (moveAgain)
+                        )
                         "CommonPostMoveActions"
-                        "CountEnPassantTries"
                         (set Counter)
-                    }))
-                )
-
-                (move
-                    (from (last From))
-                    (to (last To))
-                    (then (if (is In (last To) (sites Mover "Promotion"))
-                        (moveAgain)
-
-                        (and "CommonPostMoveActions" (set Counter))
-                    ))
+                    })
                 )
             )
-        ) 
-        (if (or { ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+        )
+        (if (and ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To))))
+            (and
+                (set Var "CapturedPiece" (what at:(last To)))
+                (move
+                    (from (last From))
+                    (to (last To))
+                    (then
+                        (and {
+                            ("NoteCapture" (last To) (var "CapturedPiece"))
+                            (if (is In (last To) (sites Mover "Promotion"))
+                                (moveAgain)
+                            )
+                            "CommonPostMoveActions"
+                            (set Counter)
+                        })
+                    )
+                )
+            )
+        )
+        (if (and
+                (or { ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (is Enemy (who at:(last To)))
+            )
+            (and
+                (set Var "CapturedPiece" (what at:(last To)))
+                (move
+                    (from (last From))
+                    (to (last To))
+                    (then
+                        (and {
+                            ("NoteCapture" (last To) (var "CapturedPiece"))
+                            "CommonPostMoveActions"
+                            ("PieceHasMoved" (last To))
+                            (set Counter)
+                        })
+                    )
+                )
+            )
+        )
+        (if (and
+                (or { "MovingTheKing" ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (is Empty (last To))
+            )
             (move
                 (from (last From))
                 (to (last To))
                 (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To))))
             )
         )
-        (if ("MovingTheKing")
-            (if ("DecideToCastle" E "RookRight")
-                (and
-                    (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                    (move
-                        (from (mapEntry "RookRight" (mover)))
-                        (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                        (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))))
+        (if (and ("MovingTheKing") (is Enemy (who at:(last To))))
+            (and
+                (set Var "CapturedPiece" (what at:(last To)))
+                (move
+                    (from (last From))
+                    (to (last To))
+                    (then
+                        (and {
+                            ("NoteCapture" (last To) (var "CapturedPiece"))
+                            "CommonPostMoveActions"
+                            ("PieceHasMoved" (last To))
+                            (set Counter)
+                        })
                     )
                 )
-
-                (if ("DecideToCastle" W "RookLeft")
-                    (and
-                        (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                        (move
-                            (from (mapEntry "RookLeft" (mover)))
-                            (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                            (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))))
-                        )
-                    )
-
-                    (move
-                        (from (last From))
-                        (to (last To))
-                        (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To))))
-                    )
+            )
+        )
+        (if (and ("MovingTheKing") ("DecideToCastle" E "RookRight"))
+            (and
+                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
+                (move
+                    (from (mapEntry "RookRight" (mover)))
+                    (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
+                    (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))))
+                )
+            )
+        )
+        (if (and ("MovingTheKing") ("DecideToCastle" W "RookLeft"))
+            (and
+                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
+                (move
+                    (from (mapEntry "RookLeft" (mover)))
+                    (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
+                    (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))))
                 )
             )
         )
