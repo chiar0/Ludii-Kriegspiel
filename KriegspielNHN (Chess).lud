@@ -892,7 +892,14 @@
             (sites Direction
                 from:(from)
                 #1
-                stop:(or (is Friend (who at:(to))) ("InAttackerSite" (to)))
+                stop:(or { 
+                    (is Friend (who at:(to))) 
+                    ("InAttackerSite" (to)) 
+                    (and
+                        (not ("KingInCheck" (mover) (next)))
+                        (is In (+ (* (from) 100) (to)) (values Remembered "IllegalMoves"))
+                    )
+                })
                 stopIncluded:("InAttackerSite" (to))
             )
             if:(not (is Friend (who at:(to))))
