@@ -872,20 +872,15 @@
 (define "AttemptCaptureForwardDiagonal"
     (move Step (directions {FR FL}) 
         (to if: (not (or {
-            (or 
-                (is Friend (who at:(to))) 
-                (is In (to) (values Remembered "EmptySite"))
-            )
+            (is Friend (who at:(to))) 
+            (is In (to) (values Remembered "EmptySite"))
             (and {
-                (>= (var "AttackerSite") 200) 
-                (= (score Mover) 2)
                 (not ("InAttackerSite" (to)))
+                (or 
+                    (and (>= (var "AttackerSite") 200) (= (score Mover) 2))
+                    (and (>= (var "AttackerSite") 100) (= (score Mover) 1))
+                )
             }) 
-            (and {
-                (>= (var "AttackerSite") 100) 
-                (= (score Mover) 1)
-                (not ("InAttackerSite" (to)))
-            })
         })))
     )
 )
