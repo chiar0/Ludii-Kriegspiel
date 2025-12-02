@@ -17,9 +17,37 @@
     (set State at:#1 0)
 )
 
+(define "InAttackerSite"
+    (or {
+        (= #1 (var "AttackerSite"))
+        (= (+ 100 #1) (var "AttackerSite"))
+        (= (+ 200 #1) (var "AttackerSite"))
+    })
+)
+
+(define "CanBeCapturedByPawn"
+    (and {
+        (= (what at:(ahead (#1) steps:1 #2)) (mapEntry "Pawn" Mover))
+        (can Move
+            (do
+                (move (from: (ahead (#1) steps:1 #2)) (to: (#1)))
+                ifAfterwards:(not ("KingInCheck" (next) (mover)))
+            )
+        )
+    })
+)
+
 (define "NoteCapture"
     (and {
-        (remember Value "AttackerSite" #1)
+        (if (and ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR))
+            (set Var "AttackerSite" (+ 200 (#1)))
+            
+            (if (or ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR))
+                (set Var "AttackerSite" (+ 100 (#1)))
+
+                (set Var "AttackerSite" #1)
+            )
+        )
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
@@ -316,6 +344,7 @@
             (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
                 (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
                     (remember Value "CheckSites" (+ 100 (site)) unique:True)
+
                     (remember Value "CheckSites" (site) unique:True)
                 )
             )
@@ -328,15 +357,9 @@
         (if
             (or {
                 ("DiagonalCheck" (next) (mover) SE)
-                (and
-                    (= (next) 2)
-                    ("PawnDiagonalCheck" (next) (mover) SE)
-                )
+                (and (= (next) 2) ("PawnDiagonalCheck" (next) (mover) SE))
                 ("DiagonalCheck" (next) (mover) NW)
-                (and
-                    (= (next) 1)
-                    ("PawnDiagonalCheck" (next) (mover) NW)
-                )
+                (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NW))
             })
             (and {
                 ("ProcessCheck" SE (toBool 0))
@@ -348,15 +371,9 @@
         (if
             (or {
                 ("DiagonalCheck" (next) (mover) SW)
-                (and
-                    (= (next) 2)
-                    ("PawnDiagonalCheck" (next) (mover) SW)
-                )
+                (and (= (next) 2) ("PawnDiagonalCheck" (next) (mover) SW))
                 ("DiagonalCheck" (next) (mover) NE)
-                (and
-                    (= (next) 1)
-                    ("PawnDiagonalCheck" (next) (mover) NE)
-                )
+                (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NE))
             })
             (and {
                 ("ProcessCheck" SW (toBool 0))
@@ -390,10 +407,7 @@
                 ("KnightCheck" (next) (mover) E S)
                 ("KnightCheck" (next) (mover) E N)
             })
-            (and {
-                ("ProcessCheck" N (toBool 1))
-                (note "Knight Check")
-            })
+            (and ("ProcessCheck" N (toBool 1)) (note "Knight Check"))
         )
     })
 )
@@ -704,7 +718,6 @@
                                         (forget Value "IllegalMoves" All)
                                         (forget Value "CheckSites" All)
                                         (forget Value "EmptySite" All)
-                                        (forget Value "AttackerSite" All)
                                         (set Var "EquipmentMode" 0)
                                     })
                                 )
@@ -841,7 +854,7 @@
             (between (exact 2)) 
             (to if:(not (or { 
                 (is Friend (who at:(to))) 
-                (is In (to) (values Remembered "AttackerSite")) 
+                ("InAttackerSite" (to))
                 (is In (+ 100 (to)) (values Remembered "CheckSites"))
             })))
         )
@@ -849,7 +862,7 @@
         (move Step (directions Forward) 
             (to if:(not (or { 
                 (is Friend (who at:(to))) 
-                (is In (to) (values Remembered "AttackerSite")) 
+                ("InAttackerSite" (to))
                 (is In (+ 100 (to)) (values Remembered "CheckSites"))
             })))
         )
@@ -858,14 +871,22 @@
 
 (define "AttemptCaptureForwardDiagonal"
     (move Step (directions {FR FL}) 
-        (to if:
-            (not 
-                (or 
-                    (is Friend (who at:(to))) 
-                    (is In (to) (values Remembered "EmptySite"))
-                )
+        (to if: (not (or {
+            (or 
+                (is Friend (who at:(to))) 
+                (is In (to) (values Remembered "EmptySite"))
             )
-        )
+            (and {
+                (>= (var "AttackerSite") 200) 
+                (= (score Mover) 2)
+                (not ("InAttackerSite" (to)))
+            }) 
+            (and {
+                (>= (var "AttackerSite") 100) 
+                (= (score Mover) 1)
+                (not ("InAttackerSite" (to)))
+            })
+        })))
     )
 )
 
@@ -876,8 +897,8 @@
             (sites Direction
                 from:(from)
                 #1
-                stop:(or (is Friend (who at:(to))) (is In (to) (values Remembered "AttackerSite")))
-                stopIncluded:(is In (to) (values Remembered "AttackerSite"))
+                stop:(or (is Friend (who at:(to))) ("InAttackerSite" (to)))
+                stopIncluded:("InAttackerSite" (to))
             )
             if:(not (is Friend (who at:(to))))
         )
@@ -1045,10 +1066,11 @@
                             (from (sites Occupied by:Mover))
                             (to (sites To (do (forEach Piece) ifAfterwards: "CanMove")))
                             (then (if "LegalMove"
-                                (and
+                                (and {
+                                    (if (!= (var "AttackerSite") -1) (set Var "AttackerSite" -1))
                                     (set Var "EquipmentMode" 1)
                                     "PerformLegalMove"
-                                )
+                                })
 
                                 (and {
                                     (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
