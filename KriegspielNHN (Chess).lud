@@ -926,7 +926,7 @@
             if:(and
                 (not (is Friend (who at:(to))))
                 (or {
-                    (and { (!= #2 1) (!= #2 2) (!= #2 3) } )
+                    (= #2 0)
                     (and { (= #2 1) (= 1 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} ) 
                     (and { (= #2 2) (= 2 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} )
                     (and {
@@ -935,12 +935,12 @@
                         (not (is In (to) (values Remembered "EmptySite")))
                         (or {
                             (and {
-                                (is In (to) (sites {"B3" "G3" "G6" "B6"})) 
-                                (>= (count Moves) 4)
-                                (< (count Moves) 6)
+                                (is In (to) (sites {"A3" "H3" "A6" "H6"})) 
+                                (>= (count Turns) 4)
+                                (< (count Turns) 6)
                             })
                             (not (is In (from) (sites Start (piece (what at:(from))))))
-                            (>= (count Moves) 6)
+                            (>= (count Turns) 6)
                         })
                         (not (and {
                             (not ("InAttackerSite" (to)))
