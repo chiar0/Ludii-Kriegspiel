@@ -933,6 +933,15 @@
                         (= #2 3)
                         (= 1 (count Steps (from) (to)))
                         (not (is In (to) (values Remembered "EmptySite")))
+                        (or {
+                            (and {
+                                (is In (to) (sites {"B3" "G3" "G6" "B6"})) 
+                                (>= (count Moves) 4)
+                                (< (count Moves) 6)
+                            })
+                            (not (is In (from) (sites Start (piece (what at:(from))))))
+                            (>= (count Moves) 6)
+                        })
                         (not (and {
                             (not ("InAttackerSite" (to)))
                             (or 
@@ -983,15 +992,7 @@
             (or {
                 ("Attempt" Forward 1)
                 (if (is In (from) (sites Start (piece (what at:(from))))) ("Attempt" Forward 2))
-                (if (> (score Mover) 0)
-                    (if (> (count Moves) 2) 
-                        ("Attempt" (directions {FR FL}) 3)
-                        
-                        (if (not (is In (from) (sites Start (piece (what at:(from))))))
-                            ("Attempt" (directions {FR FL}) 3)
-                        )
-                    )
-                )
+                (if (> (score Mover) 0) ("Attempt" (directions {FR FL}) 3))
             })
 
             (or {
@@ -1122,7 +1123,7 @@
                                 })
                             ))
                         )
-                        (if (< (var "ProposedEnd") 0)
+                        (if (> (var "ProposedEnd") 100)
                             (move Propose "End" 
                                 (then (and
                                     (move Vote "End" (then (set Var "ProposedEnd" (+ (count Moves) 1)))) 
