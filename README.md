@@ -73,9 +73,10 @@ The umpire makes the following announcements where appropriate:
 - `Knight check`.
 - `(number) tries` (the number of legal pawn-capture moves available in the turn; captures are not obligatory. Displayed in each player's score).
 - `Checkmate`, `stalemate`
-- `draw by repetition` when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
-- `draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
+- `Draw by repetition` when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
+- `Draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
 - `50-move draw` (the illegal moves do not count towards the fifty moves).
+- `Player 1 (White)'s [or Player 2 (Black)'s] proposes [or accepted] to end the game` when a player propose/accept to end the game in draw. Proposals are limited to one per player per turn to avoid infinite loops or spam.
 
 Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
 
