@@ -1099,18 +1099,34 @@
         })
     )
 )
+//* 
+    DISABLED: if (= (var "ProposedEnd") (count Moves)) ...
+    Problem 1: AI agents spam "Propose End" moves.
+    Problem 2: (is Repeat) seems to count proposal moves, triggering false draw-by-repetition.
+    Current workaround: always disabled (condition > 100 never true).
+    Note: When enabled, only one proposal per turn is allowed, preventing infinite loops.
+*//
 
 (metadata
     (info
         {
         (description "
             In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
-            This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' announcements. All filtering is based exclusively on information legitimately available to the player (game rules, own piece positions, and umpire announcements), organized into the following domains:
+            This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' (or "Impossible" or "Nonsense") announcements (when the attempted move is always illegal regardless of the opponent's position). All filtering is based exclusively on information legitimately available to the player (game rules, own pieces, and information derivable from umpire announcements and move history), organized into the following domains:
             === FILTERING RULES ===
-            [A] MEMORY: Rejected moves are excluded for the remainder of the turn.
+            [A] MEMORY: 
+            - A1: Rejected moves excluded for the remainder of the turn.
+            - A2: Sliding trajectories stop at previously rejected destinations (except under check).
+            - A3: [NOT IMPLEMENTED] SONAR - Occupancy deduction from rejected pawn forward moves. Destination marked as AttackerSite (apply C2-C4):
+                - A3.1: Not under check, pawn is Pinnable or move stays on King-Pawn alignment.
+                - A3.2: Under check, destination adjacent to terminal CheckSite on attacker side.
+            - A4: [NOT IMPLEMENTED] PIN DETECTION - Deduction from rejected moves when piece is Pinnable:
+                - A4.1: Sliding piece move rejected, piece is pinned. Enemy exists along PinRay. Restrict piece to PinRay moves only.
+                    - A4.1.1: If only one square visible along PinRay away from King, mark as AttackerSite (apply C2-C4).
+                - A4.2: Pawn capture rejected when C4 applies, pawn is pinned. Freeze pawn for moves outside PinRay.
             [B] GEOMETRY:
             - B1: Pieces follow canonical movement patterns.
-            - B2: Trajectories stop at friendly pieces.
+            - B2: Sliding trajectories stop at friendly pieces.
             - B3: Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
             [C] UMPIRE INFERENCE:
             - C1: Pawn captures enabled only when Tries > 0.
@@ -1118,17 +1134,22 @@
             - C3: Pawns cannot advance onto AttackerSite.
             - C4: If Tries equals pawns that can reach AttackerSite, other captures excluded.
             - C5: Pawn captures onto VacatedSite excluded.
-            - C6: Under check, only moves to CheckSites or King moves allowed.
+            - C6: Under check, only moves to CheckSites or King moves allowed. Castling is also excluded.
+                - C6.1: [NOT IMPLEMENTED] Double check (multiple check directions): only King moves allowed, interposition impossible.
             - C7: Pawns cannot advance onto terminal CheckSites.
+            - C8: [NOT IMPLEMENTED] Check triggered by capture: if AttackerSite distance from King > 1, King cannot move toward it (attacker unreachable).
+            - C9: [NOT IMPLEMENTED] Check triggered by capture (non-Knight): CheckSites computed only toward AttackerSite, not in the opposite direction from King.
             [D] EARLY-GAME (only for pawns still on starting rank):
             - D1: Turns 1-2: no pawn captures (enemies cannot reach rows 3/6).
             - D2: Turns 3-4: pawn captures only on A3/H3/A6/H6 (bishop reachable).
             === GLOSSARY ===
             - Tries: Number of legal pawn captures available, announced by the umpire. Includes en passant.
-            - AttackerSite: Square where enemy captured a piece, now occupied by the attacker. Encoded as: site (one pawn can recapture), site+100 (one pawn can), site+200 (two pawns can).
-            - CheckSites: Squares along the check line where interposition is possible. Encoded as: site (intermediate), site+100 (terminal, i.e. farthest visible square).
+            - AttackerSite: Square where enemy captured a piece, now occupied by the attacker. Encoded as: [site] (one pawn can recapture), [site+100] (one pawn can), [site+200] (two pawns can).
+            - CheckSites: Squares along the check line where interposition is possible. Encoded as: [site] (intermediate), [site+100] (terminal, i.e. farthest visible square).
             - VacatedSite: Square emptied by en passant capture (the captured pawn's location).
-            - IllegalMoves: Memory of moves rejected this turn, encoded as from*100+to.
+            - IllegalMoves: Memory of moves rejected this turn, encoded as [from*100+to].
+            - Pinnable: A piece is Pinnable if it is aligned with the King and no friendly pieces stand between them.
+            - PinRay: The line from King through the pinned piece to the enemy pinner. A pinned piece can only move along this ray.
         ")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "
