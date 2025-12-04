@@ -722,7 +722,7 @@
         (set Var "EquipmentMode" 0)
         (forget Value "IllegalMoves" All)
         (forget Value "CheckSites" All)
-        (forget Value "EmptySite" All)
+        (forget Value "VacatedSite" All)
     })
 )
 
@@ -771,7 +771,7 @@
         (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite"))))
             (and
                 (if (not (is Enemy (who at:(last To))))
-                    (and (set Var "CapturedPiece" (what at:(last From))) (remember Value "EmptySite" (ahead (last To) Backward) unique:True))
+                    (and (set Var "CapturedPiece" (what at:(last From))) (remember Value "VacatedSite" (ahead (last To) Backward) unique:True))
                     
                     (set Var "CapturedPiece" (what at:(last To)))
                 )
@@ -886,14 +886,14 @@
                     (and {
                         (= #2 3)
                         (= 1 (count Steps (from) (to)))
-                        (not (is In (to) (values Remembered "EmptySite")))
+                        (not (is In (to) (values Remembered "VacatedSite")))
                         (or {
+                            (not (is In (from) (sites Start (piece (what at:(from))))))
                             (and {
                                 (is In (to) (sites {"A3" "H3" "A6" "H6"})) 
                                 (>= (count Turns) 4)
                                 (< (count Turns) 6)
                             })
-                            (not (is In (from) (sites Start (piece (what at:(from))))))
                             (>= (count Turns) 6)
                         })
                         (not (and {
@@ -1105,47 +1105,34 @@
         {
         (description "
             In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
-            
             This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' announcements. All filtering is based exclusively on information legitimately available to the player (game rules, own piece positions, and umpire announcements), organized into the following domains:
-            
-            === DOMAIN A: MEMORY-BASED EXCLUSIONS ===
-            
-            [A1] Failed Attempt Memory: When the umpire declares a move illegal, it is recorded and excluded from candidates for the remainder of that turn. The memory resets at turn end, restoring the move to candidacy.
-            
-            === DOMAIN B: GEOMETRIC CONSTRAINTS ===
-            
-            [B1] Piece Movement Geometry: Each piece type follows its canonical movement pattern (King: one step any direction; Queen/Rook/Bishop: sliding along lines; Knight: L-shape; Pawn: forward step or diagonal capture). Moves violating these patterns are never generated.
-            
-            [B2] Friendly Piece Obstruction: No piece can move to a square occupied by a friendly piece. For sliding pieces, the trajectory is truncated at the first friendly obstruction.
-            
-            [B3] Castling Geometry: Castling requires that the King and relevant Rook have never moved, and that all squares between them are unoccupied by friendly pieces.
-            
-            === DOMAIN C: INFERENCE FROM UMPIRE ANNOUNCEMENTS ===
-            
-            [C1] Tries Announcement and Pawn Capture Enabling: The umpire announces N 'tries' indicating exactly N legal pawn captures exist. Diagonal pawn capture attempts are only presented to the player when tries > 0. The tries count includes both standard diagonal captures and en passant opportunities (if the opponent just advanced a pawn two squares, adjacent pawns can capture en passant and each such opportunity is counted).
-            
-            [C2] Attacker Site Identification: When the umpire announces 'Piece/Pawn at X captured', the player knows an enemy piece now occupies square X (the attacker). This square becomes the 'attacker site'.
-            
-            [C3] Sliding Piece Truncation at Attacker Site: For Queens, Rooks, and Bishops, sliding trajectories stop at the attacker site, since an enemy piece is confirmed there.
-            
-            [C4] Pawn Forward Exclusion at Attacker Site: Pawns cannot advance (single or double step) onto the attacker site, as forward pawn moves cannot capture.
-            
-            [C5] Tries-Based Capture Localization: If the attacker site is within capture range of M of the player's pawns, and the announced tries equal M, then ALL legal captures must target that site. Pawns unable to reach the attacker site are excluded from attempting captures elsewhere.
-            
-            [C6] En Passant Vacated Site: After an en passant capture, the vacated square (where the captured pawn stood) is known empty. Standard pawn captures onto this square are excluded since no piece occupies it.
-            
-            [C7] Check Announcement and Response Restriction: The umpire announces check specifying the attack line: 'Rank check', 'File check', 'Long diagonal check', 'Short diagonal check' (relative to the King's position), or 'Knight check'. Only moves resolving the check are presented. For rank/file/diagonal checks, the system computes 'CheckSites': the line extends in both directions from the King's position. The trajectory continues only through empty squares; upon encountering a friendly piece, that direction terminates. Interposing moves must land on one of these CheckSites squares; King moves are also valid. For knight checks, interposition is geometrically impossible, so only King moves or captures on the eight L-shaped squares around the King are presented, provided those squares exist on the board and are not occupied by a friendly piece.
-            
-            [C8] Pawn Interposition Exclusion on Terminal Square: Along the check line, the farthest square the player can see (before the board edge or a friendly piece) is marked with +100 encoding. For knight checks, every CheckSite is considered terminal. Pawns cannot advance forward onto a terminal square to block: if an enemy occupies it, the pawn cannot capture forward; if empty, advancing would not block the check. Either case yields an illegal move.
-            
-            === DOMAIN D: EARLY-GAME REACHABILITY REASONING ===
-            
-            [D1] Turn 1-2 Pawn Capture Exclusion: A pawn still on its starting rank cannot attempt diagonal captures in turns 1-2, because no enemy piece can reach row 3 (for White) or row 6 (for Black) in a single move. Pawns that have already moved from their starting position are exempt from this restriction.
-            
-            [D2] Turn 3-4 Partial Exclusion: The same restriction applies in turns 3-4, except for squares A3, H3, A6, H6, which the opponent's bishop can reach in two moves. Again, pawns no longer on their starting rank are exempt.
+            === FILTERING RULES ===
+            [A] MEMORY: Rejected moves are excluded for the remainder of the turn.
+            [B] GEOMETRY:
+            - B1: Pieces follow canonical movement patterns.
+            - B2: Trajectories stop at friendly pieces.
+            - B3: Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
+            [C] UMPIRE INFERENCE:
+            - C1: Pawn captures enabled only when Tries > 0.
+            - C2: Sliding pieces stop at AttackerSite.
+            - C3: Pawns cannot advance onto AttackerSite.
+            - C4: If Tries equals pawns that can reach AttackerSite, other captures excluded.
+            - C5: Pawn captures onto VacatedSite excluded.
+            - C6: Under check, only moves to CheckSites or King moves allowed.
+            - C7: Pawns cannot advance onto terminal CheckSites.
+            [D] EARLY-GAME (only for pawns still on starting rank):
+            - D1: Turns 1-2: no pawn captures (enemies cannot reach rows 3/6).
+            - D2: Turns 3-4: pawn captures only on A3/H3/A6/H6 (bishop reachable).
+            === GLOSSARY ===
+            - Tries: Number of legal pawn captures available, announced by the umpire. Includes en passant.
+            - AttackerSite: Square where enemy captured a piece, now occupied by the attacker. Encoded as: site (one pawn can recapture), site+100 (one pawn can), site+200 (two pawns can).
+            - CheckSites: Squares along the check line where interposition is possible. Encoded as: site (intermediate), site+100 (terminal, i.e. farthest visible square).
+            - VacatedSite: Square emptied by en passant capture (the captured pawn's location).
+            - IllegalMoves: Memory of moves rejected this turn, encoded as from*100+to.
         ")
         (aliases {"Blind Chess" "Wild 16"})
-        (rules "The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
+        (rules "
+            The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
             The umpire makes the following announcements where appropriate:
             -'Player 1 (White)'s [or Player 2 (Black)'s] turn'.
             -'Pawn [or Piece] at (square) captured', when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. 'Pawn at A4 captured en passant')
@@ -1161,8 +1148,8 @@
             -'draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]'.
             -'50-move draw' (the illegal moves do not count towards the fifty moves).
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
-            Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries."
-        )
+            Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries.
+        ")
         (id "4185") 
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
         (version "1.3.14")
