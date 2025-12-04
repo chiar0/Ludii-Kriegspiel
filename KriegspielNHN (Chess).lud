@@ -718,7 +718,6 @@
         (if "KingVsKingAndSingleKnight" (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king")))                 
         (if "KingsAndBishopsSameColor" (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same-colored squares")))                      
         (if (= (counter) 99) (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule")))
-        (set Var "EquipmentMode" 0)
         "CountTries"
         (set Var "EquipmentMode" 0)
         (forget Value "IllegalMoves" All)
@@ -744,22 +743,6 @@
 (define "PerformLegalMove"
     (or {
         (if (or ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To)))) (set Counter))
-        (if (and ("IsMovingPiece" "Pawn") (= (last To) (var "EnPassantSite")))
-            (move
-                (from (last From))
-                (to (last To))
-                (then (remove (ahead (last To) Backward)
-                    (then
-                        (and {
-                            ("NoteCapture" (last To) (what at:(last To)))
-                            (remember Value "EmptySite" (ahead (last To) Backward) unique:True)    
-                            "CommonPostMoveActions"
-                        })
-                    )
-                ))
-            )
-        )
-        (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
         (if (and ("IsMovingPiece" "Pawn") ("InitialPawnMove"))
             (move
                 (from (last From))
@@ -785,9 +768,13 @@
                 )
             )
         )
-        (if (and ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To))))
+        (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite"))))
             (and
-                (set Var "CapturedPiece" (what at:(last To)))
+                (if (not (is Enemy (who at:(last To))))
+                    (and (set Var "CapturedPiece" (what at:(last From))) (remember Value "EmptySite" (ahead (last To) Backward) unique:True))
+                    
+                    (set Var "CapturedPiece" (what at:(last To)))
+                )
                 (move
                     (from (last From))
                     (to (last To))
@@ -803,6 +790,7 @@
                 )
             )
         )
+        (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
         (if (and
                 (or { ("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
                 (is Enemy (who at:(last To)))
@@ -833,23 +821,17 @@
             )
         )
         (if (and ("MovingTheKing") ("DecideToCastle" E "RookRight"))
-            (and
-                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                (move
-                    (from (mapEntry "RookRight" (mover)))
-                    (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
-                    (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))))
-                )
+            (move
+                (from (mapEntry "RookRight" (mover)))
+                (to (ahead (mapEntry "RookRight" (mover)) steps: 2 W))
+                (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps: 2 W))))
             )
         )
         (if (and ("MovingTheKing") ("DecideToCastle" W "RookLeft"))
-            (and
-                (move (from (last From)) (to (last To)) (then ("PieceHasMoved" (last To))))
-                (move
-                    (from (mapEntry "RookLeft" (mover)))
-                    (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
-                    (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))))
-                )
+            (move
+                (from (mapEntry "RookLeft" (mover)))
+                (to (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))
+                (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps: 3 E))))
             )
         )
     })
@@ -874,11 +856,7 @@
         Step
         (directions {FR FL})
         (to if: "InLocationEnPassant")
-        (then
-            (remove
-                (ahead (last To) Backward)
-            )
-        )
+        (then (remove (ahead (last To) Backward)))
     )
 )
 
