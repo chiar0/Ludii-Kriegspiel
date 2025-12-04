@@ -320,19 +320,39 @@
     })
 )
 
+(define "KnightSiteValid"
+    (and { 
+        (>= (+ (where "King" (next)) #1) 0) 
+        (<= (+ (where "King" (next)) #1) 63) 
+        (= (abs (- (% (+ (where "King" (next)) #1) 8) (% (where "King" (next)) 8))) #2)
+    })
+)
+
+(define "KnightSiteIfValid"
+    (if ("KnightSiteValid" #1 #2) (sites {(ahead (ahead (where "King" (next)) steps:#3 #4) steps:#5 #6)}))
+)
+
+(define "CheckLineSites"
+    (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
+)
+
+(define "TerminalSiteIndex"
+    (- (count Sites in:("CheckLineSites" #1)) 1)
+)
+
 (define "ProcessCheck" 
     (if (#2)
         (forEach Site 
             (difference
                 (union {
-                    (if (and { (>= (+ (where "King" (next)) 17) 0) (<= (+ (where "King" (next)) 17) 63) (= (abs (- (% (+ (where "King" (next)) 17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 E)}))
-                    (if (and { (>= (+ (where "King" (next)) 15) 0) (<= (+ (where "King" (next)) 15) 63) (= (abs (- (% (+ (where "King" (next)) 15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 N) steps:1 W)}))
-                    (if (and { (>= (+ (where "King" (next)) -15) 0) (<= (+ (where "King" (next)) -15) 63) (= (abs (- (% (+ (where "King" (next)) -15) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 E)}))
-                    (if (and { (>= (+ (where "King" (next)) -17) 0) (<= (+ (where "King" (next)) -17) 63) (= (abs (- (% (+ (where "King" (next)) -17) 8) (% (where "King" (next)) 8))) 1)}) (sites {(ahead (ahead (where "King" (next)) steps:2 S) steps:1 W)}))
-                    (if (and { (>= (+ (where "King" (next)) 10) 0) (<= (+ (where "King" (next)) 10) 63) (= (abs (- (% (+ (where "King" (next)) 10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 E)}))
-                    (if (and { (>= (+ (where "King" (next)) 6) 0) (<= (+ (where "King" (next)) 6) 63) (= (abs (- (% (+ (where "King" (next)) 6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 N) steps:2 W)}))
-                    (if (and { (>= (+ (where "King" (next)) -6) 0) (<= (+ (where "King" (next)) -6) 63) (= (abs (- (% (+ (where "King" (next)) -6) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 E)}))
-                    (if (and { (>= (+ (where "King" (next)) -10) 0) (<= (+ (where "King" (next)) -10) 63) (= (abs (- (% (+ (where "King" (next)) -10) 8) (% (where "King" (next)) 8))) 2)}) (sites {(ahead (ahead (where "King" (next)) steps:1 S) steps:2 W)}))
+                    ("KnightSiteIfValid" 17 1 2 N 1 E)
+                    ("KnightSiteIfValid" 15 1 2 N 1 W)
+                    ("KnightSiteIfValid" -15 1 2 S 1 E)
+                    ("KnightSiteIfValid" -17 1 2 S 1 W)
+                    ("KnightSiteIfValid" 10 2 1 N 2 E)
+                    ("KnightSiteIfValid" 6 2 1 N 2 W)
+                    ("KnightSiteIfValid" -6 2 1 S 2 E)
+                    ("KnightSiteIfValid" -10 2 1 S 2 W)
                 })
                 (sites Occupied by:Next)
             )
@@ -340,9 +360,9 @@
             (remember Value "CheckSites" (+ 100 (site)) unique:True)
         )
 
-        (if (!= (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 0)
-            (forEach Site (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
-                (if (= (site) (regionSite (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False) index: (- (count Sites in:(sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)) 1)))
+        (if (!= (count Sites in:("CheckLineSites" #1)) 0)
+            (forEach Site ("CheckLineSites" #1)
+                (if (= (site) (regionSite ("CheckLineSites" #1) index:("TerminalSiteIndex" #1)))
                     (remember Value "CheckSites" (+ 100 (site)) unique:True)
 
                     (remember Value "CheckSites" (site) unique:True)
@@ -689,45 +709,22 @@
 )
 
 (define "CommonPostMoveActions"
-    (if ("KingInCheck" (next) (mover))
-        (and "CheckType" (if ("NextCanNotMove") (set Var "NextLost" 1)))
-
-        (if ("NextCanNotMove") 
-            (and (set Var "DrawCondition" 1) (note "Draw by stalemate"))
-
-            (if (is Repeat Positional)
-                (and (set Var "DrawCondition" 2) (note "Draw by repetition threefold"))
-
-                (if "OnlyKingsRemaining" 
-                    (and (set Var "DrawCondition" 3) (note "Draw by insufficient force kings only"))
-
-                    (if "KingVsKingAndSingleBishop" 
-                        (and (set Var "DrawCondition" 4) (note "Draw by insufficient force king and bishop vs king"))
-                    
-                        (if "KingVsKingAndSingleKnight" 
-                            (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king"))
-                        
-                            (if "KingsAndBishopsSameColor" 
-                                (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same-colored squares"))
-                            
-                                (if (= (counter) 99)
-                                    (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule"))
-
-                                    (and {
-                                        "CountTries"
-                                        (forget Value "IllegalMoves" All)
-                                        (forget Value "CheckSites" All)
-                                        (forget Value "EmptySite" All)
-                                        (set Var "EquipmentMode" 0)
-                                    })
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )
+    (and {
+        (if ("KingInCheck" (next) (mover)) (and "CheckType" (if ("NextCanNotMove") (set Var "NextLost" 1))))
+        (if (and ("NextCanNotMove") (not ("KingInCheck" (next) (mover)))) (and (set Var "DrawCondition" 1) (note "Draw by stalemate")))
+        (if (is Repeat Positional) (and (set Var "DrawCondition" 2) (note "Draw by repetition threefold")))
+        (if "OnlyKingsRemaining" (and (set Var "DrawCondition" 3) (note "Draw by insufficient force kings only")))
+        (if "KingVsKingAndSingleBishop" (and (set Var "DrawCondition" 4) (note "Draw by insufficient force king and bishop vs king")))            
+        (if "KingVsKingAndSingleKnight" (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king")))                 
+        (if "KingsAndBishopsSameColor" (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same-colored squares")))                      
+        (if (= (counter) 99) (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule")))
+        (set Var "EquipmentMode" 0)
+        "CountTries"
+        (set Var "EquipmentMode" 0)
+        (forget Value "IllegalMoves" All)
+        (forget Value "CheckSites" All)
+        (forget Value "EmptySite" All)
+    })
 )
 
 (define "SetEnPassant"
@@ -746,6 +743,7 @@
 
 (define "PerformLegalMove"
     (or {
+        (if (or ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To)))) (set Counter))
         (if (and ("IsMovingPiece" "Pawn") (= (last To) (var "EnPassantSite")))
             (move
                 (from (last From))
@@ -756,7 +754,6 @@
                             ("NoteCapture" (last To) (what at:(last To)))
                             (remember Value "EmptySite" (ahead (last To) Backward) unique:True)    
                             "CommonPostMoveActions"
-                            (set Counter)
                         })
                     )
                 ))
@@ -771,7 +768,6 @@
                     "SetEnPassant"
                     "CommonPostMoveActions"
                     "CountEnPassantTries"
-                    (set Counter)
                 }))
             )
         )
@@ -780,13 +776,12 @@
                 (from (last From))
                 (to (last To))
                 (then
-                    (and {
+                    (and
                         (if (is In (last To) (sites Mover "Promotion"))
                             (moveAgain)
                         )
                         "CommonPostMoveActions"
-                        (set Counter)
-                    })
+                    )
                 )
             )
         )
@@ -803,14 +798,13 @@
                                 (moveAgain)
                             )
                             "CommonPostMoveActions"
-                            (set Counter)
                         })
                     )
                 )
             )
         )
         (if (and
-                (or { ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (or { ("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
                 (is Enemy (who at:(last To)))
             )
             (and
@@ -823,37 +817,19 @@
                             ("NoteCapture" (last To) (var "CapturedPiece"))
                             "CommonPostMoveActions"
                             ("PieceHasMoved" (last To))
-                            (set Counter)
                         })
                     )
                 )
             )
         )
         (if (and
-                (or { "MovingTheKing" ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (or { ("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
                 (is Empty (last To))
             )
             (move
                 (from (last From))
                 (to (last To))
                 (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To))))
-            )
-        )
-        (if (and ("MovingTheKing") (is Enemy (who at:(last To))))
-            (and
-                (set Var "CapturedPiece" (what at:(last To)))
-                (move
-                    (from (last From))
-                    (to (last To))
-                    (then
-                        (and {
-                            ("NoteCapture" (last To) (var "CapturedPiece"))
-                            "CommonPostMoveActions"
-                            ("PieceHasMoved" (last To))
-                            (set Counter)
-                        })
-                    )
-                )
             )
         )
         (if (and ("MovingTheKing") ("DecideToCastle" E "RookRight"))
@@ -1149,7 +1125,47 @@
 (metadata
     (info
         {
-        (description "In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information. This implementation suppresses any move that fails feasibility checks, so 'Hell no' announcements for impossible attempts never occur and the agents explore a tighter decision space.")
+        (description "
+            In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
+            
+            This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' announcements. All filtering is based exclusively on information legitimately available to the player (game rules, own piece positions, and umpire announcements), organized into the following domains:
+            
+            === DOMAIN A: MEMORY-BASED EXCLUSIONS ===
+            
+            [A1] Failed Attempt Memory: When the umpire declares a move illegal, it is recorded and excluded from candidates for the remainder of that turn. The memory resets at turn end, restoring the move to candidacy.
+            
+            === DOMAIN B: GEOMETRIC CONSTRAINTS ===
+            
+            [B1] Piece Movement Geometry: Each piece type follows its canonical movement pattern (King: one step any direction; Queen/Rook/Bishop: sliding along lines; Knight: L-shape; Pawn: forward step or diagonal capture). Moves violating these patterns are never generated.
+            
+            [B2] Friendly Piece Obstruction: No piece can move to a square occupied by a friendly piece. For sliding pieces, the trajectory is truncated at the first friendly obstruction.
+            
+            [B3] Castling Geometry: Castling requires that the King and relevant Rook have never moved, and that all squares between them are unoccupied by friendly pieces.
+            
+            === DOMAIN C: INFERENCE FROM UMPIRE ANNOUNCEMENTS ===
+            
+            [C1] Tries Announcement and Pawn Capture Enabling: The umpire announces N 'tries' indicating exactly N legal pawn captures exist. Diagonal pawn capture attempts are only presented to the player when tries > 0. The tries count includes both standard diagonal captures and en passant opportunities (if the opponent just advanced a pawn two squares, adjacent pawns can capture en passant and each such opportunity is counted).
+            
+            [C2] Attacker Site Identification: When the umpire announces 'Piece/Pawn at X captured', the player knows an enemy piece now occupies square X (the attacker). This square becomes the 'attacker site'.
+            
+            [C3] Sliding Piece Truncation at Attacker Site: For Queens, Rooks, and Bishops, sliding trajectories stop at the attacker site, since an enemy piece is confirmed there.
+            
+            [C4] Pawn Forward Exclusion at Attacker Site: Pawns cannot advance (single or double step) onto the attacker site, as forward pawn moves cannot capture.
+            
+            [C5] Tries-Based Capture Localization: If the attacker site is within capture range of M of the player's pawns, and the announced tries equal M, then ALL legal captures must target that site. Pawns unable to reach the attacker site are excluded from attempting captures elsewhere.
+            
+            [C6] En Passant Vacated Site: After an en passant capture, the vacated square (where the captured pawn stood) is known empty. Standard pawn captures onto this square are excluded since no piece occupies it.
+            
+            [C7] Check Announcement and Response Restriction: The umpire announces check specifying the attack line: 'Rank check', 'File check', 'Long diagonal check', 'Short diagonal check' (relative to the King's position), or 'Knight check'. Only moves resolving the check are presented. For rank/file/diagonal checks, the system computes 'CheckSites': the line extends in both directions from the King's position. The trajectory continues only through empty squares; upon encountering a friendly piece, that direction terminates. Interposing moves must land on one of these CheckSites squares; King moves are also valid. For knight checks, interposition is geometrically impossible, so only King moves or captures on the eight L-shaped squares around the King are presented, provided those squares exist on the board and are not occupied by a friendly piece.
+            
+            [C8] Pawn Interposition Exclusion on Terminal Square: Along the check line, the farthest square the player can see (before the board edge or a friendly piece) is marked with +100 encoding. For knight checks, every CheckSite is considered terminal. Pawns cannot advance forward onto a terminal square to block: if an enemy occupies it, the pawn cannot capture forward; if empty, advancing would not block the check. Either case yields an illegal move.
+            
+            === DOMAIN D: EARLY-GAME REACHABILITY REASONING ===
+            
+            [D1] Turn 1-2 Pawn Capture Exclusion: A pawn still on its starting rank cannot attempt diagonal captures in turns 1-2, because no enemy piece can reach row 3 (for White) or row 6 (for Black) in a single move. Pawns that have already moved from their starting position are exempt from this restriction.
+            
+            [D2] Turn 3-4 Partial Exclusion: The same restriction applies in turns 3-4, except for squares A3, H3, A6, H6, which the opponent's bishop can reach in two moves. Again, pawns no longer on their starting rank are exempt.
+        ")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
             The umpire makes the following announcements where appropriate:
