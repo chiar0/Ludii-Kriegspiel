@@ -1127,6 +1127,9 @@
                 - B1: Pieces follow canonical movement patterns.
                 - B2: Sliding trajectories stop at friendly pieces.
                 - B3: Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
+                - B4: Early-game (pawns on starting rank)
+                    - B4.1: Turns 1-2: no pawn captures (enemies cannot reach rows 3/6).
+                    - B4.2: Turns 3-4: pawn captures limited to A3, H3, A6, H6 (squares reachable by a bishop from the initial setup).
             C - Umpire inference
                 - C1: Pawn captures are enabled only when `Tries` > 0.
                 - C2: Sliding pieces stop at `AttackerSite`.
@@ -1138,9 +1141,6 @@
                 - C7: Pawns cannot advance onto terminal `CheckSites`.
                 - C8 (NOT IMPLEMENTED): Check triggered by capture - if `AttackerSite` distance from the King > 1, the King cannot move toward it (attacker unreachable).
                 - C9 (NOT IMPLEMENTED): Check triggered by capture (non-Knight) - `CheckSites` computed only toward `AttackerSite`, not in the opposite direction from the King.
-            D - Early-game (pawns on starting rank)
-                - D1: Turns 1-2: no pawn captures (enemies cannot reach rows 3/6).
-                - D2: Turns 3-4: pawn captures limited to A3, H3, A6, H6 (squares reachable by a bishop from the initial setup).
             Glossary
             `Tries`: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
             `AttackerSite`: Square where an enemy captured a piece and now occupies; encoded values: [site] (one pawn can recapture), [site+100] (one pawn can), [site+200] (two pawns can).
@@ -1167,6 +1167,7 @@
             -`draw by repetition` when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
             -`draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
             -`50-move draw` (the illegal moves do not count towards the fifty moves).
+            -`Player 1 (White)'s [or Player 2 (Black)'s] proposes [or accepted] to end the game` when a player propose/accept to end the game in draw. Proposals are limited to one per player per turn to avoid infinite loops or spam.
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
             Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries.
         ")

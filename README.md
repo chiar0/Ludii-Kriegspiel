@@ -31,6 +31,9 @@ This implementation pre-filters moves that fail feasibility checks, eliminating 
 - **B1:** Pieces follow canonical movement patterns.
 - **B2:** Sliding trajectories stop at friendly pieces.
 - **B3:** Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
+- **B4** — **Early-game** (pawns on starting rank)
+    - **B4.1:** Turns 1–2: no pawn captures (enemies cannot reach rows 3/6).
+    - **B4.2:** Turns 3–4: pawn captures limited to `A3`, `H3`, `A6`, `H6` (squares reachable by a bishop from the initial setup).
 
 #### C — Umpire inference
 - **C1:** Pawn captures are enabled only when `Tries` > 0.
@@ -44,16 +47,12 @@ This implementation pre-filters moves that fail feasibility checks, eliminating 
 - **C8** *(NOT IMPLEMENTED)*: Check triggered by capture — if `AttackerSite` distance from the King > 1, the King cannot move toward it (attacker unreachable).
 - **C9** *(NOT IMPLEMENTED)*: Check triggered by capture (non-Knight) — `CheckSites` computed only toward `AttackerSite`, not in the opposite direction from the King.
 
-#### D — Early-game (pawns on starting rank)
-- **D1:** Turns 1–2: no pawn captures (enemies cannot reach rows 3/6).
-- **D2:** Turns 3–4: pawn captures limited to `A3`, `H3`, `A6`, `H6` (squares reachable by a bishop from the initial setup).
-
 #### Glossary
 - **`Tries`**: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
 - **`AttackerSite`**: Square where an enemy captured a piece and now occupies; encoded values: `[site]` (one pawn can recapture), `[site+100]` (one pawn can), `[site+200]` (two pawns can).
 - **`CheckSites`**: Squares along a check line where interposition is possible; encoded as `[site]` (intermediate) and `[site+100]` (terminal — farthest visible square).
 - **`VacatedSite`**: Square emptied by an en passant capture (the captured pawn's original location).
-- **`IllegalMoves`**: Memory of moves rejected during the turn (encoded as `[from*100 + to]`).
+- **`IllegalMoves`**: Memory of moves rejected during the turn (encoded as `[from*100+to]`).
 - **`Pinnable`**: A piece is pinnable if it lies on the line between a King and an enemy sliding piece with no friendly pieces in between.
 - **`PinRay`**: The ray from the King through the pinned piece to the enemy pinner; a pinned piece is restricted to moves along this ray.
 
