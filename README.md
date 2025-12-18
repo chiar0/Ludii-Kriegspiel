@@ -83,12 +83,12 @@ Illegal move attempts are not announced to the opponent. As soon as the umpire r
 
 ## Files in this repository
 
-- `KriegspielNHN (Chess).lud` — The guided Kriegspiel variant with pre-filtering and umpire inference (recommended).
-- `Kriegspiel (Chess).lud` — Legacy original Ludii file (included for reference).
+- `Kriegspiel (Chess).lud` — The guided Kriegspiel variant with pre-filtering and umpire inference (recommended).
+- `LEGACY-Kriegspiel (Chess).lud` — Legacy original Ludii file (included for reference).
 
 ## How to Play
 
-1.  Download the **`KriegspielNHN (Chess).lud`** game file from this repository.
+1.  Download the **`Kriegspiel (Chess).lud`** game file from this repository.
 2.  Launch the Ludii application.
 3.  Navigate to `File > Load Game from File (CTRL+F)` and select the downloaded `.lud` file.
 4.  Enjoy the game!
