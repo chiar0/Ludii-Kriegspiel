@@ -711,24 +711,19 @@
 (define "CommonPostMoveActions"
     (and {
         (if ("KingInCheck" (next) (mover)) (and "CheckType" (if ("NextCanNotMove") (set Var "NextLost" 1))))
-        (if (and ("NextCanNotMove") (not ("KingInCheck" (next) (mover)))) (and (set Var "DrawCondition" 1) (note "Draw by stalemate")))
-        (if (is Repeat Positional) (and (set Var "DrawCondition" 2) (note "Draw by repetition threefold")))
-        (if "OnlyKingsRemaining" (and (set Var "DrawCondition" 3) (note "Draw by insufficient force kings only")))
-        (if "KingVsKingAndSingleBishop" (and (set Var "DrawCondition" 4) (note "Draw by insufficient force king and bishop vs king")))            
-        (if "KingVsKingAndSingleKnight" (and (set Var "DrawCondition" 5) (note "Draw by insufficient force king and knight vs king")))                 
-        (if "KingsAndBishopsSameColor" (and (set Var "DrawCondition" 6) (note "Draw by insufficient force kings and bishops on same-colored squares")))                      
-        (if (= (counter) 99) (and (set Var "DrawCondition" 7) (note "Draw by fifty-move rule")))
+        (if (and ("NextCanNotMove") (not ("KingInCheck" (next) (mover)))) (and (set Var "DrawCondition" 0) (note "Draw by stalemate")))
+        (if (is Repeat Positional) (and (set Var "DrawCondition" 1) (note "Draw by repetition threefold")))
+        (if "OnlyKingsRemaining" (and (set Var "DrawCondition" 2) (note "Draw by insufficient force kings only")))
+        (if "KingVsKingAndSingleBishop" (and (set Var "DrawCondition" 3) (note "Draw by insufficient force king and bishop vs king")))            
+        (if "KingVsKingAndSingleKnight" (and (set Var "DrawCondition" 4) (note "Draw by insufficient force king and knight vs king")))                 
+        (if "KingsAndBishopsSameColor" (and (set Var "DrawCondition" 5) (note "Draw by insufficient force kings and bishops on same-colored squares")))                      
+        (if (= (counter) 99) (and (set Var "DrawCondition" 6) (note "Draw by fifty-move rule")))
         "CountTries"
         (set Var "EquipmentMode" 0)
         (forget Value "IllegalMoves" All)
         (forget Value "CheckSites" All)
         (forget Value "VacatedSite" All)
     })
-)
-
-(define "SetEnPassant"
-    (set Var "EnPassantSite" (ahead (last To) Backward))
-    (set Pending (ahead (last To) Backward))
 )
 
 (define "CountEnPassantTries"
@@ -748,7 +743,7 @@
                 (from (last From))
                 (to (last To))
                 (then (and {
-                    "SetEnPassant"
+                    (set Var "EnPassantSite" (ahead (last To) Backward))
                     "CommonPostMoveActions"
                     "CountEnPassantTries"
                 }))
@@ -770,8 +765,12 @@
         )
         (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite"))))
             (and
-                (if (not (is Enemy (who at:(last To))))
-                    (and (set Var "CapturedPiece" (what at:(last From))) (remember Value "VacatedSite" (ahead (last To) Backward) unique:True))
+                (if (is Empty (last To))
+                    (and { 
+                        (set Var "CapturedPiece" (what at:(last From))) 
+                        (remember Value "VacatedSite" (ahead (last To) Backward) unique:True) 
+                        (remove (ahead (last To) Backward)) 
+                    })
                     
                     (set Var "CapturedPiece" (what at:(last To)))
                 )
@@ -844,22 +843,6 @@
     )
 )
 
-(define "InLocationEnPassant"
-    (and
-        (is Pending)
-        (= (to) (value Pending))
-    )
-)
-
-(define "EnPassant"
-    (move
-        Step
-        (directions {FR FL})
-        (to if: "InLocationEnPassant")
-        (then (remove (ahead (last To) Backward)))
-    )
-)
-
 (define "Attempt"
     (move Select
         (from (from))
@@ -912,7 +895,7 @@
 
 (define "KriegspielRook"
     (piece "Rook" Each
-        (if (not (= (var "EquipmentMode") 1))
+        (if (= (var "EquipmentMode") 0)
             ("Attempt" Orthogonal 0)
 
             (move Slide Orthogonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -922,7 +905,7 @@
 
 (define "KriegspielBishop"
     (piece "Bishop" Each
-        (if (not (= (var "EquipmentMode") 1))
+        (if (= (var "EquipmentMode") 0)
             ("Attempt" Diagonal 0)
 
             (move Slide Diagonal (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -932,7 +915,7 @@
 
 (define "KriegspielQueen"
     (piece "Queen" Each
-        (if (not (= (var "EquipmentMode") 1))
+        (if (= (var "EquipmentMode") 0)
             ("Attempt" (union Orthogonal Diagonal) 0)
 
             (move Slide (to if:(is Enemy (who at:(to))) (apply (remove (to)))))
@@ -942,7 +925,7 @@
 
 (define "KriegspielPawn"
     (piece "Pawn" Each
-        (if (not (= (var "EquipmentMode") 1))
+        (if (= (var "EquipmentMode") 0)
             (or {
                 ("Attempt" Forward 1)
                 (if (is In (from) (sites Start (piece (what at:(from))))) ("Attempt" Forward 2))
@@ -953,7 +936,6 @@
                 "StepForwardToEmpty"
                 (if (is In (from) (sites Start (piece (what at:(from))))) "DoubleStepForwardToEmpty")
                 ("StepToEnemy" (directions {FR FL}))
-                "EnPassant"
             })
         )
     )
@@ -963,7 +945,7 @@
     (piece "King" Each
         (or
             (move Step All (to if:(not (is Friend (who at:(to)))) (apply (if (is Enemy (who at:(to))) (remove (to))))))
-            (if (and (= (from) (where "King" Mover)) (not (= (var "EquipmentMode") 1)))
+            (if (and (= (from) (where "King" Mover)) (= (var "EquipmentMode") 0))
                 (or
                     (move (from) (to (ahead (from) steps:2 W) 
                         if:(and {
@@ -1044,9 +1026,9 @@
                 (or 
                     (move Vote "End"
                         (then (if (= (mover) 1) 
-                            (note "Player 1 accepted to end the game")
+                            (note "Player 1 accepts the draw")
 
-                            (note "Player 2 accepted to end the game")
+                            (note "Player 2 accepts the draw")
                         ))
                     ) 
                     (move Vote "No" (then (do (move Pass))))
@@ -1082,9 +1064,9 @@
                                 (then (and
                                     (move Vote "End" (then (set Var "ProposedEnd" (+ (count Moves) 1)))) 
                                     (if (= (mover) 1) 
-                                        (note "Player 1 proposes to end the game") 
+                                        (note "Player 1 proposes a draw") 
                                         
-                                        (note "Player 2 proposes to end the game")
+                                        (note "Player 2 proposes a draw")
                                     )
                                 ))
                             )
@@ -1095,14 +1077,14 @@
         )
         (end {
             (if (= (var "NextLost") 1) (result Mover Win))
-            (if (or (>= (var "DrawCondition") 1) (is Decided "End")) (result Mover Draw))
+            (if (or (>= (var "DrawCondition") 0) (is Decided "End")) (result Mover Draw))
         })
     )
 )
 // 
     DISABLED: if (= (var "ProposedEnd") (count Moves)) ...
     Problem 1: AI agents spam "Propose End" moves.
-    Problem 2: (is Repeat) seems to count proposal moves, triggering false draw-by-repetition.
+    Problem 2: (is Repeat) seems to count proposal/pass moves, triggering false draw-by-repetition.
     Current workaround: always disabled, condition (ProposedEnd = -2) never true.
     Note: When enabled, proposals are limited to one per turn and must precede any move attempt.
 //
@@ -1145,20 +1127,20 @@
             The umpire makes the following announcements where appropriate:
             -`Player 1 (White)'s [or Player 2 (Black)'s] turn`.
             -`Pawn [or Piece] at (square) captured`, when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. `Pawn at A4 captured en passant`)
-            -`Illegal move` when the attempted move is illegal, given the opponent`s position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent`s pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin).
+            -`Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin).
             -`Rank check`.
             -`File check`.
             -`Long-diagonal check` (the longer of the two diagonals, from the king's point of view).
-            -`Short-diagonal check` (e.g. for a king on E1, the short diagonal is E1 to H4).
+            -`Short-diagonal check` (e.g., for a king on E1, the short diagonal is from E1 to H4).
             -`Knight check`.
             -`(number) tries` (the number of legal pawn-capture moves available in the turn; captures are not obligatory. Displayed in each player's score).
             -`Checkmate`, `stalemate`
-            -`draw by repetition` when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
+            -`draw by repetition` when the same position occurs for the third time, the umpire automatically declares a draw (no claim by the players is required), and the game ends immediately.
             -`draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
             -`50-move draw` (the illegal moves do not count towards the fifty moves).
-            (DISABLED -`Player 1 (White)'s [or Player 2 (Black)'s] proposes [or accepted] to end the game` when a player propose/accept to end the game in draw. Proposals are limited to one per player per turn to avoid infinite loops or spam.)
+            (DISABLED-`Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`. Proposals are limited to one per turn and must precede any move attempt.)
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
-            Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries.
+            Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one, it disappears from the mover’s options for the rest of that turn.
         ")
         (id "4185") 
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
