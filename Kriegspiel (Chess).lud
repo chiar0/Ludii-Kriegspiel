@@ -15,15 +15,7 @@
     (set State at:#1 0)
 )
 
-(define "InAttackerSite"
-    (or {
-        (= #1 (var "AttackerSite"))
-        (= (+ 100 #1) (var "AttackerSite"))
-        (= (+ 200 #1) (var "AttackerSite"))
-    })
-)
-
- (define "CanBeCapturedByPawn"
+(define "CanBeCapturedByPawn"
     (and
         (= (what at:(ahead (#1) steps:1 #2)) (mapEntry "Pawn" Next))
         (can Move (do
@@ -35,15 +27,6 @@
 
 (define "NoteCapture"
     (and {
-        (if (and ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
-            (set Var "AttackerSite" (+ 200 (#1)))
-            
-            (if (or ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
-                (set Var "AttackerSite" (+ 100 (#1)))
-
-                (set Var "AttackerSite" #1)
-            )
-        )
         (if (and (= (#1)(coord:"A1")) (<= (#2) 2)) (note "Pawn at A1 captured"))
         (if (and (= (#1)(coord:"A1")) (> (#2) 2)) (note "Piece at A1 captured"))
         (if (and (= (#1)(coord:"A2")) (<= (#2) 2)) (note "Pawn at A2 captured"))
@@ -328,31 +311,55 @@
     (if ("KnightSiteValid" #1 #2) (sites {(ahead (ahead (where "King" (next)) steps:#3 #4) steps:#5 #6)}))
 )
 
+(define "InAttackerSite"
+    (or {
+        (= #1 (var "AttackerSite"))
+        (= (+ 100 #1) (var "AttackerSite"))
+        (= (+ 200 #1) (var "AttackerSite"))
+    })
+)
+
 (define "CheckLineSites"
-    (sites Direction from:(where "King" (next)) #1 stop:(is Enemy (who at:(to))) stopIncluded:False)
+    (sites Direction from:(where "King" (next)) #1 stop:(or (is Enemy (who at:(to))) ("InAttackerSite" (to)) ) stopIncluded:("InAttackerSite" (to)))
 )
 
 (define "TerminalSiteIndex"
     (- (count Sites in:("CheckLineSites" #1)) 1)
 )
 
+(define "AttackerSiteBase"
+    (if (>= (var "AttackerSite") 200)
+        (- (var "AttackerSite") 200)
+        
+        (if (>= (var "AttackerSite") 100)
+            (- (var "AttackerSite") 100)
+
+            (var "AttackerSite")
+        )
+    )
+)
+
 (define "ProcessCheck" 
     (if (#2)
-        (forEach Site 
-            (difference
-                (union {
-                    ("KnightSiteIfValid" 17 1 2 N 1 E)
-                    ("KnightSiteIfValid" 15 1 2 N 1 W)
-                    ("KnightSiteIfValid" -15 1 2 S 1 E)
-                    ("KnightSiteIfValid" -17 1 2 S 1 W)
-                    ("KnightSiteIfValid" 10 2 1 N 2 E)
-                    ("KnightSiteIfValid" 6 2 1 N 2 W)
-                    ("KnightSiteIfValid" -6 2 1 S 2 E)
-                    ("KnightSiteIfValid" -10 2 1 S 2 W)
-                })
-                (sites Occupied by:Next)
-            )      
-                (remember Value "CheckSites" (+ 100 (site)) unique:True)
+        (if (= (what at:("AttackerSiteBase")) (mapEntry "Knight" Mover))
+            (remember Value "CheckSites" (+ "AttackerSiteBase" 100) unique:True)
+
+            (forEach Site 
+                (difference
+                    (union {
+                        ("KnightSiteIfValid" 17 1 2 N 1 E)
+                        ("KnightSiteIfValid" 15 1 2 N 1 W)
+                        ("KnightSiteIfValid" -15 1 2 S 1 E)
+                        ("KnightSiteIfValid" -17 1 2 S 1 W)
+                        ("KnightSiteIfValid" 10 2 1 N 2 E)
+                        ("KnightSiteIfValid" 6 2 1 N 2 W)
+                        ("KnightSiteIfValid" -6 2 1 S 2 E)
+                        ("KnightSiteIfValid" -10 2 1 S 2 W)
+                    })
+                    (sites Occupied by:Next)
+                )
+                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
+            )
         )
 
         (if (!= (count Sites in:("CheckLineSites" #1)) 0)
@@ -695,6 +702,18 @@
     )
 )
 
+(define "SetAttackerSite"
+    (if (and ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
+        (set Var "AttackerSite" (+ 200 (#1)))
+        
+        (if (or ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
+            (set Var "AttackerSite" (+ 100 (#1)))
+
+            (set Var "AttackerSite" #1)
+        )
+    )
+)
+
 (define "PerformLegalMove"
     (or {
         (if (or ("IsMovingPiece" "Pawn") (is Enemy (who at:(last To))) ) (set Counter))
@@ -718,7 +737,8 @@
             )
         )
         (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite")) ) )
-            (and
+            (and {
+                ("SetAttackerSite" (last To))
                 (if (is Empty (last To))
                     (and { 
                         (set Var "CapturedPiece" (what at:(last From))) 
@@ -737,38 +757,39 @@
                         "CommonPostMoveActions"
                     }))
                 )
-            )
+            })
         )
         (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
         (if (and
-                (or { ("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (or {("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")} )
                 (is Enemy (who at:(last To)))
             )
-                (and
+                (and {
                     (set Var "CapturedPiece" (what at:(last To)))
+                    ("SetAttackerSite" (last To))
                     (move (from (last From)) (to (last To))
                         (then (and {
-                                ("NoteCapture" (last To) (var "CapturedPiece"))
-                                "CommonPostMoveActions"
-                                ("PieceHasMoved" (last To))
+                            ("NoteCapture" (last To) (var "CapturedPiece"))
+                            ("PieceHasMoved" (last To))
+                            "CommonPostMoveActions"
                         }))
                     )
-                )
+                })
         )
         (if (and
-                (or { ("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")})
+                (or {("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")} )
                 (is Empty (last To))
             )
                 (move (from (last From)) (to (last To))
                     (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To)) ))
                 )
         )
-        (if (and "MovingTheKing" ("DecideToCastle" E "RookRight"))
+        (if (and "MovingTheKing" ("DecideToCastle" E "RookRight") )
             (move (from (mapEntry "RookRight" (mover))) (to (ahead (mapEntry "RookRight" (mover)) steps:2 W))
                 (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookRight" (mover)) steps:2 W)) ))
             )
         )
-        (if (and "MovingTheKing" ("DecideToCastle" W "RookLeft"))
+        (if (and "MovingTheKing" ("DecideToCastle" W "RookLeft") )
             (move (from (mapEntry "RookLeft" (mover))) (to (ahead (mapEntry "RookLeft" (mover)) steps:3 E))
                 (then (and "CommonPostMoveActions" ("PieceHasMoved" (ahead (mapEntry "RookLeft" (mover)) steps:3 E)) ))
             )
@@ -1055,7 +1076,7 @@
             Glossary
             `Tries`: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
             `AttackerSite`: Square where an enemy captured a piece and now occupies; encoded values: [site], [site+100] (one pawn can recapture), [site+200] (two pawns can).
-            `CheckSites`: Squares along a check line where interposition is possible; encoded as [site] (intermediate) and [site+100] (terminal - farthest visible square).
+            `CheckSites`: Squares along a check line where interposition is possible; encoded as [site] (intermediate) and [site+100] (terminal - farthest visible square). The check line runs from the King to the edge of the board or to the first occupied square encountered, which is either the attacker if it lies on that line (treated as the terminal square) or the checked side's first blocking piece (excluded). For knight checks: if the checking knight is on an AttackerSite (capture) record only its square (as terminal); otherwise record all possible knight-origin squares (as terminal).
             `VacatedSite`: Square emptied by an en passant capture (the captured pawn's original location).
             `IllegalMoves`: Memory of moves rejected during the turn (encoded as [from*100+to]).
             Note: The filtering heuristics implemented here are not exhaustive. Additional implausible-move filters may be derived from game state and umpire announcements.
