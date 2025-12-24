@@ -339,6 +339,13 @@
     )
 )
 
+(define "CheckLineHitsAttackerSite"
+    (and {
+        (!= (var "AttackerSite") -1)
+        (is In ("AttackerSiteBase") ("CheckLineSites" #1))
+    })
+)
+
 (define "ProcessCheck" 
     (if (toBool #2)
         (if (= (what at:("AttackerSiteBase")) (mapEntry "Knight" Mover))
@@ -383,8 +390,12 @@
                 (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NW) )
             })
                 (and {
-                    ("ProcessCheck" SE 0)
-                    ("ProcessCheck" NW 0)
+                    (if (not ("CheckLineHitsAttackerSite" NW))
+                        ("ProcessCheck" SE 0)
+                    )
+                    (if (not ("CheckLineHitsAttackerSite" SE))
+                        ("ProcessCheck" NW 0)
+                    )
                     (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
                 })
@@ -396,23 +407,35 @@
                 (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NE) )
             })
                 (and {
-                    ("ProcessCheck" SW 0)
-                    ("ProcessCheck" NE 0)
+                    (if (not ("CheckLineHitsAttackerSite" NE))
+                        ("ProcessCheck" SW 0)
+                    )
+                    (if (not ("CheckLineHitsAttackerSite" SW))
+                        ("ProcessCheck" NE 0)
+                    )
                     (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
                 })
         )
         (if ("FileCheck" (next) (mover)) 
             (and {
-                ("ProcessCheck" N 0)
-                ("ProcessCheck" S 0)
+                (if (not ("CheckLineHitsAttackerSite" S))
+                    ("ProcessCheck" N 0)
+                )
+                (if (not ("CheckLineHitsAttackerSite" N))
+                    ("ProcessCheck" S 0)
+                )
                 (note "File check")
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
-                ("ProcessCheck" E 0)
-                ("ProcessCheck" W 0)
+                (if (not ("CheckLineHitsAttackerSite" W))
+                    ("ProcessCheck" E 0)
+                )
+                (if (not ("CheckLineHitsAttackerSite" E))
+                    ("ProcessCheck" W 0)
+                )
                 (note "Rank check")
             })
         )
@@ -1079,7 +1102,7 @@
             Glossary
             `Tries`: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
             `AttackerSite`: Square where an enemy captured a piece and now occupies; encoded values: [site], [site+100] (one pawn can recapture), [site+200] (two pawns can).
-            `CheckSites`: Candidate squares for interposition or capture to resolve a check; encoded as [site] (intermediate) and [site+100] (terminal - farthest possible source of an unseen attacker). For sliding checks, trajectories are projected outwards from the King. The line terminates on the square of a known enemy (`AttackerSite`) if present on the path, or on the square immediately preceding a blocking friendly piece; otherwise, it extends to the board's edge. For Knight checks, only the specific `AttackerSite` is recorded if the check involves a capture; otherwise, all valid knight-jump squares from the King not occupied by friendly pieces are recorded as potential terminals.
+            `CheckSites`: Candidate squares for interposition or capture to resolve a check; encoded as [site] (intermediate) and [site+100] (terminal - farthest possible source of an unseen attacker). For sliding checks, trajectories are projected outwards from the King. The line terminates on the square of a known enemy (`AttackerSite`) if present on the path (in this case `CheckSites` are computed only toward `AttackerSite`, not along the ray opposite the King), or on the square immediately preceding a blocking friendly piece; otherwise, it extends to the board's edge. For Knight checks, only the specific `AttackerSite` is recorded if the check involves a capture; otherwise, all valid knight-jump squares from the King not occupied by friendly pieces are recorded as potential terminals.
             `VacatedSite`: Square emptied by an en passant capture (the captured pawn's original location).
             `IllegalMoves`: Memory of moves rejected during the turn (encoded as [from*100+to]).
             Note: The filtering heuristics implemented here are not exhaustive. Additional implausible-move filters may be derived from game state and umpire announcements.
