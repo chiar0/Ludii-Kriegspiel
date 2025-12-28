@@ -339,44 +339,12 @@
     )
 )
 
-(define "CheckLineHitsAttackerSite"
-    (and {
-        (!= (var "AttackerSite") -1)
-        (is In ("AttackerSiteBase") ("CheckLineSites" #1))
-    })
-)
+(define "ProcessLinearCheck" 
+    (forEach Site ("CheckLineSites" #1)
+        (if (= (site) (regionSite ("CheckLineSites" #1) index:("TerminalSiteIndex" #1)))
+            (remember Value "CheckSites" (+ 100 (site)) unique:True)
 
-(define "ProcessCheck" 
-    (if (toBool #2)
-        (if (= (what at:("AttackerSiteBase")) (mapEntry "Knight" Mover))
-            (remember Value "CheckSites" (+ "AttackerSiteBase" 100) unique:True)
-
-            (forEach Site 
-                (difference
-                    (union {
-                        ("KnightSiteIfValid" 17 1 2 N 1 E)
-                        ("KnightSiteIfValid" 15 1 2 N 1 W)
-                        ("KnightSiteIfValid" -15 1 2 S 1 E)
-                        ("KnightSiteIfValid" -17 1 2 S 1 W)
-                        ("KnightSiteIfValid" 10 2 1 N 2 E)
-                        ("KnightSiteIfValid" 6 2 1 N 2 W)
-                        ("KnightSiteIfValid" -6 2 1 S 2 E)
-                        ("KnightSiteIfValid" -10 2 1 S 2 W)
-                    })
-                    (sites Occupied by:Next)
-                )
-                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
-            )
-        )
-
-        (if (!= (count Sites in:("CheckLineSites" #1)) 0)
-            (forEach Site ("CheckLineSites" #1)
-                (if (= (site) (regionSite ("CheckLineSites" #1) index:("TerminalSiteIndex" #1)))
-                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
-
-                    (remember Value "CheckSites" (site) unique:True)
-                )
-            )
+            (remember Value "CheckSites" (site) unique:True)
         )
     )
 )
@@ -390,14 +358,11 @@
                 (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NW) )
             })
                 (and {
-                    (if (not ("CheckLineHitsAttackerSite" NW))
-                        ("ProcessCheck" SE 0)
-                    )
-                    (if (not ("CheckLineHitsAttackerSite" SE))
-                        ("ProcessCheck" NW 0)
-                    )
+                    (remember Value "CheckTypes" 1)
                     (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NW))) ("ProcessLinearCheck" SE))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SE))) ("ProcessLinearCheck" NW))
                 })
         )
         (if (or {
@@ -407,36 +372,27 @@
                 (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NE) )
             })
                 (and {
-                    (if (not ("CheckLineHitsAttackerSite" NE))
-                        ("ProcessCheck" SW 0)
-                    )
-                    (if (not ("CheckLineHitsAttackerSite" SW))
-                        ("ProcessCheck" NE 0)
-                    )
+                    (remember Value "CheckTypes" 2)
                     (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NE))) ("ProcessLinearCheck" SW))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SW))) ("ProcessLinearCheck" NE))
                 })
         )
         (if ("FileCheck" (next) (mover)) 
             (and {
-                (if (not ("CheckLineHitsAttackerSite" S))
-                    ("ProcessCheck" N 0)
-                )
-                (if (not ("CheckLineHitsAttackerSite" N))
-                    ("ProcessCheck" S 0)
-                )
+                (remember Value "CheckTypes" 3)
                 (note "File check")
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" S))) ("ProcessLinearCheck" N))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" N))) ("ProcessLinearCheck" S))
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
-                (if (not ("CheckLineHitsAttackerSite" W))
-                    ("ProcessCheck" E 0)
-                )
-                (if (not ("CheckLineHitsAttackerSite" E))
-                    ("ProcessCheck" W 0)
-                )
+                (remember Value "CheckTypes" 4)
                 (note "Rank check")
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" W))) ("ProcessLinearCheck" E))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" E))) ("ProcessLinearCheck" W))
             })
         )
         (if (or {
@@ -449,7 +405,30 @@
                 ("KnightCheck" (next) (mover) E S)
                 ("KnightCheck" (next) (mover) E N)
             })
-                (and ("ProcessCheck" N 1) (note "Knight Check") )
+                (and {
+                    (remember Value "CheckTypes" 5)
+                    (note "Knight Check")
+                    (if (= (what at:"AttackerSiteBase") (mapEntry "Knight" Mover))
+                        (remember Value "CheckSites" (+ "AttackerSiteBase" 100) unique:True)
+
+                        (forEach Site 
+                            (difference
+                                (union {
+                                    ("KnightSiteIfValid" 17 1 2 N 1 E)
+                                    ("KnightSiteIfValid" 15 1 2 N 1 W)
+                                    ("KnightSiteIfValid" -15 1 2 S 1 E)
+                                    ("KnightSiteIfValid" -17 1 2 S 1 W)
+                                    ("KnightSiteIfValid" 10 2 1 N 2 E)
+                                    ("KnightSiteIfValid" 6 2 1 N 2 W)
+                                    ("KnightSiteIfValid" -6 2 1 S 2 E)
+                                    ("KnightSiteIfValid" -10 2 1 S 2 W)
+                                })
+                                (sites Occupied by:Next)
+                            )
+                                (remember Value "CheckSites" (+ 100 (site)) unique:True)
+                        )
+                    ) 
+                })
         )
     })
 )
@@ -960,8 +939,13 @@
             (or {
                 (= (last To) (where "King" Mover))
                 (= 0 (size Array (values Remembered "CheckSites")))
-                (is In (last To) (values Remembered "CheckSites")) 
-                (is In (+ 100 (last To)) (values Remembered "CheckSites"))
+                (and 
+                    (= 1 (size Array (values Remembered "CheckTypes")))
+                    (or
+                        (is In (last To) (values Remembered "CheckSites"))
+                        (is In (+ 100 (last To)) (values Remembered "CheckSites"))
+                    )
+                )
             })
         )
     )
@@ -1030,6 +1014,7 @@
                                 (and {
                                     (if (!= (var "AttackerSite") -1) (set Var "AttackerSite" -1))
                                     (forget Value "VacatedSite" All)
+                                    (forget Value "CheckTypes" All)
                                     (set Var "EquipmentMode" 1)
                                     "PerformLegalMove"
                                 })
@@ -1093,7 +1078,8 @@
                     - C1.1: Sliding trajectories terminate exactly on the `AttackerSite` (the occupied square is included).
                     - C1.2: Pawns cannot advance onto `AttackerSite` (the square is blocked by the enemy).
                 - C2: Check resolution
-                    - C2.1: Under check, only moves to `CheckSites` or King moves are allowed; castling and en passant are excluded.
+                    - C2.1: Only moves to `CheckSites` or King moves are allowed; castling and en passant are excluded.
+                        - C2.1.1: Under double check only King moves are allowed (interposition impossible); castling and en passant are excluded.
                     - C2.2: Pawns cannot advance onto terminal `CheckSites` (advancing fails to capture the threat or does not interpose the check line).
                 - C3: Pawn capture logic
                     - C3.1: Pawn captures are enabled only when `Tries` > 0.
