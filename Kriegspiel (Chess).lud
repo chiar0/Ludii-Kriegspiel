@@ -324,7 +324,11 @@
 )
 
 (define "TerminalSiteIndex"
-    (- (count Sites in:("CheckLineSites" #1)) 1)
+    (if (< (ahead (where "King" (next)) steps:1 #1) (where "King" (next)))
+        0
+
+        (- (count Sites in:("CheckLineSites" #1)) 1)
+    )
 )
 
 (define "AttackerSiteBase"
@@ -933,19 +937,41 @@
     )
 )
 
+(define "ForbiddenKingStepTowardKnownChecker"
+    (and {
+        (is In (+ 100 "AttackerSiteBase") (values Remembered "CheckSites"))
+        (not (= (what at:"AttackerSiteBase") (mapEntry "Knight" Next)))
+        (> (count Steps (last From) "AttackerSiteBase") 1)
+        (or {
+            (and (= (last To) (ahead (last From) steps:1 N))  (is In "AttackerSiteBase" (sites Direction from:(last From) N)))
+            (and (= (last To) (ahead (last From) steps:1 S))  (is In "AttackerSiteBase" (sites Direction from:(last From) S)))
+            (and (= (last To) (ahead (last From) steps:1 E))  (is In "AttackerSiteBase" (sites Direction from:(last From) E)))
+            (and (= (last To) (ahead (last From) steps:1 W))  (is In "AttackerSiteBase" (sites Direction from:(last From) W)))
+            (and (= (last To) (ahead (last From) steps:1 NE)) (is In "AttackerSiteBase" (sites Direction from:(last From) NE)))
+            (and (= (last To) (ahead (last From) steps:1 NW)) (is In "AttackerSiteBase" (sites Direction from:(last From) NW)))
+            (and (= (last To) (ahead (last From) steps:1 SE)) (is In "AttackerSiteBase" (sites Direction from:(last From) SE)))
+            (and (= (last To) (ahead (last From) steps:1 SW)) (is In "AttackerSiteBase" (sites Direction from:(last From) SW)))
+        })
+    })
+)
+
 (define "CanMove"
     (if (= (from) (last From))
         (if (not (is In (+ (* (last From) 100) (last To)) (values Remembered "IllegalMoves")))
             (or {
-                (= (last To) (where "King" Mover))
+                (and
+                    (= (last To) (where "King" Mover))
+                    (not "ForbiddenKingStepTowardKnownChecker")
+                )
                 (= 0 (size Array (values Remembered "CheckSites")))
-                (and 
+                (and {
+                    (not (= (last To) (where "King" Mover)))
                     (= 1 (size Array (values Remembered "CheckTypes")))
                     (or
                         (is In (last To) (values Remembered "CheckSites"))
                         (is In (+ 100 (last To)) (values Remembered "CheckSites"))
                     )
-                )
+                })
             })
         )
     )
@@ -1080,6 +1106,7 @@
                 - C2: Check resolution
                     - C2.1: Only moves to `CheckSites` or King moves are allowed; castling and en passant are excluded.
                         - C2.1.1: Under double check only King moves are allowed (interposition impossible); castling and en passant are excluded.
+                        - C2.1.2: When triggered by capture and `AttackerSite` distance from the King > 1, the King can't move toward it (attacker unreachable).
                     - C2.2: Pawns cannot advance onto terminal `CheckSites` (advancing fails to capture the threat or does not interpose the check line).
                 - C3: Pawn capture logic
                     - C3.1: Pawn captures are enabled only when `Tries` > 0.
