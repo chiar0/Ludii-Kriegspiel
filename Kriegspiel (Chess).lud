@@ -320,14 +320,14 @@
 )
 
 (define "CheckLineSites"
-    (sites Direction from:(where "King" (next)) #1 stop:(or (is Enemy (who at:(to))) ("InAttackerSite" (to)) ) stopIncluded:("InAttackerSite" (to)))
+    (sites Direction from:#2 #1 stop:(or (is Enemy (who at:(to))) ("InAttackerSite" (to)) ) stopIncluded:("InAttackerSite" (to)))
 )
 
 (define "TerminalSiteIndex"
-    (if (< (ahead (where "King" (next)) steps:1 #1) (where "King" (next)))
+    (if (< (ahead #2 steps:1 #1) #2)
         0
 
-        (- (count Sites in:("CheckLineSites" #1)) 1)
+        (- (count Sites in:("CheckLineSites" #1 #2)) 1)
     )
 )
 
@@ -344,8 +344,8 @@
 )
 
 (define "ProcessLinearCheck" 
-    (forEach Site ("CheckLineSites" #1)
-        (if (= (site) (regionSite ("CheckLineSites" #1) index:("TerminalSiteIndex" #1)))
+    (forEach Site ("CheckLineSites" #1 #2)
+        (if (= (site) (regionSite ("CheckLineSites" #1 #2) index:("TerminalSiteIndex" #1 #2)))
             (remember Value "CheckSites" (+ 100 (site)) unique:True)
 
             (remember Value "CheckSites" (site) unique:True)
@@ -365,8 +365,8 @@
                     (remember Value "CheckTypes" 1)
                     (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NW))) ("ProcessLinearCheck" SE))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SE))) ("ProcessLinearCheck" NW))
+                        (if (not (is In "AttackerSiteBase" ("CheckLineSites" NW (where "King" (next))))) ("ProcessLinearCheck" SE (where "King" (next))))
+                        (if (not (is In "AttackerSiteBase" ("CheckLineSites" SE (where "King" (next))))) ("ProcessLinearCheck" NW (where "King" (next))))
                 })
         )
         (if (or {
@@ -379,24 +379,24 @@
                     (remember Value "CheckTypes" 2)
                     (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NE))) ("ProcessLinearCheck" SW))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SW))) ("ProcessLinearCheck" NE))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NE (where "King" (next))))) ("ProcessLinearCheck" SW (where "King" (next))))
+                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SW (where "King" (next))))) ("ProcessLinearCheck" NE (where "King" (next))))
                 })
         )
         (if ("FileCheck" (next) (mover)) 
             (and {
                 (remember Value "CheckTypes" 3)
                 (note "File check")
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" S))) ("ProcessLinearCheck" N))
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" N))) ("ProcessLinearCheck" S))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" S (where "King" (next))))) ("ProcessLinearCheck" N (where "King" (next))))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" N (where "King" (next))))) ("ProcessLinearCheck" S (where "King" (next))))
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
                 (remember Value "CheckTypes" 4)
                 (note "Rank check")
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" W))) ("ProcessLinearCheck" E))
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" E))) ("ProcessLinearCheck" W))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" W (where "King" (next))))) ("ProcessLinearCheck" E (where "King" (next))))
+                (if (not (is In "AttackerSiteBase" ("CheckLineSites" E (where "King" (next))))) ("ProcessLinearCheck" W (where "King" (next))))
             })
         )
         (if (or {
@@ -817,45 +817,31 @@
             (sites Direction
                 from:(from)
                 #1
-                stop:(or {
-                    (is Friend (who at:(to))) 
-                    ("InAttackerSite" (to)) 
-                    (and
-                        (not ("KingInCheck" (mover) (next)))
-                        (is In (+ (* (from) 100) (to)) (values Remembered "IllegalMoves"))
-                    )
-                })
+                stop:(or (is Friend (who at:(to))) ("InAttackerSite" (to)) )
                 stopIncluded:(and {("InAttackerSite" (to)) (!= #2 1) (!= #2 2)} )
             )
-            if:(and
-                (not (is Friend (who at:(to))))
-                (or {
-                    (= #2 0)
-                    (and {(= #2 1) (= 1 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} ) 
-                    (and {(= #2 2) (= 2 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} )
-                    (and {
-                        (= #2 3)
-                        (= 1 (count Steps (from) (to)))
-                        (not (is In (to) (values Remembered "VacatedSite")))
-                        (or {
-                            (not (is In (from) (sites Start (piece (what at:(from))))))
-                            (and {
-                                (is In (to) (sites {"A3" "H3" "A6" "H6"})) 
-                                (>= (count Turns) 4)
-                                (< (count Turns) 6)
-                            })
-                            (>= (count Turns) 6)
-                        })
-                        (not (and {
-                            (not ("InAttackerSite" (to)))
-                            (or 
-                                (and (>= (var "AttackerSite") 200) (= (score Mover) 2) )
-                                (and (>= (var "AttackerSite") 100) (= (score Mover) 1) )
-                            )
-                        }))
-                    })
+            if:(or {
+                (= #2 0)
+                (and {(= #2 1) (= 1 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} ) 
+                (and {(= #2 2) (= 2 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} )
+                (and {
+                    (= #2 3)
+                    (= 1 (count Steps (from) (to)))
+                    (not (is In (to) (values Remembered "VacatedSite")))
+                    (not (and 
+                        (not ("InAttackerSite" (to)))
+                        (or (and (>= (var "AttackerSite") 200) (= (score Mover) 2) ) (and (>= (var "AttackerSite") 100) (= (score Mover) 1) ) )
+                    ))
+                    (or
+                        (not (is In (from) (sites Start (piece (what at:(from))))))
+                        (if (>= (count Turns) 6)
+                            (toBool 1)
+
+                            (and (is In (to) (sites {"A3" "H3" "A6" "H6"})) (>= (count Turns) 4) )
+                        )
+                    )
                 })
-            )
+            })
         )
     )
 )
@@ -943,38 +929,34 @@
         (not (= (what at:"AttackerSiteBase") (mapEntry "Knight" Next)))
         (> (count Steps (last From) "AttackerSiteBase") 1)
         (or {
-            (and (= (last To) (ahead (last From) steps:1 N))  (is In "AttackerSiteBase" (sites Direction from:(last From) N)))
-            (and (= (last To) (ahead (last From) steps:1 S))  (is In "AttackerSiteBase" (sites Direction from:(last From) S)))
-            (and (= (last To) (ahead (last From) steps:1 E))  (is In "AttackerSiteBase" (sites Direction from:(last From) E)))
-            (and (= (last To) (ahead (last From) steps:1 W))  (is In "AttackerSiteBase" (sites Direction from:(last From) W)))
-            (and (= (last To) (ahead (last From) steps:1 NE)) (is In "AttackerSiteBase" (sites Direction from:(last From) NE)))
-            (and (= (last To) (ahead (last From) steps:1 NW)) (is In "AttackerSiteBase" (sites Direction from:(last From) NW)))
-            (and (= (last To) (ahead (last From) steps:1 SE)) (is In "AttackerSiteBase" (sites Direction from:(last From) SE)))
-            (and (= (last To) (ahead (last From) steps:1 SW)) (is In "AttackerSiteBase" (sites Direction from:(last From) SW)))
+            (and (= (last To) (ahead (last From) steps:1 N)) (is In "AttackerSiteBase" ("CheckLineSites" N (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 S)) (is In "AttackerSiteBase" ("CheckLineSites" S (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 E)) (is In "AttackerSiteBase" ("CheckLineSites" E (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 W)) (is In "AttackerSiteBase" ("CheckLineSites" W (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 NE)) (is In "AttackerSiteBase" ("CheckLineSites" NE (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 NW)) (is In "AttackerSiteBase" ("CheckLineSites" NW (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 SE)) (is In "AttackerSiteBase" ("CheckLineSites" SE (last From))) )
+            (and (= (last To) (ahead (last From) steps:1 SW)) (is In "AttackerSiteBase" ("CheckLineSites" SW (last From))) )
         })
     })
 )
 
 (define "CanMove"
-    (if (= (from) (last From))
-        (if (not (is In (+ (* (last From) 100) (last To)) (values Remembered "IllegalMoves")))
-            (or {
+    (and {
+        (= (from) (last From))
+        (not (is In (+ (* (last From) 100) (last To)) (values Remembered "IllegalMoves")))
+        (or
+            (= 0 (size Array (values Remembered "CheckSites")))
+            (if (= (last To) (where "King" Mover)) 
+                (not "ForbiddenKingStepTowardKnownChecker")
+
                 (and
-                    (= (last To) (where "King" Mover))
-                    (not "ForbiddenKingStepTowardKnownChecker")
-                )
-                (= 0 (size Array (values Remembered "CheckSites")))
-                (and {
-                    (not (= (last To) (where "King" Mover)))
                     (= 1 (size Array (values Remembered "CheckTypes")))
-                    (or
-                        (is In (last To) (values Remembered "CheckSites"))
-                        (is In (+ 100 (last To)) (values Remembered "CheckSites"))
-                    )
-                })
-            })
+                    (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) )
+                )
+            )
         )
-    )
+    })
 )
 
 (game "Kriegspiel (Chess)"
@@ -1027,7 +1009,6 @@
                     ) 
                     (move Vote "No" (then (do (move Pass))) )
                 )
-                    
                 
                 (if "PromotionCondition"
                     (move Promote (last To) (piece {"Queen" "Knight" "Bishop" "Rook"}) Mover
