@@ -12,7 +12,7 @@
 )
 
 (define "PieceHasMoved"
-    (set State at:#1 0)
+    (set State at:#1 (if (>= (state at:#1) 10) 10 0))
 )
 
 (define "CanBeCapturedByPawn"
@@ -450,6 +450,7 @@
     })
 )
 
+
 (define "KingInCheck"
     (or {
         (or
@@ -490,6 +491,56 @@
             ifAfterwards:(not ("KingInCheck" (next) (mover)))
         ))
     )
+)
+
+(define "IsInRayWithKing"
+    (or {
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) N) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) S) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) E) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) W) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NE) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NW) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SE) index:0))
+        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SW) index:0))
+    })
+)
+
+(define "UpdatePinStatus"
+    (and {
+        (forEach Site (sites Occupied by:P1)
+            (if (and 
+                (!= (what at:(site)) (mapEntry "King" P1))
+                ("IsInRayWithKing" (site) P1)
+                (< (state at:(site)) 10)
+            )
+                (set State at:(site) (+ (state at:(site)) 10))
+            )
+            (if (and 
+                (!= (what at:(site)) (mapEntry "King" P1))
+                (>= (state at:(site)) 10)
+                (not ("IsInRayWithKing" (site) P1))
+            )
+                (set State at:(site) (- (state at:(site)) 10))
+            )
+        )
+        (forEach Site (sites Occupied by:P2)
+            (if (and 
+                (!= (what at:(site)) (mapEntry "King" P2))
+                ("IsInRayWithKing" (site) P2)
+                (< (state at:(site)) 10)
+            )
+                (set State at:(site) (+ (state at:(site)) 10))
+            )
+            (if (and 
+                (!= (what at:(site)) (mapEntry "King" P2))
+                (>= (state at:(site)) 10)
+                (not ("IsInRayWithKing" (site) P2))
+            )
+                (set State at:(site) (- (state at:(site)) 10))
+            )
+        )
+    })
 )
 
 (define "CountTries"
@@ -693,6 +744,7 @@
         (if "KingsAndBishopsSameColor" (and (set Var "DrawCondition" 5) (note "Draw by insufficient force kings and bishops on same-colored squares") ))                      
         (if (= (counter) 99) (and (set Var "DrawCondition" 6) (note "Draw by fifty-move rule") ))
         "CountTries"
+        "UpdatePinStatus"
         (set Var "EquipmentMode" 0)
         (forget Value "IllegalMoves" All)
         (forget Value "CheckSites" All)
@@ -1027,7 +1079,7 @@
                                 })
 
                                 (and {
-                                    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
+                                    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)     
                                     (set Counter (- (counter) 1))
                                     (note "Illegal move")
                                     (moveAgain)
