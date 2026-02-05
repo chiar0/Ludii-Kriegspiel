@@ -2,7 +2,7 @@
     (not
         (can Move (do
             (forEach Piece Next)
-            ifAfterwards:(not ("KingInCheck" (next)(mover)))
+            ifAfterwards:(not ("KingInCheck" (next) (mover)))
         ))
     )
 )
@@ -12,17 +12,7 @@
 )
 
 (define "PieceHasMoved"
-    (set State at:#1 (if (>= (state at:#1) 10) 10 0))
-)
-
-(define "CanBeCapturedByPawn"
-    (and
-        (= (what at:(ahead (#1) steps:1 #2)) (mapEntry "Pawn" Next))
-        (can Move (do
-            (move (from:(ahead (#1) steps:1 #2)) (to:(#1)) )
-            ifAfterwards:(not ("KingInCheck" (next) (mover)))
-        ))
-    )
+    (set State at:#1 0)
 )
 
 (define "NoteCapture"
@@ -313,9 +303,9 @@
 
 (define "InAttackerSite"
     (or {
-        (= #1 (var "AttackerSite"))
-        (= (+ 100 #1) (var "AttackerSite"))
-        (= (+ 200 #1) (var "AttackerSite"))
+        (is In #1 (values Remembered "AttackerSites"))
+        (is In (+ 100 #1) (values Remembered "AttackerSites"))
+        (is In (+ 200 #1) (values Remembered "AttackerSites"))
     })
 )
 
@@ -331,16 +321,45 @@
     )
 )
 
-(define "AttackerSiteBase"
-    (if (>= (var "AttackerSite") 200)
-        (- (var "AttackerSite") 200)
+(define "ExtractSiteFromEncoded"
+    (if (>= #1 200)
+        (- #1 200)
         
-        (if (>= (var "AttackerSite") 100)
-            (- (var "AttackerSite") 100)
+        (if (>= #1 100)
+            (- #1 100)
 
-            (var "AttackerSite")
+            #1
         )
     )
+)
+
+(define "AnyAttackerSiteOn"
+    (or {
+        (is In (ahead #1 steps:0 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:0 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:0 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:1 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:1 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:1 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:2 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:2 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:2 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:3 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:3 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:3 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:4 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:4 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:4 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:5 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:5 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:5 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:6 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:6 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:6 #2)) (values Remembered "AttackerSites"))
+        (is In (ahead #1 steps:7 #2) (values Remembered "AttackerSites"))
+        (is In (+ 100 (ahead #1 steps:7 #2)) (values Remembered "AttackerSites"))
+        (is In (+ 200 (ahead #1 steps:7 #2)) (values Remembered "AttackerSites"))
+    })
 )
 
 (define "ProcessLinearCheck" 
@@ -365,8 +384,8 @@
                     (remember Value "CheckTypes" 1)
                     (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
-                        (if (not (is In "AttackerSiteBase" ("CheckLineSites" NW (where "King" (next))))) ("ProcessLinearCheck" SE (where "King" (next))))
-                        (if (not (is In "AttackerSiteBase" ("CheckLineSites" SE (where "King" (next))))) ("ProcessLinearCheck" NW (where "King" (next))))
+                        (if (not ("AnyAttackerSiteOn" (where "King" (next)) NW)) ("ProcessLinearCheck" SE (where "King" (next))))
+                        (if (not ("AnyAttackerSiteOn" (where "King" (next)) SE)) ("ProcessLinearCheck" NW (where "King" (next))))
                 })
         )
         (if (or {
@@ -379,24 +398,24 @@
                     (remember Value "CheckTypes" 2)
                     (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
                     (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" NE (where "King" (next))))) ("ProcessLinearCheck" SW (where "King" (next))))
-                    (if (not (is In "AttackerSiteBase" ("CheckLineSites" SW (where "King" (next))))) ("ProcessLinearCheck" NE (where "King" (next))))
+                    (if (not ("AnyAttackerSiteOn" (where "King" (next)) NE)) ("ProcessLinearCheck" SW (where "King" (next))))
+                    (if (not ("AnyAttackerSiteOn" (where "King" (next)) SW)) ("ProcessLinearCheck" NE (where "King" (next))))
                 })
         )
         (if ("FileCheck" (next) (mover)) 
             (and {
                 (remember Value "CheckTypes" 3)
                 (note "File check")
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" S (where "King" (next))))) ("ProcessLinearCheck" N (where "King" (next))))
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" N (where "King" (next))))) ("ProcessLinearCheck" S (where "King" (next))))
+                (if (not ("AnyAttackerSiteOn" (where "King" (next)) S)) ("ProcessLinearCheck" N (where "King" (next))))
+                (if (not ("AnyAttackerSiteOn" (where "King" (next)) N)) ("ProcessLinearCheck" S (where "King" (next))))
             })
         )
         (if ("RankCheck" (next) (mover))
             (and {
                 (remember Value "CheckTypes" 4)
                 (note "Rank check")
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" W (where "King" (next))))) ("ProcessLinearCheck" E (where "King" (next))))
-                (if (not (is In "AttackerSiteBase" ("CheckLineSites" E (where "King" (next))))) ("ProcessLinearCheck" W (where "King" (next))))
+                (if (not ("AnyAttackerSiteOn" (where "King" (next)) W)) ("ProcessLinearCheck" E (where "King" (next))))
+                (if (not ("AnyAttackerSiteOn" (where "King" (next)) E)) ("ProcessLinearCheck" W (where "King" (next))))
             })
         )
         (if (or {
@@ -412,9 +431,14 @@
                 (and {
                     (remember Value "CheckTypes" 5)
                     (note "Knight Check")
-                    (if (= (what at:"AttackerSiteBase") (mapEntry "Knight" Mover))
-                        (remember Value "CheckSites" (+ "AttackerSiteBase" 100) unique:True)
-
+                    (if (> (size Array (values Remembered "AttackerSites")) 0)
+                        (forEach Value (values Remembered "AttackerSites")
+                            (if (= (what at:("ExtractSiteFromEncoded" (value))) (mapEntry "Knight" (mover)))
+                                (remember Value "CheckSites" (+ ("ExtractSiteFromEncoded" (value)) 100) unique:True)
+                            )
+                        )
+                    )
+                    (if (= 0 (size Array (values Remembered "CheckSites")))
                         (forEach Site 
                             (difference
                                 (union {
@@ -431,7 +455,7 @@
                             )
                                 (remember Value "CheckSites" (+ 100 (site)) unique:True)
                         )
-                    ) 
+                    )
                 })
         )
     })
@@ -506,41 +530,60 @@
     })
 )
 
+(define "GetPinDirection"
+    (if ("IsInRayWithKing" #1 #2)
+        (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) N) index:0)) (!= (ahead #1 steps:1 N) #1) ) 1
+            (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) S) index:0)) (!= (ahead #1 steps:1 S) #1) ) 2
+                (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) E) index:0)) (!= (ahead #1 steps:1 E) #1) ) 3
+                    (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) W) index:0)) (!= (ahead #1 steps:1 W) #1) ) 4
+                        (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NE) index:0)) (!= (ahead #1 steps:1 NE) #1) ) 5
+                            (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NW) index:0)) (!= (ahead #1 steps:1 NW) #1) ) 6
+                                (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SE) index:0)) (!= (ahead #1 steps:1 SE) #1) ) 7
+                                    (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SW) index:0)) (!= (ahead #1 steps:1 SW) #1) ) 8
+                                        -1
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        -1
+    )
+)
+
 (define "UpdatePinStatus"
-    (and {
-        (forEach Site (sites Occupied by:P1)
-            (if (and 
-                (!= (what at:(site)) (mapEntry "King" P1))
-                ("IsInRayWithKing" (site) P1)
-                (< (state at:(site)) 10)
-            )
-                (set State at:(site) (+ (state at:(site)) 10))
-            )
-            (if (and 
-                (!= (what at:(site)) (mapEntry "King" P1))
-                (>= (state at:(site)) 10)
-                (not ("IsInRayWithKing" (site) P1))
-            )
-                (set State at:(site) (- (state at:(site)) 10))
+    (forEach Site (union (sites Occupied by:P1) (sites Occupied by:P2))
+        (if (and 
+            (!= (what at:(site)) (mapEntry "King" (who at:(site))))
+            (!= ("GetPinDirection" (site) (who at:(site))) -1)
+        )
+            (remember Value "PinnedPieces" (+ (* ("GetPinDirection" (site) (who at:(site))) 100) (site)) unique:True)
+            
+            (if (or {
+                (is In (+ 100 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 200 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 300 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 400 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 500 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 600 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 700 (site)) (values Remembered "PinnedPieces"))
+                (is In (+ 800 (site)) (values Remembered "PinnedPieces"))
+            })
+                (or {
+                    (forget Value "PinnedPieces" (+ 100 (site)))
+                    (forget Value "PinnedPieces" (+ 200 (site)))
+                    (forget Value "PinnedPieces" (+ 300 (site)))
+                    (forget Value "PinnedPieces" (+ 400 (site)))
+                    (forget Value "PinnedPieces" (+ 500 (site)))
+                    (forget Value "PinnedPieces" (+ 600 (site)))
+                    (forget Value "PinnedPieces" (+ 700 (site)))
+                    (forget Value "PinnedPieces" (+ 800 (site)))
+                })
             )
         )
-        (forEach Site (sites Occupied by:P2)
-            (if (and 
-                (!= (what at:(site)) (mapEntry "King" P2))
-                ("IsInRayWithKing" (site) P2)
-                (< (state at:(site)) 10)
-            )
-                (set State at:(site) (+ (state at:(site)) 10))
-            )
-            (if (and 
-                (!= (what at:(site)) (mapEntry "King" P2))
-                (>= (state at:(site)) 10)
-                (not ("IsInRayWithKing" (site) P2))
-            )
-                (set State at:(site) (- (state at:(site)) 10))
-            )
-        )
-    })
+    )
 )
 
 (define "CountTries"
@@ -549,8 +592,20 @@
         (forEach Value min:1 max:63
             (if (= (what at:(value)) (next))
                 (and
-                    (if ("CanPawnCapture" FR) (addScore Next 1))
-                    (if ("CanPawnCapture" FL) (addScore Next 1))
+                    (if (or { 
+                            (= 0 (size Array (values Remembered "CheckSites")))
+                            (is In (ahead (value) steps:1 FR) (values Remembered "CheckSites"))
+                            (is In (+ 100 (ahead (value) steps:1 FR)) (values Remembered "CheckSites")) 
+                        })
+                        (if ("CanPawnCapture" FR) (addScore Next 1))
+                    )
+                    (if (or { 
+                            (= 0 (size Array (values Remembered "CheckSites")))
+                            (is In (ahead (value) steps:1 FL) (values Remembered "CheckSites"))
+                            (is In (+ 100 (ahead (value) steps:1 FL)) (values Remembered "CheckSites")) 
+                        })
+                        (if ("CanPawnCapture" FL) (addScore Next 1))
+                    )
                 )
             )
         )
@@ -760,14 +815,36 @@
     )
 )
 
-(define "SetAttackerSite"
-    (if (and ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
-        (set Var "AttackerSite" (+ 200 (#1)))
-        
-        (if (or ("CanBeCapturedByPawn" #1 FL) ("CanBeCapturedByPawn" #1 FR) )
-            (set Var "AttackerSite" (+ 100 (#1)))
+(define "CanBeCapturedByPawn"
+    (and
+        (= (what at:(ahead #1 steps:1 #2)) (mapEntry "Pawn" #4))
+        (can Move (do
+            (move (from:(ahead #1 steps:1 #2)) (to:#1) )
+            ifAfterwards:(not ("KingInCheck" #4 #3))
+        ))
+    )
+)
 
-            (set Var "AttackerSite" #1)
+(define "SetAttackerSite"
+    (if (and ("CanBeCapturedByPawn" #1 FL #3 #2) ("CanBeCapturedByPawn" #1 FR #3 #2) )
+        (and (remember Value "AttackerSites" (+ 200 #1) unique:True) (set Var "Recaptures" (+ 2 (var "Recaptures"))) )
+        
+        (if (or ("CanBeCapturedByPawn" #1 FL #3 #2) ("CanBeCapturedByPawn" #1 FR #3 #2) )
+            (and (remember Value "AttackerSites" (+ 100 #1) unique:True) (set Var "Recaptures" (+ 1 (var "Recaptures"))) )
+
+            (remember Value "AttackerSites" #1 unique:True)
+        )
+    )
+)
+
+(define "SetAttackerSite2"
+    (if (and ("CanBeCapturedByPawn" #1 BL #3 #2) ("CanBeCapturedByPawn" #1 BR #3 #2) )
+        (and (remember Value "AttackerSites" (+ 200 #1) unique:True) (set Var "Recaptures" (+ 2 (var "Recaptures"))) )
+        
+        (if (or ("CanBeCapturedByPawn" #1 BL #3 #2) ("CanBeCapturedByPawn" #1 BR #3 #2) )
+            (and (remember Value "AttackerSites" (+ 100 #1) unique:True) (set Var "Recaptures" (+ 1 (var "Recaptures"))) )
+
+            (remember Value "AttackerSites" #1 unique:True)
         )
     )
 )
@@ -796,7 +873,7 @@
         )
         (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite")) ) )
             (and {
-                ("SetAttackerSite" (last To))
+                ("SetAttackerSite2" (last To) (next) (mover))
                 (if (is Empty (last To))
                     (and { 
                         (set Var "CapturedPiece" (what at:(last From))) 
@@ -824,7 +901,7 @@
             )
                 (and {
                     (set Var "CapturedPiece" (what at:(last To)))
-                    ("SetAttackerSite" (last To))
+                    ("SetAttackerSite2" (last To) (next) (mover))
                     (move (from (last From)) (to (last To))
                         (then (and {
                             ("NoteCapture" (last To) (var "CapturedPiece"))
@@ -858,7 +935,7 @@
 (define "PromotionCondition"
     (and
         (is In (last To) (sites Mover "Promotion"))
-        (= (what at:(last To)) (mapEntry "Pawn" Mover))
+        (= (what at:(last To)) (mapEntry "Pawn" (mover)))
     )
 )
 
@@ -880,10 +957,12 @@
                     (= #2 3)
                     (= 1 (count Steps (from) (to)))
                     (not (is In (to) (values Remembered "VacatedSite")))
-                    (not (and 
-                        (not ("InAttackerSite" (to)))
-                        (or (and (>= (var "AttackerSite") 200) (= (score Mover) 2) ) (and (>= (var "AttackerSite") 100) (= (score Mover) 1) ) )
-                    ))
+                    (or {
+                        (< (var "Recaptures") (score Mover))
+                        (= (size Array (values Remembered "AttackerSites")) 0)
+                        (is In (+ 100 (to)) (values Remembered "AttackerSites"))
+                        (is In (+ 200 (to)) (values Remembered "AttackerSites")) 
+                    })
                     (or
                         (not (is In (from) (sites Start (piece (what at:(from))))))
                         (if (>= (count Turns) 6)
@@ -977,18 +1056,22 @@
 
 (define "ForbiddenKingStepTowardKnownChecker"
     (and {
-        (is In (+ 100 "AttackerSiteBase") (values Remembered "CheckSites"))
-        (not (= (what at:"AttackerSiteBase") (mapEntry "Knight" Next)))
-        (> (count Steps (last From) "AttackerSiteBase") 1)
+        (> (size Array (values Remembered "CheckSites")) 0)
         (or {
-            (and (= (last To) (ahead (last From) steps:1 N)) (is In "AttackerSiteBase" ("CheckLineSites" N (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 S)) (is In "AttackerSiteBase" ("CheckLineSites" S (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 E)) (is In "AttackerSiteBase" ("CheckLineSites" E (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 W)) (is In "AttackerSiteBase" ("CheckLineSites" W (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 NE)) (is In "AttackerSiteBase" ("CheckLineSites" NE (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 NW)) (is In "AttackerSiteBase" ("CheckLineSites" NW (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 SE)) (is In "AttackerSiteBase" ("CheckLineSites" SE (last From))) )
-            (and (= (last To) (ahead (last From) steps:1 SW)) (is In "AttackerSiteBase" ("CheckLineSites" SW (last From))) )
+            (is In 1 (values Remembered "CheckTypes"))
+            (is In 2 (values Remembered "CheckTypes"))
+            (is In 3 (values Remembered "CheckTypes"))
+            (is In 4 (values Remembered "CheckTypes"))
+        })
+        (or {
+            (and (= (last To) (ahead (last From) steps:1 N)) ("AnyAttackerSiteOn" (last From) N) )
+            (and (= (last To) (ahead (last From) steps:1 S)) ("AnyAttackerSiteOn" (last From) S) )
+            (and (= (last To) (ahead (last From) steps:1 E)) ("AnyAttackerSiteOn" (last From) E) )
+            (and (= (last To) (ahead (last From) steps:1 W)) ("AnyAttackerSiteOn" (last From) W) )
+            (and (= (last To) (ahead (last From) steps:1 NE)) ("AnyAttackerSiteOn" (last From) NE) )
+            (and (= (last To) (ahead (last From) steps:1 NW)) ("AnyAttackerSiteOn" (last From) NW) )
+            (and (= (last To) (ahead (last From) steps:1 SE)) ("AnyAttackerSiteOn" (last From) SE) )
+            (and (= (last To) (ahead (last From) steps:1 SW)) ("AnyAttackerSiteOn" (last From) SW) )
         })
     })
 )
@@ -1071,7 +1154,8 @@
                         (move Select (from (sites Occupied by:Mover)) (to (sites To (do (forEach Piece) ifAfterwards:"CanMove")))
                             (then (if "LegalMove"
                                 (and {
-                                    (if (!= (var "AttackerSite") -1) (set Var "AttackerSite" -1))
+                                    (if (!= (size Array (values Remembered "AttackerSites")) 0) (forget Value "AttackerSites" All))
+                                    (set Var "Recaptures" 0)
                                     (forget Value "VacatedSite" All)
                                     (forget Value "CheckTypes" All)
                                     (set Var "EquipmentMode" 1)
@@ -1079,7 +1163,24 @@
                                 })
 
                                 (and {
-                                    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)     
+                                    (remember Value "IllegalMoves" (+ (* (last From) 100) (last To)) unique:True)
+                                    (if (and {
+                                            (= (what at:(last From)) (mapEntry "Pawn" (mover)))
+                                            (not ("KingInCheck" (mover) (next)))
+                                            (not (or {
+                                                (and (is In (+ 100 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) N)))
+                                                (and (is In (+ 200 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) S)))
+                                                (and (is In (+ 300 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) E)))
+                                                (and (is In (+ 400 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) W)))
+                                                (and (is In (+ 500 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) NE)))
+                                                (and (is In (+ 600 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) NW)))
+                                                (and (is In (+ 700 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) SE)))
+                                                (and (is In (+ 800 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) SW)))
+                                            }))
+                                            (= (last To) (ahead (last From) Forward))
+                                        })
+                                        ("SetAttackerSite" (last To) (mover) (next))
+                                    )
                                     (set Counter (- (counter) 1))
                                     (note "Illegal move")
                                     (moveAgain)
@@ -1145,9 +1246,12 @@
                     - C3.1: Pawn captures are enabled only when `Tries` > 0.
                     - C3.2: If `Tries` equals the number of pawns capable of recapturing at `AttackerSite`, all other theoretical pawn captures are excluded.
                     - C3.3: Pawn captures onto `VacatedSite` are excluded.
+                - C4: Pin detection and AttackerSite inference
+                    - C4.1: When a pawn attempts an illegal forward move, the destination square is inferred as an `AttackerSite` if the pawn is not pinned in an incompatible direction.
             Glossary
-            `Tries`: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
-            `AttackerSite`: Square where an enemy captured a piece and now occupies; encoded values: [site], [site+100] (one pawn can recapture), [site+200] (two pawns can).
+            `Score` (`Tries`): Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
+            `AttackerSite`: Square where an enemy captured a piece and now occupies; also inferred from illegal pawn advances. Encoded values: [site+100] (one pawn can recapture), [site+200] (two pawns can).
+            `PinnedPieces`: Memory of pieces hypothetically pinned to their king, encoded as [direction*100+site] where direction 1-8 represents pin axis (N, S, E, W, NE, NW, SE, SW). A piece is pinned if it lies on a line of sight from its king towards an unseen enemy (without intervening friendly pieces). Pin validity requires at least one empty square beyond the piece along the pin direction (pieces at board edges on that direction axis are not pinned). A pinned piece may move along its pin axis (e.g., vertically pinned pawn moves N/S) but cannot move perpendicular to it (e.g., E/W moves prohibited if pinned vertically).
             `CheckSites`: Candidate squares for interposition or capture to resolve a check; encoded as [site] (intermediate) and [site+100] (terminal - farthest possible source of an unseen attacker). For sliding checks, trajectories are projected outwards from the King. The line terminates on the square of a known enemy (`AttackerSite`) if present on the path (in this case `CheckSites` are computed only toward `AttackerSite`, not along the ray opposite the King), or on the square immediately preceding a blocking friendly piece; otherwise, it extends to the board's edge. For Knight checks, only the specific `AttackerSite` is recorded if the check involves a capture; otherwise, all valid knight-jump squares from the King not occupied by friendly pieces are recorded as potential terminals.
             `VacatedSite`: Square emptied by an en passant capture (the captured pawn's original location).
             `IllegalMoves`: Memory of moves rejected during the turn (encoded as [from*100+to]).
