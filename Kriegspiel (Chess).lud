@@ -826,10 +826,10 @@
 )
 
 (define "SetAttackerSite"
-    (if (and ("CanBeCapturedByPawn" #1 FL #3 #2) ("CanBeCapturedByPawn" #1 FR #3 #2) )
+    (if (and ("CanBeCapturedByPawn" #1 #4 #3 #2) ("CanBeCapturedByPawn" #1 #5 #3 #2) )
         (and (remember Value "AttackerSites" (+ 200 #1) unique:True) (set Var "Recaptures" (+ 2 (var "Recaptures"))) )
         
-        (if (or ("CanBeCapturedByPawn" #1 FL #3 #2) ("CanBeCapturedByPawn" #1 FR #3 #2) )
+        (if (or ("CanBeCapturedByPawn" #1 #4 #3 #2) ("CanBeCapturedByPawn" #1 #5 #3 #2) )
             (and (remember Value "AttackerSites" (+ 100 #1) unique:True) (set Var "Recaptures" (+ 1 (var "Recaptures"))) )
 
             (remember Value "AttackerSites" #1 unique:True)
@@ -837,17 +837,6 @@
     )
 )
 
-(define "SetAttackerSite2"
-    (if (and ("CanBeCapturedByPawn" #1 BL #3 #2) ("CanBeCapturedByPawn" #1 BR #3 #2) )
-        (and (remember Value "AttackerSites" (+ 200 #1) unique:True) (set Var "Recaptures" (+ 2 (var "Recaptures"))) )
-        
-        (if (or ("CanBeCapturedByPawn" #1 BL #3 #2) ("CanBeCapturedByPawn" #1 BR #3 #2) )
-            (and (remember Value "AttackerSites" (+ 100 #1) unique:True) (set Var "Recaptures" (+ 1 (var "Recaptures"))) )
-
-            (remember Value "AttackerSites" #1 unique:True)
-        )
-    )
-)
 
 (define "PerformLegalMove"
     (or {
@@ -873,7 +862,7 @@
         )
         (if (and ("IsMovingPiece" "Pawn") (or (is Enemy (who at:(last To))) (= (last To) (var "EnPassantSite")) ) )
             (and {
-                ("SetAttackerSite2" (last To) (next) (mover))
+                ("SetAttackerSite" (last To) (next) (mover) BL BR)
                 (if (is Empty (last To))
                     (and { 
                         (set Var "CapturedPiece" (what at:(last From))) 
@@ -901,7 +890,7 @@
             )
                 (and {
                     (set Var "CapturedPiece" (what at:(last To)))
-                    ("SetAttackerSite2" (last To) (next) (mover))
+                    ("SetAttackerSite" (last To) (next) (mover) BL BR)
                     (move (from (last From)) (to (last To))
                         (then (and {
                             ("NoteCapture" (last To) (var "CapturedPiece"))
@@ -1155,7 +1144,7 @@
                             (then (if "LegalMove"
                                 (and {
                                     (if (!= (size Array (values Remembered "AttackerSites")) 0) (forget Value "AttackerSites" All))
-                                    (set Var "Recaptures" 0)
+                                    (if (!= 0 (var "Recaptures")) (set Var "Recaptures" 0))
                                     (forget Value "VacatedSite" All)
                                     (forget Value "CheckTypes" All)
                                     (set Var "EquipmentMode" 1)
@@ -1170,16 +1159,16 @@
                                             (not (or {
                                                 (and (is In (+ 100 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) N)))
                                                 (and (is In (+ 200 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) S)))
-                                                (and (is In (+ 300 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) E)))
-                                                (and (is In (+ 400 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) W)))
-                                                (and (is In (+ 500 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) NE)))
-                                                (and (is In (+ 600 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) NW)))
-                                                (and (is In (+ 700 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) SE)))
-                                                (and (is In (+ 800 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) SW)))
+                                                (is In (+ 300 (last From)) (values Remembered "PinnedPieces"))
+                                                (is In (+ 400 (last From)) (values Remembered "PinnedPieces"))
+                                                (is In (+ 500 (last From)) (values Remembered "PinnedPieces"))
+                                                (is In (+ 600 (last From)) (values Remembered "PinnedPieces"))
+                                                (is In (+ 700 (last From)) (values Remembered "PinnedPieces"))
+                                                (is In (+ 800 (last From)) (values Remembered "PinnedPieces"))
                                             }))
                                             (= (last To) (ahead (last From) Forward))
                                         })
-                                        ("SetAttackerSite" (last To) (mover) (next))
+                                        ("SetAttackerSite" (last To) (mover) (next) FL FR)
                                     )
                                     (set Counter (- (counter) 1))
                                     (note "Illegal move")
@@ -1280,7 +1269,7 @@
         ")
         (id "4185") 
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
-        (version "1.3.14")
+        (version "0.0.0")
         (classification "board/war/replacement/checkmate/chess")
         (author "Henry Michael Temple")
         (credit "Nikola Novarlic & Fabio Chiarini")
