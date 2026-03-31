@@ -1233,7 +1233,7 @@
         ")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "
-            The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
+            The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game.
 
             The umpire makes the following announcements where appropriate:
             - `Player 1 (White)'s [or Player 2 (Black)'s] turn`
