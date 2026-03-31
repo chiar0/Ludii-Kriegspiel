@@ -1,60 +1,81 @@
 # Kriegspiel (Ludii)
 
-In this game each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts `legal` or `illegal`. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
+Kriegspiel is imperfect-information chess with an umpire. Each player sees only their own pieces, tries a move, and receives `legal` / `illegal` arbitration plus check/capture announcements.
 
-While Ludii's first implementation of Kriegspiel correctly models the game's core rules of umpire arbitration, its unconstrained design poses a significant challenge for artificial intelligence. The model presents the AI with a raw action space, allowing it to explore and attempt moves that are impossible (e.g., a Rook moving diagonally).
+This project refactors Kriegspiel into a filtered interface that only exposes moves that remain plausible under the player known state. That reduces wasted search on impossible actions and matches the way a strong human player reasons about the game.
 
-This is highly inefficient for any search algorithm. The AI wastes valuable computational resources evaluating moves that a human player would instantly recognize as irrational. Furthermore, a rational player would not repeatedly attempt the same illegal move after it has been rejected by the umpire within the same turn.
+## Files in this repository
 
-This project refactors Kriegspiel to address these issues by creating a **interface that pre-filters the action space**. By only presenting valid moves, we align the AI's decision-making process more closely with rational human play.
+- `Kriegspiel (Chess).lud` — The guided Kriegspiel variant with pre-filtering and umpire inference (recommended).
+- `LEGACY-Kriegspiel (Chess).lud` — Legacy original Ludii file (included for reference).
 
-The impact of this change is significant, now games finish dramatically faster without wasted retries. This refactoring has also enabled a subset of MCTS-based agents—specifically `Bandit Tree Search (Avg)`, `EPT`, and `EPT-QB` to produce meaningful, non-zero value estimates, a critical step toward developing truly competitive Kriegspiel agents.
+## How to Play
+
+1.  Download the **`Kriegspiel (Chess).lud`** game file from this repository.
+2.  Launch the Ludii application.
+3.  Navigate to `File > Load Game from File (CTRL+F)` and select the downloaded `.lud` file.
+4.  Enjoy the game!
+
+**UI Tips in Ludii:**
+-  Highlight legal moves for the selected piece: `View > Show Legal Moves` (`Alt+M`).
+-  Show the last attempted move: `View > Show Last Move` (`Alt+L`).
 
 ## Description
 
-This implementation pre-filters moves that fail feasibility checks, eliminating `Hell no` (or `Impossible` or `Nonsense`) announcements (when the attempted move is always illegal regardless of the opponent's position). All filtering is based exclusively on information legitimately available to the player (game rules, own pieces, and information derivable from umpire announcements and move history), organized into the following domains:
+This implementation pre-filters moves that fail feasibility checks, eliminating `Hell no` / `Impossible` / `Nonsense` announcements when the attempted move is always illegal regardless of the opponent's hidden pieces. Every filter uses only information the mover can legitimately derive from game rules, their own pieces, and prior umpire announcements.
 
 ### FILTERING RULES
 
 #### A — Memory
-- **A1:** Rejected moves are excluded for the remainder of the turn.
-- **A2:** Sliding trajectories stop at previously rejected destinations (except when the side is *in check*).
-- **A3** — **SONAR** *(NOT IMPLEMENTED)*: occupancy deduction from rejected pawn forward moves. Destination is marked as `AttackerSite` (applies C2–C4):
-    - **A3.1:** When not under check, the pawn is pinnable or the move stays on the King–Pawn alignment.
-    - **A3.2:** When under check, the destination is adjacent to the terminal `CheckSite` on the attacker side.
-- **A4** — **PIN DETECTION** *(NOT IMPLEMENTED)*: deductions from rejected moves when a piece is *pinnable*:
-    - **A4.1:** A sliding piece move rejected → the piece is (likely) pinned. An enemy exists along the `PinRay`. Restrict the piece to moves along that ray.
-        - **A4.1.1:** If only one square is visible along the `PinRay` away from the King, mark that square as `AttackerSite` (apply C2–C4).
-    - **A4.2:** Pawn capture rejected when C4 applies → the pawn is (likely) pinned. Freeze pawn moves outside the `PinRay`.
+- **A1:** Rejected moves remain excluded for the rest of the turn.
+- **A2:** Sliding trajectories stop at previously rejected destinations, except while in check.
 
 #### B — Geometry
-- **B1:** Pieces follow canonical movement patterns.
-- **B2:** Sliding trajectories stop at friendly pieces.
-- **B3:** Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
-- **B4** — **Early-game** (pawns on starting rank)
-    - **B4.1:** Turns 1–2: no pawn captures (enemies cannot reach rows 3/6).
-    - **B4.2:** Turns 3–4: pawn captures limited to `A3`, `H3`, `A6`, `H6` (squares reachable by a bishop from the initial setup).
+- **B1:** Pieces keep canonical chess movement.
+- **B2:** Sliding moves stop before friendly pieces.
+- **B3:** Castling needs unmoved King/Rook and clear intermediate squares.
+- **B4:** Early-game pawn captures are restricted by reachability.
+    - **B4.1 (Turns 1–2):** A pawn on its starting rank cannot make a capture (no enemy piece can yet occupy ranks 3 or 6).
+    - **B4.2 (Turns 3–4):** A pawn on its starting rank may capture only on `A3`, `H3`, `A6`, or `H6` (squares reachable by a bishop in that window).
 
 #### C — Umpire inference
 - **C1:** Pawn captures are enabled only when `Tries` > 0.
 - **C2:** Sliding pieces stop at `AttackerSite`.
 - **C3:** Pawns cannot advance onto `AttackerSite`.
 - **C4:** If `Tries` equals the number of pawns that can reach `AttackerSite`, other captures are excluded.
-- **C5:** Pawn captures onto `VacatedSite` are excluded.
-- **C6:** Under check, only moves to `CheckSites` or King moves are allowed; castling is excluded.
-    - **C6.1** *(NOT IMPLEMENTED)*: Double check (multiple check directions) — only King moves would be allowed (interposition impossible).
-- **C7:** Pawns cannot advance onto terminal `CheckSites`.
-- **C8** *(NOT IMPLEMENTED)*: Check triggered by capture — if `AttackerSite` distance from the King > 1, the King cannot move toward it (attacker unreachable).
-- **C9** *(NOT IMPLEMENTED)*: Check triggered by capture (non-Knight) — `CheckSites` computed only toward `AttackerSite`, not in the opposite direction from the King.
 
 #### Glossary
-- **`Tries`**: Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
-- **`AttackerSite`**: Square where an enemy captured a piece and now occupies; encoded values: `[site]` (one pawn can recapture), `[site+100]` (one pawn can), `[site+200]` (two pawns can).
-- **`CheckSites`**: Squares along a check line where interposition is possible; encoded as `[site]` (intermediate) and `[site+100]` (terminal — farthest visible square).
-- **`VacatedSite`**: Square emptied by an en passant capture (the captured pawn's original location).
-- **`IllegalMoves`**: Memory of moves rejected during the turn (encoded as `[from*100+to]`).
-- **`Pinnable`**: A piece is pinnable if it lies on the line between a King and an enemy sliding piece with no friendly pieces in between.
-- **`PinRay`**: The ray from the King through the pinned piece to the enemy pinner; a pinned piece is restricted to moves along this ray.
+- **`Score` (`Tries`)**: Number of legal pawn captures this turn, including en passant.
+- **`AttackerSite`**: Square occupied by the captured enemy piece, or inferred from particular rejected moves. Encoded as `site`, `site+100` (one pawn can recapture), or `site+200` (two pawns can recapture).
+- **`PinnedPieces`**: Memory of hypothetically pinned pieces, encoded as `direction*100+site`, where direction 1-8 is N, S, E, W, NE, NW, SE, SW.
+- **`PinRay`**: The ray from the king through a pinned piece toward the pinner.
+- A piece is pinned when it lies on a king-to-enemy slider line with no friendly pieces in between; a valid pin also needs at least one empty square beyond the piece along that ray.
+- A pinned piece may move along its pin axis, but not perpendicular to it.
+- **`CheckSites`**: Candidate squares for interposition or capture to resolve a check. Encoded as `site` (intermediate) and `site+100` (terminal). For sliding checks, the ray is projected from the king until a known `AttackerSite`, a blocking friendly piece, or the board edge; for knight checks, only the capture square is recorded when applicable.
+- **`VacatedSite`**: Square emptied by an en passant capture.
+- **`IllegalMoves`**: Rejected moves remembered for the current turn, encoded as `from*100+to`.
+- Note: Additional implausible-moves can be derived from game state and umpire announcements. The ones documented here are not exhaustive.
+
+### Extensions
+
+These remain documented for future work, even though they are not part of the current implemented framework:
+
+— **PIN DETECTION** *(NOT IMPLEMENTED)*: deductions from rejected moves when a piece is *pinnable*.
+  - A sliding piece move rejected means the piece is likely pinned. An enemy exists along the `PinRay`. Restrict the piece to moves along that ray.
+    - If only one square is visible along the `PinRay` away from the King, mark that square as `AttackerSite` (apply C2–C4).
+  - Pawn capture rejected when C4 applies means the pawn is likely pinned. Freeze pawn moves outside the `PinRay`.
+
+### Map
+
+| Concept | Code anchor | Purpose |
+| --- | --- | --- |
+| `AttackerSite` | `SetAttackerSite`, `AttackerSiteAt`, `CheckLineSites` | Encode inferred or captured attacker squares, including recapture counts. |
+| `CheckSites` | `CheckType`, `RecordDiagonalCheck`, `RecordOrthogonalCheck`, `RecordKnightCheck` | Build the legal reply set when the mover is in check. |
+| `PinnedPieces` | `GetPinDirection`, `UpdatePinStatus`, `PinnedPawnMoveAllowed` | Track absolute pins and keep stale pin state out of the move filter. |
+| `IllegalMoves` | `LegalMove`, `PerformLegalMove` | Remove already-rejected attempts from the remainder of the turn. |
+| `VacatedSite` | `PerformLegalMove` | Block pawn captures onto the square emptied by en passant. |
+| `Tries` | `CountTries`, `CanPawnCapture`, `PawnCaptureDirectionAllowed` | Count legal pawn captures and gate pawn-capture filtering. |
+| `King safety` | `KingInCheck`, `KingMovement`, `SafePassingLocation` | Enforce check, adjacency, and castling constraints. |
 
 ## Umpire Announcements and Rules
 
@@ -80,26 +101,6 @@ The umpire makes the following announcements where appropriate:
 Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
 
 Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries.
-
-## Files in this repository
-
-- `Kriegspiel (Chess).lud` — The guided Kriegspiel variant with pre-filtering and umpire inference (recommended).
-- `LEGACY-Kriegspiel (Chess).lud` — Legacy original Ludii file (included for reference).
-
-## How to Play
-
-1.  Download the **`Kriegspiel (Chess).lud`** game file from this repository.
-2.  Launch the Ludii application.
-3.  Navigate to `File > Load Game from File (CTRL+F)` and select the downloaded `.lud` file.
-4.  Enjoy the game!
-
-**UI Tips in Ludii:**
--  Highlight legal moves for the selected piece: `View > Show Legal Moves` (`Alt+M`).
--  Show the last attempted move: `View > Show Last Move` (`Alt+L`).
-
-## Notes
-
-- Some advanced inference rules are marked as "not implemented" in code comments; they are documented in the game's metadata and can be considered for future extensions (e.g. advanced pin/sonar deductions).
 
 #### Credits
 - Game Author: Henry Michael Temple
