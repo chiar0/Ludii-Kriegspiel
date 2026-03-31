@@ -301,7 +301,7 @@
     (if ("KnightSiteValid" #1 #2) (sites {(ahead (ahead (where "King" (next)) steps:#3 #4) steps:#5 #6)}))
 )
 
-(define "InAttackerSite"
+(define "AttackerSiteAt"
     (or {
         (is In #1 (values Remembered "AttackerSites"))
         (is In (+ 100 #1) (values Remembered "AttackerSites"))
@@ -309,8 +309,115 @@
     })
 )
 
+(define "PinnedPieceAt"
+    (or {
+        (is In (+ 100 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 200 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 300 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 400 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 500 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 600 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 700 #1) (values Remembered "PinnedPieces"))
+        (is In (+ 800 #1) (values Remembered "PinnedPieces"))
+    })
+)
+
+(define "ClearPinnedPieceAt"
+    (or {
+        (forget Value "PinnedPieces" (+ 100 #1))
+        (forget Value "PinnedPieces" (+ 200 #1))
+        (forget Value "PinnedPieces" (+ 300 #1))
+        (forget Value "PinnedPieces" (+ 400 #1))
+        (forget Value "PinnedPieces" (+ 500 #1))
+        (forget Value "PinnedPieces" (+ 600 #1))
+        (forget Value "PinnedPieces" (+ 700 #1))
+        (forget Value "PinnedPieces" (+ 800 #1))
+    })
+)
+
+(define "PinnedPawnMoveAllowed"
+    (or {
+        (and (is In (+ 100 #1) (values Remembered "PinnedPieces")) (= #2 (ahead #1 N)))
+        (and (is In (+ 200 #1) (values Remembered "PinnedPieces")) (= #2 (ahead #1 S)))
+        (not ("PinnedPieceAt" #1))
+    })
+)
+
+(define "HasLinearCheckType"
+    (or {
+        (is In 1 (values Remembered "CheckTypes"))
+        (is In 2 (values Remembered "CheckTypes"))
+        (is In 3 (values Remembered "CheckTypes"))
+        (is In 4 (values Remembered "CheckTypes"))
+    })
+)
+
+(define "KingStepTowardAttackerSite"
+    (or {
+        (and (= (last To) (ahead (last From) steps:1 N)) ("AnyAttackerSiteOn" (last From) N))
+        (and (= (last To) (ahead (last From) steps:1 S)) ("AnyAttackerSiteOn" (last From) S))
+        (and (= (last To) (ahead (last From) steps:1 E)) ("AnyAttackerSiteOn" (last From) E))
+        (and (= (last To) (ahead (last From) steps:1 W)) ("AnyAttackerSiteOn" (last From) W))
+        (and (= (last To) (ahead (last From) steps:1 NE)) ("AnyAttackerSiteOn" (last From) NE))
+        (and (= (last To) (ahead (last From) steps:1 NW)) ("AnyAttackerSiteOn" (last From) NW))
+        (and (= (last To) (ahead (last From) steps:1 SE)) ("AnyAttackerSiteOn" (last From) SE))
+        (and (= (last To) (ahead (last From) steps:1 SW)) ("AnyAttackerSiteOn" (last From) SW))
+    })
+)
+
+(define "RecordDiagonalCheck"
+    (and {
+        (remember Value "CheckTypes" #1)
+        (if "KingGravitatesToMainDiagonal" (note #2))
+        (if "KingGravitatesToAntiDiagonal" (note #3))
+        (if (not ("AnyAttackerSiteOn" (where "King" (next)) #4)) ("ProcessLinearCheck" #5 (where "King" (next))))
+        (if (not ("AnyAttackerSiteOn" (where "King" (next)) #5)) ("ProcessLinearCheck" #4 (where "King" (next))))
+    })
+)
+
+(define "RecordOrthogonalCheck"
+    (and {
+        (remember Value "CheckTypes" #1)
+        (note #2)
+        (if (not ("AnyAttackerSiteOn" (where "King" (next)) #3)) ("ProcessLinearCheck" #4 (where "King" (next))))
+        (if (not ("AnyAttackerSiteOn" (where "King" (next)) #4)) ("ProcessLinearCheck" #3 (where "King" (next))))
+    })
+)
+
+(define "RecordKnightCheck"
+    (and {
+        (remember Value "CheckTypes" 5)
+        (note "Knight Check")
+        (if (> (size Array (values Remembered "AttackerSites")) 0)
+            (forEach Value (values Remembered "AttackerSites")
+                (if (= (what at:("ExtractSiteFromEncoded" (value))) (mapEntry "Knight" (mover)))
+                    (remember Value "CheckSites" (+ ("ExtractSiteFromEncoded" (value)) 100) unique:True)
+                )
+            )
+        )
+        (if (= 0 (size Array (values Remembered "CheckSites")))
+            (forEach Site
+                (difference
+                    (union {
+                        ("KnightSiteIfValid" 17 1 2 N 1 E)
+                        ("KnightSiteIfValid" 15 1 2 N 1 W)
+                        ("KnightSiteIfValid" -15 1 2 S 1 E)
+                        ("KnightSiteIfValid" -17 1 2 S 1 W)
+                        ("KnightSiteIfValid" 10 2 1 N 2 E)
+                        ("KnightSiteIfValid" 6 2 1 N 2 W)
+                        ("KnightSiteIfValid" -6 2 1 S 2 E)
+                        ("KnightSiteIfValid" -10 2 1 S 2 W)
+                    })
+                    (sites Occupied by:Next)
+                )
+                    (remember Value "CheckSites" (+ 100 (site)) unique:True)
+            )
+        )
+    })
+)
+
 (define "CheckLineSites"
-    (sites Direction from:#2 #1 stop:(or (is Enemy (who at:(to))) ("InAttackerSite" (to)) ) stopIncluded:("InAttackerSite" (to)))
+    (sites Direction from:#2 #1 stop:(or (is Enemy (who at:(to))) ("AttackerSiteAt" (to)) ) stopIncluded:("AttackerSiteAt" (to)))
 )
 
 (define "TerminalSiteIndex"
@@ -335,30 +442,14 @@
 
 (define "AnyAttackerSiteOn"
     (or {
-        (is In (ahead #1 steps:0 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:0 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:0 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:1 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:1 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:1 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:2 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:2 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:2 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:3 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:3 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:3 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:4 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:4 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:4 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:5 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:5 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:5 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:6 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:6 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:6 #2)) (values Remembered "AttackerSites"))
-        (is In (ahead #1 steps:7 #2) (values Remembered "AttackerSites"))
-        (is In (+ 100 (ahead #1 steps:7 #2)) (values Remembered "AttackerSites"))
-        (is In (+ 200 (ahead #1 steps:7 #2)) (values Remembered "AttackerSites"))
+        ("AttackerSiteAt" (ahead #1 steps:0 #2))
+        ("AttackerSiteAt" (ahead #1 steps:1 #2))
+        ("AttackerSiteAt" (ahead #1 steps:2 #2))
+        ("AttackerSiteAt" (ahead #1 steps:3 #2))
+        ("AttackerSiteAt" (ahead #1 steps:4 #2))
+        ("AttackerSiteAt" (ahead #1 steps:5 #2))
+        ("AttackerSiteAt" (ahead #1 steps:6 #2))
+        ("AttackerSiteAt" (ahead #1 steps:7 #2))
     })
 )
 
@@ -375,134 +466,43 @@
 (define "CheckType"
     (and {
         (if (or {
-                ("DiagonalCheck" (next) (mover) SE)
-                (and (= (next) 2) ("PawnDiagonalCheck" (next) (mover) SE) )
-                ("DiagonalCheck" (next) (mover) NW)
-                (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NW) )
+                ("DiagonalThreat" (next) (mover) SE 2)
+                ("DiagonalThreat" (next) (mover) NW 1)
             })
-                (and {
-                    (remember Value "CheckTypes" 1)
-                    (if "KingGravitatesToMainDiagonal" (note "Short diagonal check"))
-                    (if "KingGravitatesToAntiDiagonal" (note "Long diagonal check"))
-                        (if (not ("AnyAttackerSiteOn" (where "King" (next)) NW)) ("ProcessLinearCheck" SE (where "King" (next))))
-                        (if (not ("AnyAttackerSiteOn" (where "King" (next)) SE)) ("ProcessLinearCheck" NW (where "King" (next))))
-                })
+                ("RecordDiagonalCheck" 1 "Short diagonal check" "Long diagonal check" NW SE)
         )
         (if (or {
-                ("DiagonalCheck" (next) (mover) SW)
-                (and (= (next) 2) ("PawnDiagonalCheck" (next) (mover) SW) )
-                ("DiagonalCheck" (next) (mover) NE)
-                (and (= (next) 1) ("PawnDiagonalCheck" (next) (mover) NE) )
+                ("DiagonalThreat" (next) (mover) SW 2)
+                ("DiagonalThreat" (next) (mover) NE 1)
             })
-                (and {
-                    (remember Value "CheckTypes" 2)
-                    (if "KingGravitatesToMainDiagonal" (note "Long diagonal check"))
-                    (if "KingGravitatesToAntiDiagonal" (note "Short diagonal check"))
-                    (if (not ("AnyAttackerSiteOn" (where "King" (next)) NE)) ("ProcessLinearCheck" SW (where "King" (next))))
-                    (if (not ("AnyAttackerSiteOn" (where "King" (next)) SW)) ("ProcessLinearCheck" NE (where "King" (next))))
-                })
+                ("RecordDiagonalCheck" 2 "Long diagonal check" "Short diagonal check" NE SW)
         )
         (if ("FileCheck" (next) (mover)) 
-            (and {
-                (remember Value "CheckTypes" 3)
-                (note "File check")
-                (if (not ("AnyAttackerSiteOn" (where "King" (next)) S)) ("ProcessLinearCheck" N (where "King" (next))))
-                (if (not ("AnyAttackerSiteOn" (where "King" (next)) N)) ("ProcessLinearCheck" S (where "King" (next))))
-            })
+            ("RecordOrthogonalCheck" 3 "File check" S N)
         )
         (if ("RankCheck" (next) (mover))
-            (and {
-                (remember Value "CheckTypes" 4)
-                (note "Rank check")
-                (if (not ("AnyAttackerSiteOn" (where "King" (next)) W)) ("ProcessLinearCheck" E (where "King" (next))))
-                (if (not ("AnyAttackerSiteOn" (where "King" (next)) E)) ("ProcessLinearCheck" W (where "King" (next))))
-            })
+            ("RecordOrthogonalCheck" 4 "Rank check" W E)
         )
-        (if (or {
-                ("KnightCheck" (next) (mover) N E)
-                ("KnightCheck" (next) (mover) N W)
-                ("KnightCheck" (next) (mover) W N)
-                ("KnightCheck" (next) (mover) W S)
-                ("KnightCheck" (next) (mover) S W)
-                ("KnightCheck" (next) (mover) S E)
-                ("KnightCheck" (next) (mover) E S)
-                ("KnightCheck" (next) (mover) E N)
-            })
-                (and {
-                    (remember Value "CheckTypes" 5)
-                    (note "Knight Check")
-                    (if (> (size Array (values Remembered "AttackerSites")) 0)
-                        (forEach Value (values Remembered "AttackerSites")
-                            (if (= (what at:("ExtractSiteFromEncoded" (value))) (mapEntry "Knight" (mover)))
-                                (remember Value "CheckSites" (+ ("ExtractSiteFromEncoded" (value)) 100) unique:True)
-                            )
-                        )
-                    )
-                    (if (= 0 (size Array (values Remembered "CheckSites")))
-                        (forEach Site 
-                            (difference
-                                (union {
-                                    ("KnightSiteIfValid" 17 1 2 N 1 E)
-                                    ("KnightSiteIfValid" 15 1 2 N 1 W)
-                                    ("KnightSiteIfValid" -15 1 2 S 1 E)
-                                    ("KnightSiteIfValid" -17 1 2 S 1 W)
-                                    ("KnightSiteIfValid" 10 2 1 N 2 E)
-                                    ("KnightSiteIfValid" 6 2 1 N 2 W)
-                                    ("KnightSiteIfValid" -6 2 1 S 2 E)
-                                    ("KnightSiteIfValid" -10 2 1 S 2 W)
-                                })
-                                (sites Occupied by:Next)
-                            )
-                                (remember Value "CheckSites" (+ 100 (site)) unique:True)
-                        )
-                    )
-                })
+        (if ("KnightThreat" (next) (mover))
+                ("RecordKnightCheck")
         )
     })
 )
 
 (define "KingNextToOpposingKing"
-    (or {
-        (= (ahead (where "King" #1) steps:1 N) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 S) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 E) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 W) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 NE) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 NW) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 SE) (where "King" #2))
-        (= (ahead (where "King" #1) steps:1 SW) (where "King" #2))
-    })
+    (is In (where "King" #2) (sites Around (where "King" #1) includeSelf:False))
 )
 
 
 (define "KingInCheck"
     (or {
-        (or
-            ("DiagonalCheck" #1 #2 SE)
-            (and (= #1 2) ("PawnDiagonalCheck" #1 #2 SE) )
-        )
-        (or
-            ("DiagonalCheck" #1 #2 SW)
-            (and (= #1 2) ("PawnDiagonalCheck" #1 #2 SW) )
-        )
-        (or
-            ("DiagonalCheck" #1 #2 NE)
-            (and (= #1 1) ("PawnDiagonalCheck" #1 #2 NE) )
-        )
-        (or
-            ("DiagonalCheck" #1 #2 NW)
-            (and (= #1 1) ("PawnDiagonalCheck" #1 #2 NW) )
-        )
+        ("DiagonalThreat" #1 #2 SE 2)
+        ("DiagonalThreat" #1 #2 SW 2)
+        ("DiagonalThreat" #1 #2 NE 1)
+        ("DiagonalThreat" #1 #2 NW 1)
         ("FileCheck" #1 #2)
         ("RankCheck" #1 #2)
-        ("KnightCheck" #1 #2 N E)
-        ("KnightCheck" #1 #2 N W)
-        ("KnightCheck" #1 #2 W N)
-        ("KnightCheck" #1 #2 W S)
-        ("KnightCheck" #1 #2 S W)
-        ("KnightCheck" #1 #2 S E)
-        ("KnightCheck" #1 #2 E S)
-        ("KnightCheck" #1 #2 E N)
+        ("KnightThreat" #1 #2)
         ("KingNextToOpposingKing" #1 #2)
     })
 )
@@ -517,31 +517,36 @@
     )
 )
 
-(define "IsInRayWithKing"
+(define "PawnCaptureDirectionAllowed"
     (or {
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) N) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) S) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) E) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) W) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NE) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NW) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SE) index:0))
-        (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SW) index:0))
+        (= 0 (size Array (values Remembered "CheckSites")))
+        ("CheckSiteAt" (ahead (value) steps:1 #1))
+        ("TerminalCheckSiteAt" (ahead (value) steps:1 #1))
     })
 )
 
+(define "CheckSiteAt"
+    (is In #1 (values Remembered "CheckSites"))
+)
+
+(define "TerminalCheckSiteAt"
+    (is In (+ 100 #1) (values Remembered "CheckSites"))
+)
+
+(define "IsInRayWithKing"
+    (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) #3) index:0))
+)
+
 (define "GetPinDirection"
-    (if ("IsInRayWithKing" #1 #2)
-        (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) N) index:0)) (!= (ahead #1 steps:1 N) #1) ) 1
-            (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) S) index:0)) (!= (ahead #1 steps:1 S) #1) ) 2
-                (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) E) index:0)) (!= (ahead #1 steps:1 E) #1) ) 3
-                    (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) W) index:0)) (!= (ahead #1 steps:1 W) #1) ) 4
-                        (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NE) index:0)) (!= (ahead #1 steps:1 NE) #1) ) 5
-                            (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) NW) index:0)) (!= (ahead #1 steps:1 NW) #1) ) 6
-                                (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SE) index:0)) (!= (ahead #1 steps:1 SE) #1) ) 7
-                                    (if (and (= #1 (regionSite (sites LineOfSight Piece at:(where "King" #2) SW) index:0)) (!= (ahead #1 steps:1 SW) #1) ) 8
-                                        -1
-                                    )
+    (if (and ("IsInRayWithKing" #1 #2 N) (!= (ahead #1 steps:1 N) #1)) 1
+        (if (and ("IsInRayWithKing" #1 #2 S) (!= (ahead #1 steps:1 S) #1)) 2
+            (if (and ("IsInRayWithKing" #1 #2 E) (!= (ahead #1 steps:1 E) #1)) 3
+                (if (and ("IsInRayWithKing" #1 #2 W) (!= (ahead #1 steps:1 W) #1)) 4
+                    (if (and ("IsInRayWithKing" #1 #2 NE) (!= (ahead #1 steps:1 NE) #1)) 5
+                        (if (and ("IsInRayWithKing" #1 #2 NW) (!= (ahead #1 steps:1 NW) #1)) 6
+                            (if (and ("IsInRayWithKing" #1 #2 SE) (!= (ahead #1 steps:1 SE) #1)) 7
+                                (if (and ("IsInRayWithKing" #1 #2 SW) (!= (ahead #1 steps:1 SW) #1)) 8
+                                    -1
                                 )
                             )
                         )
@@ -549,7 +554,6 @@
                 )
             )
         )
-        -1
     )
 )
 
@@ -559,29 +563,13 @@
             (!= (what at:(site)) (mapEntry "King" (who at:(site))))
             (!= ("GetPinDirection" (site) (who at:(site))) -1)
         )
-            (remember Value "PinnedPieces" (+ (* ("GetPinDirection" (site) (who at:(site))) 100) (site)) unique:True)
-            
-            (if (or {
-                (is In (+ 100 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 200 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 300 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 400 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 500 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 600 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 700 (site)) (values Remembered "PinnedPieces"))
-                (is In (+ 800 (site)) (values Remembered "PinnedPieces"))
+            (and {
+                (if ("PinnedPieceAt" (site))
+                    ("ClearPinnedPieceAt" (site))
+                )
+                (remember Value "PinnedPieces" (+ (* ("GetPinDirection" (site) (who at:(site))) 100) (site)) unique:True)
             })
-                (or {
-                    (forget Value "PinnedPieces" (+ 100 (site)))
-                    (forget Value "PinnedPieces" (+ 200 (site)))
-                    (forget Value "PinnedPieces" (+ 300 (site)))
-                    (forget Value "PinnedPieces" (+ 400 (site)))
-                    (forget Value "PinnedPieces" (+ 500 (site)))
-                    (forget Value "PinnedPieces" (+ 600 (site)))
-                    (forget Value "PinnedPieces" (+ 700 (site)))
-                    (forget Value "PinnedPieces" (+ 800 (site)))
-                })
-            )
+            ("ClearPinnedPieceAt" (site))
         )
     )
 )
@@ -592,18 +580,10 @@
         (forEach Value min:1 max:63
             (if (= (what at:(value)) (next))
                 (and
-                    (if (or { 
-                            (= 0 (size Array (values Remembered "CheckSites")))
-                            (is In (ahead (value) steps:1 FR) (values Remembered "CheckSites"))
-                            (is In (+ 100 (ahead (value) steps:1 FR)) (values Remembered "CheckSites")) 
-                        })
+                    (if ("PawnCaptureDirectionAllowed" FR)
                         (if ("CanPawnCapture" FR) (addScore Next 1))
                     )
-                    (if (or { 
-                            (= 0 (size Array (values Remembered "CheckSites")))
-                            (is In (ahead (value) steps:1 FL) (values Remembered "CheckSites"))
-                            (is In (+ 100 (ahead (value) steps:1 FL)) (values Remembered "CheckSites")) 
-                        })
+                    (if ("PawnCaptureDirectionAllowed" FL)
                         (if ("CanPawnCapture" FL) (addScore Next 1))
                     )
                 )
@@ -630,6 +610,39 @@
     })
 )
 
+(define "KnightThreat"
+    (or {
+        ("KnightCheck" #1 #2 N E)
+        ("KnightCheck" #1 #2 N W)
+        ("KnightCheck" #1 #2 W N)
+        ("KnightCheck" #1 #2 W S)
+        ("KnightCheck" #1 #2 S W)
+        ("KnightCheck" #1 #2 S E)
+        ("KnightCheck" #1 #2 E S)
+        ("KnightCheck" #1 #2 E N)
+    })
+)
+
+(define "KnightMovementOptions"
+    (or {
+        ("KnightMovement" N E)
+        ("KnightMovement" N W)
+        ("KnightMovement" W N)
+        ("KnightMovement" W S)
+        ("KnightMovement" S E)
+        ("KnightMovement" S W)
+        ("KnightMovement" E N)
+        ("KnightMovement" E S)
+    })
+)
+
+(define "DiagonalThreat"
+    (or {
+        ("DiagonalCheck" #1 #2 #3)
+        (and (= #1 #4) ("PawnDiagonalCheck" #1 #2 #3))
+    })
+)
+
 (define "OrthogonalMovement"
     (or {
         (= (regionSite (sites LineOfSight Piece at:(last To) N) index:0) (last From))
@@ -649,15 +662,20 @@
 )
 
 (define "KingMovement"
+    (is In (last To) (sites Around (last From) includeSelf:False))
+)
+
+(define "QueenMovement"
+    (or "DiagonalMovement" "OrthogonalMovement")
+)
+
+(define "MovingNonPawnPiece"
     (or {
-        (= (ahead (last From) steps:1 N) (last To))
-        (= (ahead (last From) steps:1 S) (last To))
-        (= (ahead (last From) steps:1 E) (last To))
-        (= (ahead (last From) steps:1 W) (last To))
-        (= (ahead (last From) steps:1 NE) (last To))
-        (= (ahead (last From) steps:1 NW) (last To))
-        (= (ahead (last From) steps:1 SE) (last To))
-        (= (ahead (last From) steps:1 SW) (last To))
+        ("MovingTheKing")
+        ("IsMovingPiece" "Knight")
+        ("IsMovingPiece" "Queen")
+        ("IsMovingPiece" "Rook")
+        ("IsMovingPiece" "Bishop")
     })
 )
 
@@ -727,20 +745,11 @@
             )
             (and
                 ("IsMovingPiece" "Knight")
-                (or {
-                    ("KnightMovement" N E)
-                    ("KnightMovement" N W)
-                    ("KnightMovement" W N)
-                    ("KnightMovement" W S)
-                    ("KnightMovement" S E)
-                    ("KnightMovement" S W)
-                    ("KnightMovement" E N)
-                    ("KnightMovement" E S)
-                })
+                ("KnightMovementOptions")
             )
             (and
                 ("IsMovingPiece" "Queen")
-                (or "DiagonalMovement" "OrthogonalMovement" )
+                ("QueenMovement")
             )
             (and ("IsMovingPiece" "Rook") "OrthogonalMovement" )
             (and ("IsMovingPiece" "Bishop") "DiagonalMovement" )
@@ -884,10 +893,7 @@
             })
         )
         (if (!= (var "EnPassantSite") -1) (set Var "EnPassantSite" -1))
-        (if (and
-                (or {("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")} )
-                (is Enemy (who at:(last To)))
-            )
+        (if (and ("MovingNonPawnPiece") (is Enemy (who at:(last To))))
                 (and {
                     (set Var "CapturedPiece" (what at:(last To)))
                     ("SetAttackerSite" (last To) (next) (mover) BL BR)
@@ -900,10 +906,7 @@
                     )
                 })
         )
-        (if (and
-                (or {("MovingTheKing") ("IsMovingPiece" "Knight") ("IsMovingPiece" "Queen") ("IsMovingPiece" "Rook") ("IsMovingPiece" "Bishop")} )
-                (is Empty (last To))
-            )
+        (if (and ("MovingNonPawnPiece") (is Empty (last To)))
                 (move (from (last From)) (to (last To))
                     (then (and "CommonPostMoveActions" ("PieceHasMoved" (last To)) ))
                 )
@@ -931,17 +934,17 @@
 (define "Attempt"
     (move Select
         (from (from))
-        (to
+                (to
             (sites Direction
                 from:(from)
                 #1
-                stop:(or (is Friend (who at:(to))) ("InAttackerSite" (to)) )
-                stopIncluded:(and {("InAttackerSite" (to)) (!= #2 1) (!= #2 2)} )
+                stop:(or (is Friend (who at:(to))) ("AttackerSiteAt" (to)) )
+                stopIncluded:(and {("AttackerSiteAt" (to)) (!= #2 1) (!= #2 2)} )
             )
             if:(or {
                 (= #2 0)
-                (and {(= #2 1) (= 1 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} ) 
-                (and {(= #2 2) (= 2 (count Steps (from) (to))) (not (is In (+ 100 (to)) (values Remembered "CheckSites")))} )
+                (and {(= #2 1) (= 1 (count Steps (from) (to))) (not ("TerminalCheckSiteAt" (to)))})
+                (and {(= #2 2) (= 2 (count Steps (from) (to))) (not ("TerminalCheckSiteAt" (to)))})
                 (and {
                     (= #2 3)
                     (= 1 (count Steps (from) (to)))
@@ -1046,22 +1049,8 @@
 (define "ForbiddenKingStepTowardKnownChecker"
     (and {
         (> (size Array (values Remembered "CheckSites")) 0)
-        (or {
-            (is In 1 (values Remembered "CheckTypes"))
-            (is In 2 (values Remembered "CheckTypes"))
-            (is In 3 (values Remembered "CheckTypes"))
-            (is In 4 (values Remembered "CheckTypes"))
-        })
-        (or {
-            (and (= (last To) (ahead (last From) steps:1 N)) ("AnyAttackerSiteOn" (last From) N) )
-            (and (= (last To) (ahead (last From) steps:1 S)) ("AnyAttackerSiteOn" (last From) S) )
-            (and (= (last To) (ahead (last From) steps:1 E)) ("AnyAttackerSiteOn" (last From) E) )
-            (and (= (last To) (ahead (last From) steps:1 W)) ("AnyAttackerSiteOn" (last From) W) )
-            (and (= (last To) (ahead (last From) steps:1 NE)) ("AnyAttackerSiteOn" (last From) NE) )
-            (and (= (last To) (ahead (last From) steps:1 NW)) ("AnyAttackerSiteOn" (last From) NW) )
-            (and (= (last To) (ahead (last From) steps:1 SE)) ("AnyAttackerSiteOn" (last From) SE) )
-            (and (= (last To) (ahead (last From) steps:1 SW)) ("AnyAttackerSiteOn" (last From) SW) )
-        })
+        ("HasLinearCheckType")
+        ("KingStepTowardAttackerSite")
     })
 )
 
@@ -1076,7 +1065,7 @@
 
                 (and
                     (= 1 (size Array (values Remembered "CheckTypes")))
-                    (or (is In (last To) (values Remembered "CheckSites")) (is In (+ 100 (last To)) (values Remembered "CheckSites")) )
+                    (or ("CheckSiteAt" (last To)) ("TerminalCheckSiteAt" (last To)) )
                 )
             )
         )
@@ -1156,16 +1145,7 @@
                                     (if (and {
                                             (= (what at:(last From)) (mapEntry "Pawn" (mover)))
                                             (not ("KingInCheck" (mover) (next)))
-                                            (not (or {
-                                                (and (is In (+ 100 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) N)))
-                                                (and (is In (+ 200 (last From)) (values Remembered "PinnedPieces")) (!= (last To) (ahead (last From) S)))
-                                                (is In (+ 300 (last From)) (values Remembered "PinnedPieces"))
-                                                (is In (+ 400 (last From)) (values Remembered "PinnedPieces"))
-                                                (is In (+ 500 (last From)) (values Remembered "PinnedPieces"))
-                                                (is In (+ 600 (last From)) (values Remembered "PinnedPieces"))
-                                                (is In (+ 700 (last From)) (values Remembered "PinnedPieces"))
-                                                (is In (+ 800 (last From)) (values Remembered "PinnedPieces"))
-                                            }))
+                                            ("PinnedPawnMoveAllowed" (last From) (last To))
                                             (= (last To) (ahead (last From) Forward))
                                         })
                                         ("SetAttackerSite" (last To) (mover) (next) FL FR)
@@ -1211,65 +1191,74 @@
         {
         (description "
             Kriegspiel is a chess variant in which each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
+
             This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' (or 'Impossible' or 'Nonsense') announcements (when the attempted move is always illegal regardless of the opponent's position). All filtering is based exclusively on information legitimately available to the player (game rules, own pieces, and information derivable from umpire announcements and move history), organized into the following domains:
+
             A - Memory
-                - A1: Rejected moves are excluded for the remainder of the turn.
-                - A2: Sliding trajectories stop at previously rejected destinations (except when the side is in check).
+                - A1: Rejected moves remain excluded for the rest of the turn.
+                - A2: Sliding trajectories stop at previously rejected destinations, except while in check.
             B - Geometry
-                - B1: Pieces follow canonical movement patterns.
-                - B2: Sliding trajectories terminate immediately before a friendly piece (the occupied square is excluded).
-                - B3: Castling requires unmoved King/Rook and intermediate squares not occupied by friendly pieces.
-                - B4: Early-game (pawns on starting rank)
-                    - B4.1: Turns 1-2: no pawn captures (enemies cannot reach rows 3/6).
-                    - B4.2: Turns 3-4: pawn captures limited to A3, H3, A6, H6 (squares reachable by a bishop).
+                - B1: Pieces keep canonical chess movement.
+                - B2: Sliding moves stop before friendly pieces.
+                - B3: Castling needs unmoved King/Rook and clear intermediate squares.
+                - B4: Early-game pawn captures are restricted by reachability.
+                    - B4.1 (Turns 1–2): A pawn on its starting rank cannot make a capture (no enemy piece can yet occupy ranks 3 or 6).
+                    - B4.2 (Turns 3–4): A pawn on its starting rank may capture only on A3, H3, A6, or H6 (squares reachable by a bishop in that window).
             C - Umpire inference
-                - C1: Interactions with `AttackerSite` (known enemy position)
-                    - C1.1: Sliding trajectories terminate exactly on the `AttackerSite` (the occupied square is included).
-                    - C1.2: Pawns cannot advance onto `AttackerSite` (the square is blocked by the enemy).
-                - C2: Check resolution
-                    - C2.1: Only moves to `CheckSites` or King moves are allowed; castling and en passant are excluded.
-                        - C2.1.1: Under double check only King moves are allowed (interposition impossible); castling and en passant are excluded.
-                        - C2.1.2: When triggered by capture and `AttackerSite` distance from the King > 1, the King can't move toward it (attacker unreachable).
-                    - C2.2: Pawns cannot advance onto terminal `CheckSites` (advancing fails to capture the threat or does not interpose the check line).
-                - C3: Pawn capture logic
+                - C1: `AttackerSite` handling.
+                    - C1.1: Sliding trajectories stop exactly on `AttackerSite` and include that square.
+                    - C1.2: Pawns cannot advance onto `AttackerSite`.
+                - C2: Check resolution.
+                    - C2.1: Only king moves or replies to `CheckSites` are allowed; castling and en passant are excluded.
+                    - C2.2: Under double check, only king moves are allowed.
+                    - C2.3: If check is triggered by capture and `AttackerSite` is more than 1 square from the king, the king cannot move toward it.
+                    - C2.4: Pawns cannot advance onto terminal `CheckSites`.
+                - C3: Pawn capture logic.
                     - C3.1: Pawn captures are enabled only when `Tries` > 0.
-                    - C3.2: If `Tries` equals the number of pawns capable of recapturing at `AttackerSite`, all other theoretical pawn captures are excluded.
+                    - C3.2: If `Tries` equals the number of pawns that can recapture at `AttackerSite`, other pawn captures are excluded.
                     - C3.3: Pawn captures onto `VacatedSite` are excluded.
-                - C4: Pin detection and AttackerSite inference
-                    - C4.1: When a pawn attempts an illegal forward move, the destination square is inferred as an `AttackerSite` if the pawn is not pinned in an incompatible direction.
+                - C4: A rejected pawn advance can infer `AttackerSite` when the pawn is not pinned in an incompatible direction.
+
             Glossary
-            `Score` (`Tries`): Number of legal pawn captures available this turn (announced by the umpire). Includes en passant.
-            `AttackerSite`: Square where an enemy captured a piece and now occupies; also inferred from illegal pawn advances. Encoded values: [site+100] (one pawn can recapture), [site+200] (two pawns can).
-            `PinnedPieces`: Memory of pieces hypothetically pinned to their king, encoded as [direction*100+site] where direction 1-8 represents pin axis (N, S, E, W, NE, NW, SE, SW). A piece is pinned if it lies on a line of sight from its king towards an unseen enemy (without intervening friendly pieces). Pin validity requires at least one empty square beyond the piece along the pin direction (pieces at board edges on that direction axis are not pinned). A pinned piece may move along its pin axis (e.g., vertically pinned pawn moves N/S) but cannot move perpendicular to it (e.g., E/W moves prohibited if pinned vertically).
-            `CheckSites`: Candidate squares for interposition or capture to resolve a check; encoded as [site] (intermediate) and [site+100] (terminal - farthest possible source of an unseen attacker). For sliding checks, trajectories are projected outwards from the King. The line terminates on the square of a known enemy (`AttackerSite`) if present on the path (in this case `CheckSites` are computed only toward `AttackerSite`, not along the ray opposite the King), or on the square immediately preceding a blocking friendly piece; otherwise, it extends to the board's edge. For Knight checks, only the specific `AttackerSite` is recorded if the check involves a capture; otherwise, all valid knight-jump squares from the King not occupied by friendly pieces are recorded as potential terminals.
-            `VacatedSite`: Square emptied by an en passant capture (the captured pawn's original location).
-            `IllegalMoves`: Memory of moves rejected during the turn (encoded as [from*100+to]).
-            Note: The filtering heuristics implemented here are not exhaustive. Additional implausible-move filters may be derived from game state and umpire announcements.
+            `Score` (`Tries`): Number of legal pawn captures this turn, including en passant.
+            `AttackerSite`: Square occupied by the captured enemy piece, or inferred from particular rejected moves. Encoded as `site`, `site+100` (one pawn can recapture), or `site+200` (two pawns can recapture).
+            `PinnedPieces`: Memory of hypothetically pinned pieces, encoded as `direction*100+site`, where direction 1-8 is N, S, E, W, NE, NW, SE, SW.
+            `PinRay`: The ray from the king through a pinned piece toward the pinner.
+            A piece is pinned when it lies on a king-to-enemy slider line with no friendly pieces in between; a valid pin also needs at least one empty square beyond the piece along that ray.
+            A pinned piece may move along its pin axis, but not perpendicular to it.
+            `CheckSites`: Candidate squares for interposition or capture to resolve a check. Encoded as `site` (intermediate) and `site+100` (terminal). For sliding checks, the ray is projected from the king until a known `AttackerSite`, a blocking friendly piece, or the board edge; for knight checks, only the capture square is recorded when applicable.
+            `VacatedSite`: Square emptied by an en passant capture.
+            `IllegalMoves`: Rejected moves remembered for the current turn, encoded as `from*100+to`.
+            Note: Additional implausible-moves can be derived from game state and umpire announcements. The ones documented here are not exhaustive.
         ")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "
             The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
+
             The umpire makes the following announcements where appropriate:
-            -`Player 1 (White)'s [or Player 2 (Black)'s] turn`.
-            -`Pawn [or Piece] at (square) captured`, when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. `Pawn at A4 captured en passant`)
-            -`Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin).
-            -`Rank check`.
-            -`File check`.
-            -`Long-diagonal check` (the longer of the two diagonals, from the king's point of view).
-            -`Short-diagonal check` (e.g., for a king on E1, the short diagonal is from E1 to H4).
-            -`Knight check`.
-            -`(number) tries` (the number of legal pawn-capture moves available in the turn; captures are not obligatory. Displayed in each player's score).
-            -`Checkmate`, `stalemate`
-            -`draw by repetition` when the same position occurs for the third time, the umpire automatically declares a draw (no claim by the players is required), and the game ends immediately.
-            -`draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
-            -`50-move draw` (the illegal moves do not count towards the fifty moves).
-            (DISABLED-`Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`. Proposals are limited to one per turn and must precede any move attempt.)
-            Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
+            - `Player 1 (White)'s [or Player 2 (Black)'s] turn`
+            - `Pawn [or Piece] at (square) captured`; en passant is announced explicitly (for example, `Pawn at A4 captured en passant`)
+            - `Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin)
+            - `Rank check`
+            - `File check`
+            - `Long-diagonal check` (the longer of the two diagonals, from the king's point of view)
+            - `Short-diagonal check` (e.g., for a king on E1, the short diagonal is from E1 to H4)
+            - `Knight check`
+            - `(number) tries` (legal pawn-capture count; captures are optional and the score display shows this value)
+            - `Checkmate`
+            - `Stalemate`
+            - `Draw by repetition` when the same position occurs for the third time; the umpire ends the game immediately
+            - `Draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`
+            - `50-move draw`; illegal moves do not count toward the fifty moves
+            (DISABLED-`Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`; proposals are limited to one per player per turn and must precede any move attempt)
+
+            Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced). 
+
             Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one, it disappears from the mover’s options for the rest of that turn.
         ")
         (id "4185") 
         (source "<a href=\"https://en.wikipedia.org/wiki/Kriegspiel_(chess)\" target=\"_blank\" class=\"style1\" style=\"color: #0000EE\" />Wikipedia</a>")
-        (version "0.0.0")
+        (version "2")
         (classification "board/war/replacement/checkmate/chess")
         (author "Henry Michael Temple")
         (credit "Nikola Novarlic & Fabio Chiarini")
