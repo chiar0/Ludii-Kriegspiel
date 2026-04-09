@@ -1226,9 +1226,9 @@
         ")
         (aliases {"Blind Chess" "Wild 16"})
         (rules "
-            The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game.
+            The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are).
 
-            The umpire makes the following announcements where appropriate:
+            Only the umpire knows the position of the game and makes the following announcements where appropriate:
             - `Player 1 (White)'s [or Player 2 (Black)'s] turn`
             - `Pawn [or Piece] at (square) captured`; en passant is announced explicitly (for example, `Pawn at A4 captured en passant`)
             - `Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin)

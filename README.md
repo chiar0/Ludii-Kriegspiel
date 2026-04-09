@@ -75,8 +75,8 @@ This implementation pre-filters moves that fail feasibility checks, eliminating 
 - **`AttackerSite`**: Square occupied by the captured enemy piece, or inferred from particular rejected moves. Encoded as `site`, `site+100` (one pawn can recapture), or `site+200` (two pawns can recapture).
 - **`PinnedPieces`**: Memory of hypothetically pinned pieces, encoded as `direction*100+site`, where direction 1-8 is N, S, E, W, NE, NW, SE, SW.
 - **`PinRay`**: The ray from the king through a pinned piece toward the pinner.
-- A piece is pinned when it lies on a king-to-enemy slider line with no friendly pieces in between; a valid pin also needs at least one empty square beyond the piece along that ray.
-- A pinned piece may move along its pin axis, but not perpendicular to it.
+  - A piece is pinned when it lies on a king-to-enemy slider line with no friendly pieces in between; a valid pin also needs at least one empty square beyond the piece along that ray.
+  - A pinned piece may move along its pin axis, but not perpendicular to it.
 - **`CheckSites`**: Candidate squares for interposition or capture to resolve a check. Encoded as `site` (intermediate) and `site+100` (terminal). For sliding checks, the ray is projected from the king until a known `AttackerSite`, a blocking friendly piece, or the board edge; for knight checks, only the capture square is recorded when applicable.
 - **`VacatedSite`**: Square emptied by an en passant capture.
 - **`IllegalMoves`**: Rejected moves remembered for the current turn, encoded as `from*100+to`.
