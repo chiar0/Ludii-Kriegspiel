@@ -1156,7 +1156,7 @@
                                 })
                             ))
                         )
-                        (if (= (var "ProposedEnd") -2)
+                        (if (= (var "ProposedEnd") (count Moves))
                             (move Propose "End" 
                                 (then (and
                                     (move Vote "End" (then (set Var "ProposedEnd" (+ (count Moves) 1))) ) 
@@ -1178,19 +1178,12 @@
         })
     )
 )
-// 
-    DISABLED: if (= (var "ProposedEnd") (count Moves)) ...
-    Problem 1: AI agents spam "Propose End" moves.
-    Problem 2: (is Repeat) seems to count proposal/pass moves, triggering false draw-by-repetition.
-    Current workaround: always disabled, condition (ProposedEnd = -2) never true.
-    Note: When enabled, proposals are limited to one per turn and must precede any move attempt.
-//
 
 (metadata
     (info
         {
         (description "
-            Kriegspiel is a chess variant in which each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures. Since the position of the opponent's pieces is unknown, Kriegspiel is a game of imperfect information.
+            Kriegspiel is an imperfect information chess variant in which each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts 'legal' or 'illegal'. If the move is illegal, the player tries again; if it is legal, that move stands. Each player is given information about checks and captures.
 
             This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' (or 'Impossible' or 'Nonsense') announcements (when the attempted move is always illegal regardless of the opponent's position). All filtering is based exclusively on information legitimately available to the player (game rules, own pieces, and information derivable from umpire announcements and move history), organized into the following domains:
 
@@ -1217,7 +1210,7 @@
                     - C3.1: Pawn captures are enabled only when `Tries` > 0.
                     - C3.2: If `Tries` equals the number of pawns that can recapture at `AttackerSite`, other pawn captures are excluded.
                     - C3.3: Pawn captures onto `VacatedSite` are excluded.
-                - C4: A rejected pawn advance can infer `AttackerSite` when the pawn is not pinned in an incompatible direction.
+                - C4: A rejected pawn advance infers `AttackerSite` when the pawn is not pinned in an incompatible direction.
 
             Glossary
             `Score` (`Tries`): Number of legal pawn captures this turn, including en passant.
@@ -1250,7 +1243,7 @@
             - `Draw by repetition` when the same position occurs for the third time; the umpire ends the game immediately
             - `Draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`
             - `50-move draw`; illegal moves do not count toward the fifty moves
-            (DISABLED-`Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`; proposals are limited to one per player per turn and must precede any move attempt)
+            - `Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`; proposals are limited to one per player per turn and must precede any move attempt
 
             Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced). 
 

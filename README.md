@@ -1,13 +1,8 @@
 # Kriegspiel (Ludii)
 
-Kriegspiel is imperfect-information chess with an umpire. Each player sees only their own pieces, tries a move, and receives `legal` / `illegal` arbitration plus check/capture announcements.
+Kriegspiel is an imperfect information chess variant in which each player can see their own pieces, but not those of their opponent. For this reason, it is necessary to have a third person (or computer) act as an umpire, with full information about the progress of the game. Players attempt to move on their turns, and the umpire declares their attempts `legal` or `illegal`. If the move is `illegal`, the player tries again; if it is `legal`, that move stands. Each player is given information about checks and captures.
 
 This project refactors Kriegspiel into a filtered interface that only exposes moves that remain plausible under the player known state. That reduces wasted search on impossible actions and matches the way a strong human player reasons about the game.
-
-## Files in this repository
-
-- `Kriegspiel (Chess).lud` — The guided Kriegspiel variant with pre-filtering and umpire inference (recommended).
-- `LEGACY-Kriegspiel (Chess).lud` — Legacy original Ludii file (included for reference).
 
 ## How to Play
 
@@ -20,31 +15,62 @@ This project refactors Kriegspiel into a filtered interface that only exposes mo
 -  Highlight legal moves for the selected piece: `View > Show Legal Moves` (`Alt+M`).
 -  Show the last attempted move: `View > Show Last Move` (`Alt+L`).
 
+## Umpire Announcements and Rules
+
+The game follows standard chess rules and is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are).
+
+Only the umpire knows the position of the game and makes the following announcements where appropriate:
+- `Player 1 (White)'s [or Player 2 (Black)'s] turn`
+- `Pawn [or Piece] at (square) captured`; en passant is announced explicitly (for example, `Pawn at A4 captured en passant`)
+- `Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin)
+- `Rank check`
+- `File check`
+- `Long-diagonal check` (the longer of the two diagonals, from the king's point of view)
+- `Short-diagonal check` (e.g., for a king on E1, the short diagonal is from E1 to H4)
+- `Knight check`
+- `(number) tries` (legal pawn-capture count; captures are optional and the score display shows this value)
+- `Checkmate`
+- `Stalemate`
+- `Draw by repetition` when the same position occurs for the third time; the umpire ends the game immediately
+- `Draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`
+- `50-move draw`; illegal moves do not count toward the fifty moves
+- `Player 1 (White) [or Player 2 (Black)] proposes a draw [or accepts the draw]`; proposals are limited to one per player per turn and must precede any move attempt
+
+Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced). 
+
+Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one, it disappears from the mover’s options for the rest of that turn.
+
 ## Description
 
-This implementation pre-filters moves that fail feasibility checks, eliminating `Hell no` / `Impossible` / `Nonsense` announcements when the attempted move is always illegal regardless of the opponent's hidden pieces. Every filter uses only information the mover can legitimately derive from game rules, their own pieces, and prior umpire announcements.
+This implementation pre-filters moves that fail feasibility checks, eliminating 'Hell no' (or 'Impossible' or 'Nonsense') announcements (when the attempted move is always illegal regardless of the opponent's position). All filtering is based exclusively on information legitimately available to the player (game rules, own pieces, and information derivable from umpire announcements and move history), organized into the following domains:
 
-### FILTERING RULES
+- **A - Memory**
+  - A1: Rejected moves remain excluded for the rest of the turn.
+  - A2: Sliding trajectories stop at previously rejected destinations, except while in check.
+- **B - Geometry**
+  - B1: Pieces keep canonical chess movement.
+  - B2: Sliding moves stop before friendly pieces.
+  - B3: Castling needs unmoved King/Rook and clear intermediate squares.
+  - B4: Early-game pawn captures are restricted by reachability.
+    - B4.1 (Turns 1–2): A pawn on its starting rank cannot make a capture (no enemy piece can yet occupy ranks 3 or 6).
+    - B4.2 (Turns 3–4): A pawn on its starting rank may capture only on A3, H3, A6, or H6 (squares reachable by a bishop in that window).
+- **C - Umpire inference**
+  - C1: `AttackerSite` handling.
+    - C1.1: Sliding trajectories stop exactly on `AttackerSite` and include that square.
+    - C1.2: Pawns cannot advance onto `AttackerSite`.
+  - C2: Check resolution.
+    - C2.1: Only king moves or replies to `CheckSites` are allowed; castling and en passant are excluded.
+    - C2.2: Under double check, only king moves are allowed.
+    - C2.3: If check is triggered by capture and `AttackerSite` is more than 1 square from the king, the king cannot move toward it.
+    - C2.4: Pawns cannot advance onto terminal `CheckSites`.
+  - C3: Pawn capture logic.
+    - C3.1: Pawn captures are enabled only when `Tries` > 0.
+    - C3.2: If `Tries` equals the number of pawns that can recapture at `AttackerSite`, other pawn captures are excluded.
+    - C3.3: Pawn captures onto `VacatedSite` are excluded.
+  - C4: A rejected pawn advance infers `AttackerSite` when the pawn is not pinned in an incompatible direction.
 
-#### A — Memory
-- **A1:** Rejected moves remain excluded for the rest of the turn.
-- **A2:** Sliding trajectories stop at previously rejected destinations, except while in check.
+### Glossary
 
-#### B — Geometry
-- **B1:** Pieces keep canonical chess movement.
-- **B2:** Sliding moves stop before friendly pieces.
-- **B3:** Castling needs unmoved King/Rook and clear intermediate squares.
-- **B4:** Early-game pawn captures are restricted by reachability.
-    - **B4.1 (Turns 1–2):** A pawn on its starting rank cannot make a capture (no enemy piece can yet occupy ranks 3 or 6).
-    - **B4.2 (Turns 3–4):** A pawn on its starting rank may capture only on `A3`, `H3`, `A6`, or `H6` (squares reachable by a bishop in that window).
-
-#### C — Umpire inference
-- **C1:** Pawn captures are enabled only when `Tries` > 0.
-- **C2:** Sliding pieces stop at `AttackerSite`.
-- **C3:** Pawns cannot advance onto `AttackerSite`.
-- **C4:** If `Tries` equals the number of pawns that can reach `AttackerSite`, other captures are excluded.
-
-#### Glossary
 - **`Score` (`Tries`)**: Number of legal pawn captures this turn, including en passant.
 - **`AttackerSite`**: Square occupied by the captured enemy piece, or inferred from particular rejected moves. Encoded as `site`, `site+100` (one pawn can recapture), or `site+200` (two pawns can recapture).
 - **`PinnedPieces`**: Memory of hypothetically pinned pieces, encoded as `direction*100+site`, where direction 1-8 is N, S, E, W, NE, NW, SE, SW.
@@ -54,16 +80,8 @@ This implementation pre-filters moves that fail feasibility checks, eliminating 
 - **`CheckSites`**: Candidate squares for interposition or capture to resolve a check. Encoded as `site` (intermediate) and `site+100` (terminal). For sliding checks, the ray is projected from the king until a known `AttackerSite`, a blocking friendly piece, or the board edge; for knight checks, only the capture square is recorded when applicable.
 - **`VacatedSite`**: Square emptied by an en passant capture.
 - **`IllegalMoves`**: Rejected moves remembered for the current turn, encoded as `from*100+to`.
-- Note: Additional implausible-moves can be derived from game state and umpire announcements. The ones documented here are not exhaustive.
 
-### Extensions
-
-These remain documented for future work, even though they are not part of the current implemented framework:
-
-— **PIN DETECTION** *(NOT IMPLEMENTED)*: deductions from rejected moves when a piece is *pinnable*.
-  - A sliding piece move rejected means the piece is likely pinned. An enemy exists along the `PinRay`. Restrict the piece to moves along that ray.
-    - If only one square is visible along the `PinRay` away from the King, mark that square as `AttackerSite` (apply C2–C4).
-  - Pawn capture rejected when C4 applies means the pawn is likely pinned. Freeze pawn moves outside the `PinRay`.
+> **Note:** Additional implausible-moves can be derived from game state and umpire announcements. The ones documented here are not exhaustive.
 
 ### Map
 
@@ -77,30 +95,14 @@ These remain documented for future work, even though they are not part of the cu
 | `Tries` | `CountTries`, `CanPawnCapture`, `PawnCaptureDirectionAllowed` | Count legal pawn captures and gate pawn-capture filtering. |
 | `King safety` | `KingInCheck`, `KingMovement`, `SafePassingLocation` | Enforce check, adjacency, and castling constraints. |
 
-## Umpire Announcements and Rules
+### Extensions
 
-The game is played with three boards, one for each player; the third is for the umpire (and spectators). Each opponent knows the exact position of just their own pieces, and does not know where the opponent's pieces are (but can keep track of how many there are). Only the umpire knows the position of the game. The game proceeds in the following way:
+These remain documented for future work, even though they are not part of the current implemented framework:
 
-The umpire makes the following announcements where appropriate:
-
-- `Player 1 (White)'s [or Player 2 (Black)'s] turn`.
-- `Pawn [or Piece] at (square) captured`, when a pawn or a piece is captured. The square of the victim is announced. (En passant captures are specifically announced as such, e.g. `Pawn at A4 captured en passant`)
-- `Illegal move` when the attempted move is illegal, given the opponent's position (e.g. moving the king into check; moving a queen, rook, bishop, or pawn through squares occupied by the opponent's pieces; advancing a pawn into a square occupied by the opponent's pieces; castling through check or across occupied squares; moving a piece under an absolute pin).
-- `Rank check`.
-- `File check`.
-- `Long-diagonal check` (the longer of the two diagonals, from the king's point of view).
-- `Short-diagonal check` (e.g. for a king on E1, the short diagonal is E1 to H4).
-- `Knight check`.
-- `(number) tries` (the number of legal pawn-capture moves available in the turn; captures are not obligatory. Displayed in each player's score).
-- `Checkmate`, `stalemate`
-- `Draw by repetition` when the same position occurs for the third time, the umpire automatically declares the game a draw and the game ends immediately (no claim by the players is required).
-- `Draw by insufficient force kings only [or king and bishop vs king; king and knight vs king; kings and bishops on same-colored squares]`.
-- `50-move draw` (the illegal moves do not count towards the fifty moves).
-- `Player 1 (White)'s [or Player 2 (Black)'s] proposes [or accepted] to end the game` when a player propose/accept to end the game in draw. Proposals are limited to one per player per turn to avoid infinite loops or spam.
-
-Pawn promotions are not announced. The precise location of the checking piece is not announced (although it may be deduced).
-
-Illegal move attempts are not announced to the opponent. As soon as the umpire rejects one it disappears from the mover’s options for the rest of that turn, eliminating wasted retries.
+— **PIN DETECTION** *(NOT IMPLEMENTED)*: deductions from rejected moves when a piece is *pinnable*.
+  - A sliding piece move rejected means the piece is likely pinned. An enemy exists along the `PinRay`. Restrict the piece to moves along that ray.
+    - If only one square is visible along the `PinRay` away from the King, mark that square as `AttackerSite` (apply C2–C4).
+  - Pawn capture rejected when C4 applies means the pawn is likely pinned. Freeze pawn moves outside the `PinRay`.
 
 #### Credits
 - Game Author: Henry Michael Temple
