@@ -508,17 +508,23 @@
     (set Score Next
         (+
             (count Sites in:(forEach (sites Occupied by:Next component:"Pawn")
-                if:(and
+                if:(or {
+                    (and {
+                        ("PawnCaptureDirectionAllowed" FR)
+                        ("CanPawnCapture" FR)
+                    })
+                    (and {
+                        ("PawnCaptureDirectionAllowed" FL)
+                        ("CanPawnCapture" FL)
+                    })
+                })))
+            (count Sites in:(forEach (sites Occupied by:Next component:"Pawn")
+                if:(and {
                     ("PawnCaptureDirectionAllowed" FR)
                     ("CanPawnCapture" FR)
-                ))
-            )
-            (count Sites in:(forEach (sites Occupied by:Next component:"Pawn")
-                if:(and
                     ("PawnCaptureDirectionAllowed" FL)
                     ("CanPawnCapture" FL)
-                ))
-            )
+                })))
         )
     )
 )
