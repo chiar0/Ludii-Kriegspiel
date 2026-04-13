@@ -437,9 +437,9 @@
 
 (define "CanPawnCapture"
     (and
-        (is Friend (who at:(ahead (value) #1)))
+        (is Friend (who at:(ahead (site) #1)))
         (can Move (do
-            (move (from:(value)) (to:(ahead (value) #1)) )
+            (move (from:(site)) (to:(ahead (site) #1)) )
             ifAfterwards:(not ("KingInCheck" (next) (mover)))
         ))
     )
@@ -448,8 +448,8 @@
 (define "PawnCaptureDirectionAllowed"
     (or {
         (= 0 (size Array (values Remembered "CheckSites")))
-        ("CheckSiteAt" (ahead (value) steps:1 #1))
-        ("TerminalCheckSiteAt" (ahead (value) steps:1 #1))
+        ("CheckSiteAt" (ahead (site) steps:1 #1))
+        ("TerminalCheckSiteAt" (ahead (site) steps:1 #1))
     })
 )
 
@@ -505,18 +505,19 @@
 )
 
 (define "CountTries"
-    (and
-        (set Score Next 0)
-        (forEach Value min:1 max:63
-            (if (= (what at:(value)) (next))
-                (and
-                    (if ("PawnCaptureDirectionAllowed" FR)
-                        (if ("CanPawnCapture" FR) (addScore Next 1))
-                    )
-                    (if ("PawnCaptureDirectionAllowed" FL)
-                        (if ("CanPawnCapture" FL) (addScore Next 1))
-                    )
-                )
+    (set Score Next
+        (+
+            (count Sites in:(forEach (sites Occupied by:Next component:"Pawn")
+                if:(and
+                    ("PawnCaptureDirectionAllowed" FR)
+                    ("CanPawnCapture" FR)
+                ))
+            )
+            (count Sites in:(forEach (sites Occupied by:Next component:"Pawn")
+                if:(and
+                    ("PawnCaptureDirectionAllowed" FL)
+                    ("CanPawnCapture" FL)
+                ))
             )
         )
     )
