@@ -59,7 +59,7 @@ This implementation pre-filters moves that fail feasibility checks, eliminating 
     - C1.1: Sliding trajectories stop exactly on `AttackerSite` and include that square.
     - C1.2: Pawns cannot advance onto `AttackerSite`.
   - C2: Check resolution.
-    - C2.1: Only king moves or replies to `CheckSites` are allowed; castling and en passant are excluded.
+    - C2.1: Only king moves or replies to `CheckSites` are allowed; allowed only when they are valid check replies.
     - C2.2: Under double check, only king moves are allowed.
     - C2.3: If check is triggered by capture and `AttackerSite` is more than 1 square from the king, the king cannot move toward it.
     - C2.4: Pawns cannot advance onto terminal `CheckSites`.
