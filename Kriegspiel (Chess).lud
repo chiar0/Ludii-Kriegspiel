@@ -1008,10 +1008,11 @@
         (or
             (= 0 (size Array (values Remembered "CheckSites")))
             (if (= (last To) (where "King" Mover)) 
-                (or
+                (or {
                     (not "ForbiddenKingStepTowardKnownChecker")
                     ("CheckReplyCastleAllowed")
-                )
+                    ("TerminalCheckSiteAt" (last To))
+                })
 
                 (and
                     (= 1 (size Array (values Remembered "CheckTypes")))
